@@ -1,6 +1,7 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext } from 'react'
 import type { ReactNode } from 'react'
 import type { FinancialItem, FinancialCategory } from '../types'
+import { usePlans } from './PlansContext'
 
 interface FinancialItemsContextType {
     items: FinancialItem[]
@@ -13,24 +14,44 @@ interface FinancialItemsContextType {
 const FinancialItemsContext = createContext<FinancialItemsContextType | undefined>(undefined)
 
 export function FinancialItemsProvider({ children }: { children: ReactNode }) {
-    const [items, setItems] = useState<FinancialItem[]>([])
+    const { activePlan, updatePlan, activePlanId } = usePlans()
+
+    // Use items from active plan
+    const items = activePlan?.financialItems || []
 
     const addItem = (item: Omit<FinancialItem, 'id'>) => {
+        if (!activePlanId || !activePlan) return
+
         const newItem: FinancialItem = {
             ...item,
             id: crypto.randomUUID(),
         }
-        setItems((prev) => [...prev, newItem])
+
+        updatePlan(activePlanId, {
+            financialItems: [...activePlan.financialItems, newItem]
+        })
     }
 
     const updateItem = (id: string, updates: Partial<FinancialItem>) => {
-        setItems((prev) =>
-            prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+        if (!activePlanId || !activePlan) return
+
+        const updatedItems = activePlan.financialItems.map(item =>
+            item.id === id ? { ...item, ...updates } : item
         )
+
+        updatePlan(activePlanId, {
+            financialItems: updatedItems
+        })
     }
 
     const deleteItem = (id: string) => {
-        setItems((prev) => prev.filter((item) => item.id !== id))
+        if (!activePlanId || !activePlan) return
+
+        const updatedItems = activePlan.financialItems.filter(item => item.id !== id)
+
+        updatePlan(activePlanId, {
+            financialItems: updatedItems
+        })
     }
 
     const getItemsByCategory = (category: FinancialCategory) => {

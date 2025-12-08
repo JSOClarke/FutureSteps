@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useFinancialItems } from '../context/FinancialItemsContext'
-import ReorderableList from './ReorderableList'
+import { useFinancialItems } from '../../context/FinancialItemsContext'
+import ReorderableList from '../ReorderableList'
 
 interface PriorityModalProps {
     isOpen: boolean

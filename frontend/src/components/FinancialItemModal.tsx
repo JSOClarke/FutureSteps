@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { FinancialCategory, FinancialItem, Frequency } from '../types'
-import CurrencyInput from './CurrencyInput'
+import type { FinancialItem, FinancialCategory, Frequency } from '../types'
+import CurrencyInput from './shared/CurrencyInput'
 
 interface FinancialItemModalProps {
     isOpen: boolean

@@ -6,9 +6,11 @@ import type { ProjectionResult } from '../utils/projections'
 export interface ProjectionConfig {
     startYear: number
     numberOfYears: number
+    surplusPriority?: string[]
+    deficitPriority?: string[]
 }
 
-export function useProjections() {
+export function useProjections(surplusPriority: string[] = [], deficitPriority: string[] = []) {
     const { items } = useFinancialItems()
 
     const [config, setConfig] = useState<ProjectionConfig>({
@@ -23,9 +25,11 @@ export function useProjections() {
         return engine.runMultiYearProjection(
             items,
             config.startYear,
-            config.numberOfYears
+            config.numberOfYears,
+            surplusPriority,
+            deficitPriority
         )
-    }, [items, config.startYear, config.numberOfYears])
+    }, [items, config.startYear, config.numberOfYears, surplusPriority, deficitPriority])
 
     return {
         projection,

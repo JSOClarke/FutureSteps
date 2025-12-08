@@ -21,9 +21,13 @@ export interface YearResult {
     liabilities: FinancialItem[]
     netWorth: number
     history: {
+        income: Array<{ id: string; name: string; amount: number }>
+        expenses: Array<{ id: string; name: string; amount: number }>
         growth: Array<{ assetId: string; growthAmount: number }>
         yield: Array<{ assetId: string; yieldAmount: number }>
         contributions: Array<{ assetId: string; amount: number }>
+        surplus: Array<{ assetId: string; amount: number }>
+        deficit: Array<{ assetId: string; amount: number }>
         liabilityPayments: Array<{
             liabilityId: string
             interestCharged: number
@@ -53,7 +57,9 @@ export class ProjectionEngine {
         assets: FinancialItem[],
         liabilities: FinancialItem[],
         year: number,
-        fractionOfYear: number = 1
+        fractionOfYear: number = 1,
+        surplusPriority: string[] = [],
+        deficitPriority: string[] = []
     ): YearResult {
         // 1. Calculate income and expenses for the year
         const incomeResult = calculateYearlyIncome(incomes, year, fractionOfYear)
@@ -76,16 +82,20 @@ export class ProjectionEngine {
 
         // 4. Handle surplus or deficit
         let updatedAssets = contributionResult.updatedAssets
+        let surplusHistory: Array<{ assetId: string; amount: number }> = []
+        let deficitHistory: Array<{ assetId: string; amount: number }> = []
 
         if (cashflow > 0) {
-            // Surplus: add to first asset
-            const surplusResult = allocateSurplus(cashflow, updatedAssets)
+            // Surplus: add to assets based on priority
+            const surplusResult = allocateSurplus(cashflow, updatedAssets, surplusPriority)
             updatedAssets = surplusResult.updatedAssets
+            surplusHistory = surplusResult.history
             cashflow = 0
         } else if (cashflow < 0) {
-            // Deficit: withdraw from assets
-            const deficitResult = coverDeficit(Math.abs(cashflow), updatedAssets)
+            // Deficit: withdraw from assets based on priority
+            const deficitResult = coverDeficit(Math.abs(cashflow), updatedAssets, deficitPriority)
             updatedAssets = deficitResult.updatedAssets
+            deficitHistory = deficitResult.history
             cashflow = -deficitResult.remainingDeficit
         }
 
@@ -108,9 +118,13 @@ export class ProjectionEngine {
             liabilities: liabilityResult.updatedLiabilities,
             netWorth,
             history: {
+                income: incomeResult.details,
+                expenses: expenseResult.details,
                 growth: growthResult.growthHistory,
                 yield: yieldResult.yieldHistory,
                 contributions: contributionResult.history,
+                surplus: surplusHistory,
+                deficit: deficitHistory,
                 liabilityPayments: liabilityResult.history,
             }
         }
@@ -122,7 +136,9 @@ export class ProjectionEngine {
     runMultiYearProjection(
         items: FinancialItem[],
         startYear: number,
-        numberOfYears: number
+        numberOfYears: number,
+        surplusPriority: string[] = [],
+        deficitPriority: string[] = []
     ): ProjectionResult {
         // Separate items by category
         const incomes = filterByCategory(items, 'income')
@@ -141,7 +157,10 @@ export class ProjectionEngine {
                 expenses,
                 currentAssets,
                 currentLiabilities,
-                year
+                year,
+                1,
+                surplusPriority,
+                deficitPriority
             )
 
             years.push(yearResult)

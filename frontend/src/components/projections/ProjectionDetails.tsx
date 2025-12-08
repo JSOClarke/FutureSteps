@@ -1,12 +1,14 @@
-import { useProjections } from '../hooks/useProjections'
-import CollapsibleSection from './CollapsibleSection'
+import { useProjections } from '../../hooks/useProjections'
+import { usePriority } from '../Dashboard'
+import { CollapsibleSection } from '../shared'
 
 interface ProjectionDetailsProps {
     selectedYear: number | null
 }
 
 function ProjectionDetails({ selectedYear }: ProjectionDetailsProps) {
-    const { projection, config } = useProjections()
+    const { surplusPriority, deficitPriority } = usePriority()
+    const { projection, config } = useProjections(surplusPriority, deficitPriority)
 
     if (!projection || projection.years.length === 0) {
         return (
@@ -35,10 +37,9 @@ function ProjectionDetails({ selectedYear }: ProjectionDetailsProps) {
 
     return (
         <div
-            className="w-[30%] border-2 flex flex-col bg-white overflow-y-auto"
+            className="w-[30%] border border-black flex flex-col bg-white overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             style={{
-                borderColor: '#E9D5FF',
-                minHeight: '70vh'
+                height: '70vh'
             }}
         >
             {/* Header */}
@@ -58,15 +59,18 @@ function ProjectionDetails({ selectedYear }: ProjectionDetailsProps) {
                         {yearData.totalIncome === 0 ? (
                             <p className="font-light text-gray-400">No income this year</p>
                         ) : (
-                            <div className="space-y-1">
-                                <div className="flex justify-between font-medium">
+                            <>
+                                {yearData.history.income.map(item => (
+                                    <div key={item.id} className="flex justify-between">
+                                        <span className="font-light truncate mr-2">{item.name}</span>
+                                        <span className="font-medium whitespace-nowrap text-green-600">{formatCurrency(item.amount)}</span>
+                                    </div>
+                                ))}
+                                <div className="flex justify-between pt-2 border-t font-semibold">
                                     <span>Total Income:</span>
                                     <span className="text-green-600">{formatCurrency(yearData.totalIncome)}</span>
                                 </div>
-                                <p className="text-xs text-gray-400 mt-2">
-                                    Note: Individual income items will be shown here once temporal fields are added
-                                </p>
-                            </div>
+                            </>
                         )}
                     </div>
                 </CollapsibleSection>
@@ -78,15 +82,73 @@ function ProjectionDetails({ selectedYear }: ProjectionDetailsProps) {
                         {yearData.totalExpenses === 0 ? (
                             <p className="font-light text-gray-400">No expenses this year</p>
                         ) : (
-                            <div className="space-y-1">
-                                <div className="flex justify-between font-medium">
+                            <>
+                                {yearData.history.expenses.map(item => (
+                                    <div key={item.id} className="flex justify-between">
+                                        <span className="font-light truncate mr-2">{item.name}</span>
+                                        <span className="font-medium whitespace-nowrap text-red-600">{formatCurrency(item.amount)}</span>
+                                    </div>
+                                ))}
+                                <div className="flex justify-between pt-2 border-t font-semibold">
                                     <span>Total Expenses:</span>
                                     <span className="text-red-600">{formatCurrency(yearData.totalExpenses)}</span>
                                 </div>
-                                <p className="text-xs text-gray-400 mt-2">
-                                    Note: Individual expense items will be shown here once temporal fields are added
-                                </p>
-                            </div>
+                            </>
+                        )}
+                    </div>
+                </CollapsibleSection>
+
+                {/* Cashflow Allocation (Surplus/Deficit) */}
+                <CollapsibleSection title="Cashflow Allocation">
+                    <div className="space-y-2">
+                        <p className="text-xs text-gray-500 mb-2">Surplus/Deficit handling for {yearData.year}</p>
+
+                        {yearData.history.surplus.length === 0 && yearData.history.deficit.length === 0 ? (
+                            <p className="font-light text-gray-400">No surplus or deficit this year</p>
+                        ) : (
+                            <>
+                                {/* Surplus Allocations */}
+                                {yearData.history.surplus.length > 0 && (
+                                    <div>
+                                        <p className="text-xs font-semibold text-gray-600 mb-1">Surplus Added To:</p>
+                                        {yearData.history.surplus.map(item => {
+                                            const asset = yearData.assets.find(a => a.id === item.assetId)
+                                            return (
+                                                <div key={item.assetId} className="flex justify-between text-sm">
+                                                    <span className="font-light">{asset?.name || 'Unknown'}</span>
+                                                    <span className="font-medium text-green-600">+{formatCurrency(item.amount)}</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* Deficit Withdrawals */}
+                                {yearData.history.deficit.length > 0 && (
+                                    <div className={yearData.history.surplus.length > 0 ? "pt-2 border-t" : ""}>
+                                        <p className="text-xs font-semibold text-gray-600 mb-1">Deficit Withdrawn From:</p>
+                                        {yearData.history.deficit.map(item => {
+                                            const asset = yearData.assets.find(a => a.id === item.assetId)
+                                            return (
+                                                <div key={item.assetId} className="flex justify-between text-sm">
+                                                    <span className="font-light">{asset?.name || 'Unknown'}</span>
+                                                    <span className="font-medium text-red-600">-{formatCurrency(item.amount)}</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* Net Cashflow Summary */}
+                                <div className="pt-2 border-t font-semibold">
+                                    <div className="flex justify-between">
+                                        <span>Net Cashflow:</span>
+                                        <span className={yearData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                            {formatCurrency(yearData.netCashflow)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </>
                         )}
                     </div>
                 </CollapsibleSection>

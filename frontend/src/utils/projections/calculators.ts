@@ -248,11 +248,12 @@ export function applyAssetContributions(
 }
 
 /**
- * Allocate surplus cashflow to assets (first asset gets it all for simplicity)
+ * Allocate surplus cashflow to assets based on priority order
  */
 export function allocateSurplus(
     surplus: number,
-    assets: FinancialItem[]
+    assets: FinancialItem[],
+    surplusPriority: string[] = []
 ): {
     updatedAssets: FinancialItem[]
     history: Array<{ assetId: string; amount: number }>
@@ -261,14 +262,28 @@ export function allocateSurplus(
     const history: Array<{ assetId: string; amount: number }> = []
 
     if (surplus > 0 && updatedAssets.length > 0) {
-        // Allocate to first asset (can be improved with priority system later)
-        updatedAssets[0] = {
-            ...updatedAssets[0],
-            value: updatedAssets[0].value + surplus
+        // If priority is specified, use it; otherwise use first asset
+        let targetAssetIndex = 0
+
+        if (surplusPriority.length > 0) {
+            // Find the first asset in the priority list that exists
+            for (const assetId of surplusPriority) {
+                const index = updatedAssets.findIndex(a => a.id === assetId)
+                if (index !== -1) {
+                    targetAssetIndex = index
+                    break
+                }
+            }
+        }
+
+        // Allocate to target asset
+        updatedAssets[targetAssetIndex] = {
+            ...updatedAssets[targetAssetIndex],
+            value: updatedAssets[targetAssetIndex].value + surplus
         }
 
         history.push({
-            assetId: updatedAssets[0].id,
+            assetId: updatedAssets[targetAssetIndex].id,
             amount: surplus
         })
     }
@@ -277,11 +292,12 @@ export function allocateSurplus(
 }
 
 /**
- * Cover deficit by withdrawing from assets
+ * Cover deficit by withdrawing from assets based on priority order
  */
 export function coverDeficit(
     deficit: number,
-    assets: FinancialItem[]
+    assets: FinancialItem[],
+    deficitPriority: string[] = []
 ): {
     updatedAssets: FinancialItem[]
     remainingDeficit: number
@@ -291,7 +307,27 @@ export function coverDeficit(
     const history: Array<{ assetId: string; amount: number }> = []
     let remaining = deficit
 
-    for (const asset of assets) {
+    // If priority is specified, use it to determine withdrawal order
+    let assetOrder = assets
+    if (deficitPriority.length > 0) {
+        // Create a map for quick lookup
+        const assetsMap = new Map(assets.map(a => [a.id, a]))
+
+        // First, add assets in priority order
+        const prioritizedAssets: FinancialItem[] = []
+        for (const assetId of deficitPriority) {
+            const asset = assetsMap.get(assetId)
+            if (asset) {
+                prioritizedAssets.push(asset)
+                assetsMap.delete(assetId)
+            }
+        }
+
+        // Then add any remaining assets not in priority list
+        assetOrder = [...prioritizedAssets, ...Array.from(assetsMap.values())]
+    }
+
+    for (const asset of assetOrder) {
         if (remaining <= 0) {
             updatedAssets.push(asset)
             continue

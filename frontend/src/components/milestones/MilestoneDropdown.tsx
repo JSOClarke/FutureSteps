@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import MilestoneModal from './MilestoneModal'
 import type { Milestone } from './types'
+import { formatCurrency } from '../../utils/formatters'
+import { Pencil, Trash2 } from 'lucide-react'
 
 
 interface MilestoneDropdownProps {
@@ -90,23 +92,25 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
                                                     {milestone.name}
                                                 </div>
                                                 <div className="text-sm text-gray-600">
-                                                    ${milestone.value.toLocaleString()}
+                                                    {milestone.type === 'year'
+                                                        ? milestone.value
+                                                        : formatCurrency(milestone.value)}
                                                 </div>
                                             </div>
                                             <div className="flex gap-1 ml-2">
                                                 <button
                                                     onClick={() => handleEdit(milestone)}
-                                                    className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 transition-colors"
+                                                    className="px-2 py-1 text-black hover:text-gray-600 transition-colors"
                                                     title="Edit milestone"
                                                 >
-                                                    ✏️
+                                                    <Pencil size={14} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(milestone.id)}
-                                                    className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 transition-colors"
+                                                    className="px-2 py-1 text-black hover:text-gray-600 transition-colors"
                                                     title="Delete milestone"
                                                 >
-                                                    🗑️
+                                                    <Trash2 size={14} />
                                                 </button>
                                             </div>
                                         </div>
@@ -133,7 +137,7 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
                     setModalOpen(false)
                     setEditingMilestone(null)
                 }}
-                initialMilestone={editingMilestone ? { name: editingMilestone.name, value: editingMilestone.value } : null}
+                initialMilestone={editingMilestone}
                 onSave={handleSave}
             />
         </>

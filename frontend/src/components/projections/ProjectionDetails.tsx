@@ -1,6 +1,7 @@
 import { useProjections } from '../../hooks/useProjections'
 import { usePriority } from '../Dashboard'
 import { CollapsibleSection } from '../shared'
+import { formatCurrency } from '../../utils/formatters'
 
 interface ProjectionDetailsProps {
     selectedYear: number | null
@@ -34,7 +35,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
 
     if (!yearData) return null
 
-    const formatCurrency = (value: number) => `$${value.toLocaleString()}`
+
 
     return (
         <div
@@ -69,7 +70,10 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
             {/* Collapsible Sections */}
             <div>
                 {/* Income Details */}
-                <CollapsibleSection title="Income Details">
+                <CollapsibleSection
+                    title="Income Details"
+                    rightContent={<span className="text-green-600 font-light">{formatCurrency(yearData.totalIncome)}</span>}
+                >
                     <div className="space-y-2">
                         <p className="text-xs text-gray-500 mb-2">Active income sources for {yearData.year}</p>
                         {yearData.totalIncome === 0 ? (
@@ -92,7 +96,10 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                 </CollapsibleSection>
 
                 {/* Expense Details */}
-                <CollapsibleSection title="Expense Details">
+                <CollapsibleSection
+                    title="Expense Details"
+                    rightContent={<span className="text-red-600 font-light">{formatCurrency(yearData.totalExpenses)}</span>}
+                >
                     <div className="space-y-2">
                         <p className="text-xs text-gray-500 mb-2">Active expenses for {yearData.year}</p>
                         {yearData.totalExpenses === 0 ? (
@@ -115,7 +122,14 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                 </CollapsibleSection>
 
                 {/* Cashflow Allocation (Surplus/Deficit) */}
-                <CollapsibleSection title="Cashflow Allocation">
+                <CollapsibleSection
+                    title="Cashflow Allocation"
+                    rightContent={
+                        <span className={`font-light ${yearData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {formatCurrency(yearData.netCashflow)}
+                        </span>
+                    }
+                >
                     <div className="space-y-2">
                         <p className="text-xs text-gray-500 mb-2">Surplus/Deficit handling for {yearData.year}</p>
 
@@ -170,7 +184,18 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                 </CollapsibleSection>
 
                 {/* Investment Growth */}
-                <CollapsibleSection title="Investment Growth">
+                <CollapsibleSection
+                    title="Investment Growth"
+                    rightContent={
+                        <span className="text-green-600 font-light">
+                            +{formatCurrency(
+                                yearData.history.growth.reduce((sum, g) => sum + g.growthAmount, 0) +
+                                yearData.history.yield.reduce((sum, y) => sum + y.yieldAmount, 0) +
+                                yearData.history.contributions.reduce((sum, c) => sum + c.amount, 0)
+                            )}
+                        </span>
+                    }
+                >
                     <div className="space-y-3">
                         {yearData.history.growth.length === 0 &&
                             yearData.history.yield.length === 0 &&
@@ -245,7 +270,14 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                 </CollapsibleSection>
 
                 {/* Assets */}
-                <CollapsibleSection title="Assets">
+                <CollapsibleSection
+                    title="Assets"
+                    rightContent={
+                        <span className="font-light">
+                            {formatCurrency(yearData.assets.reduce((sum, a) => sum + a.value, 0))}
+                        </span>
+                    }
+                >
                     <div className="space-y-2">
                         {yearData.assets.length === 0 ? (
                             <p className="font-light text-gray-400">No assets</p>
@@ -267,7 +299,14 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                 </CollapsibleSection>
 
                 {/* Liabilities */}
-                <CollapsibleSection title="Liabilities">
+                <CollapsibleSection
+                    title="Liabilities"
+                    rightContent={
+                        <span className="text-red-600 font-light">
+                            {formatCurrency(yearData.liabilities.reduce((sum, l) => sum + l.value, 0))}
+                        </span>
+                    }
+                >
                     <div className="space-y-2">
                         {yearData.liabilities.length === 0 ? (
                             <p className="font-light text-gray-400">No liabilities</p>

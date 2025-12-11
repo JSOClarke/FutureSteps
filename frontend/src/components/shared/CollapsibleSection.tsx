@@ -4,9 +4,10 @@ interface CollapsibleSectionProps {
     title: string
     children: React.ReactNode
     defaultExpanded?: boolean
+    rightContent?: React.ReactNode
 }
 
-function CollapsibleSection({ title, children, defaultExpanded = false }: CollapsibleSectionProps) {
+function CollapsibleSection({ title, children, defaultExpanded = false, rightContent }: CollapsibleSectionProps) {
     const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
     return (
@@ -15,7 +16,14 @@ function CollapsibleSection({ title, children, defaultExpanded = false }: Collap
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
             >
-                <h3 className="font-semibold text-gray-700">{title}</h3>
+                <div className="flex items-center gap-2 flex-1">
+                    <h3 className="font-semibold text-gray-700">{title}</h3>
+                    {!isExpanded && rightContent && (
+                        <div className="ml-auto mr-2">
+                            {rightContent}
+                        </div>
+                    )}
+                </div>
                 <span className="text-gray-500">
                     {isExpanded ? '▼' : '▶'}
                 </span>

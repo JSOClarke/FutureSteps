@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import type { FinancialItem, FinancialCategory, Frequency } from '../types'
 import CurrencyInput from './shared/CurrencyInput'
+import YearSelect from './shared/YearSelect'
 import { useSettings } from '../context/SettingsContext'
+import { usePlans } from '../context/PlansContext'
+import { useUser } from '../context/UserContext'
+import { calculateDeathDate } from '../data/lifeExpectancyData'
 
 interface FinancialItemModalProps {
     isOpen: boolean
@@ -20,6 +24,15 @@ function FinancialItemModal({
 }: FinancialItemModalProps) {
     const currentYear = new Date().getFullYear()
     const { defaultEndYear } = useSettings()
+    const { activePlan } = usePlans()
+    const { userProfile } = useUser()
+
+    // Calculate max year based on death date
+    const maxYear = userProfile?.customDeathDate
+        ? new Date(userProfile.customDeathDate).getFullYear()
+        : (userProfile
+            ? new Date(calculateDeathDate(userProfile.dateOfBirth, userProfile.country)).getFullYear()
+            : currentYear + 50)
 
     // Basic fields
     const [name, setName] = useState('')
@@ -181,16 +194,13 @@ function FinancialItemModal({
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-center mb-4">
+                <div className="mb-6 border-b border-gray-200 pb-4">
                     <h2 className="text-2xl font-bold text-gray-800 capitalize">
-                        {initialData ? 'Edit' : 'Add'} {category}
+                        {initialData ? 'Edit' : 'Add'} {category === 'liabilities' ? 'Liability' : category.slice(0, -1)} Item
                     </h2>
-                    <button
-                        onClick={handleClose}
-                        className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
-                    >
-                        ×
-                    </button>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {initialData ? 'Update the details of this item.' : `Add a new item to your ${category}.`}
+                    </p>
                 </div>
 
                 <form onSubmit={handleSubmit}>
@@ -249,41 +259,33 @@ function FinancialItemModal({
                         {/* Temporal fields - for income/expenses */}
                         {(category === 'income' || category === 'expenses') && (
                             <>
-                                <div>
-                                    <label htmlFor="startYear" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Start Year
-                                    </label>
-                                    <input
-                                        type="number"
-                                        id="startYear"
-                                        value={startYear}
-                                        onChange={(e) => setStartYear(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder={currentYear.toString()}
-                                        min="1900"
-                                        max="2100"
-                                    />
-                                    {errors.startYear && <p className="text-red-500 text-sm mt-1">{errors.startYear}</p>}
-                                </div>
+                                <YearSelect
+                                    id="startYear"
+                                    label="Start Year"
+                                    value={startYear}
+                                    onChange={setStartYear}
+                                    milestones={activePlan?.milestones || []}
+                                    minYear={currentYear}
+                                    maxYear={maxYear}
+                                    error={errors.startYear}
+                                />
 
-                                <div>
-                                    <label htmlFor="endYear" className="block text-sm font-medium text-gray-700 mb-2">
-                                        End Year (optional)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        id="endYear"
-                                        value={endYear}
-                                        onChange={(e) => setEndYear(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Leave empty for ongoing"
-                                        min="1900"
-                                        max="2100"
-                                    />
-                                    {errors.endYear && <p className="text-red-500 text-sm mt-1">{errors.endYear}</p>}
-                                </div>
+                                <YearSelect
+                                    id="endYear"
+                                    label="End Year (optional)"
+                                    value={endYear}
+                                    onChange={setEndYear}
+                                    milestones={activePlan?.milestones || []}
+                                    minYear={currentYear}
+                                    maxYear={maxYear}
+                                    placeholder="Leave empty for ongoing"
+                                    error={errors.endYear}
+                                />
                             </>
                         )}
+
+                        {/* ... (rest of form) */}
+
 
                         {/* Asset-specific fields */}
                         {category === 'assets' && (

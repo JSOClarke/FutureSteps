@@ -11,6 +11,7 @@ import {
     ResponsiveContainer,
     ReferenceLine
 } from 'recharts'
+import { formatCurrency } from '../../utils/formatters'
 
 interface GraphVisualizationProps {
     selectedYear: number | null
@@ -56,15 +57,22 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
     }))
 
     // Find first year where each milestone is reached
-    const milestoneYears = milestones.map(m => ({
-        milestone: m,
-        year: projection.years.find(y => y.netWorth >= m.value)?.year
-    })).filter(m => m.year !== undefined)
+    const milestoneYears = milestones.map(m => {
+        if (m.type === 'year') {
+            return {
+                milestone: m,
+                year: m.value
+            }
+        }
+        // Default to net_worth
+        return {
+            milestone: m,
+            year: projection.years.find(y => y.netWorth >= m.value)?.year
+        }
+    }).filter(m => m.year !== undefined)
 
     // Format currency for tooltip
-    const formatCurrency = (value: number) => {
-        return `$${value.toLocaleString()} `
-    }
+
 
     // Handle bar click - Recharts Bar onClick passes data payload
     const handleBarClick = (data: any, index: number) => {
@@ -75,6 +83,44 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
             // Fallback: use index to get year from chartData
             onYearSelect(chartData[index].year)
         }
+    }
+
+    // Custom Tooltip Component
+    const CustomTooltip = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            const year = label
+            const yearMilestones = milestoneYears.filter(m => m.year === year)
+
+            return (
+                <div className="bg-white border border-gray-200 p-3 rounded shadow-lg outline-none">
+                    <p className="font-semibold mb-2">{year}</p>
+                    {payload.map((entry: any) => (
+                        <p key={entry.name} style={{ color: entry.color }} className="text-sm">
+                            {entry.name}: {formatCurrency(entry.value)}
+                        </p>
+                    ))}
+                    {yearMilestones.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                            <p className="text-xs font-semibold text-gray-500 mb-1">Milestones:</p>
+                            {yearMilestones.map(m => (
+                                <div key={m.milestone.id} className="flex items-center gap-2 mb-1">
+                                    <div
+                                        className="w-2 h-2 rounded-full"
+                                        style={{ backgroundColor: m.milestone.color || '#22C55E' }}
+                                    />
+                                    <p className="text-sm">
+                                        {m.milestone.name}: {m.milestone.type === 'year'
+                                            ? m.milestone.value
+                                            : formatCurrency(m.milestone.value)}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )
+        }
+        return null
     }
 
     return (
@@ -135,14 +181,7 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                         }}
                         stroke="#6B7280"
                     />
-                    <Tooltip
-                        formatter={formatCurrency}
-                        contentStyle={{
-                            backgroundColor: 'white',
-                            border: '1px solid #E5E7EB',
-                            borderRadius: '4px'
-                        }}
-                    />
+                    <Tooltip content={<CustomTooltip />} />
 
                     <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
                     <Bar
@@ -173,11 +212,15 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                                                 y={y - 25 - (index * 18)}
                                                 width={12}
                                                 height={12}
-                                                fill="#22C55E"
-                                                stroke="#16A34A"
+                                                fill={m.milestone.color || "#22C55E"}
+                                                stroke={m.milestone.color ? undefined : "#16A34A"}
                                                 strokeWidth={1}
                                             />
-                                            <title>{m.milestone.name}: ${m.milestone.value.toLocaleString()}</title>
+                                            <title>
+                                                {m.milestone.name}: {m.milestone.type === 'year'
+                                                    ? m.milestone.value
+                                                    : formatCurrency(m.milestone.value)}
+                                            </title>
                                         </g>
                                     ))}
                                 </>

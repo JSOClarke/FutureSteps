@@ -2,6 +2,8 @@ import { useState } from 'react'
 import type { FinancialItem, FinancialCategory } from '../../types'
 import { useFinancialItems } from '../../context/FinancialItemsContext'
 import FinancialItemModal from '../FinancialItemModal'
+import { formatCurrency } from '../../utils/formatters'
+import { FinancialItemCard } from './FinancialItemCard'
 
 interface FinancialCategoryCardProps {
     title: string
@@ -77,61 +79,15 @@ function FinancialCategoryCard({
                     {items.length === 0 ? (
                         <p className="text-gray-500 font-light text-center py-8">No items yet. Click "Add New" to create one.</p>
                     ) : (
-                        items.map((item) => {
-                            // Build info text for temporal and rate data
-                            const infoItems: string[] = []
-
-                            // Add temporal information
-                            if (item.startYear || item.endYear) {
-                                const start = item.startYear || '—'
-                                const end = item.endYear || '—'
-                                infoItems.push(`${start} - ${end}`)
-                            }
-
-                            // Add rate information based on category
-                            if (item.growthRate !== undefined && item.growthRate !== 0) {
-                                infoItems.push(`Growth: ${(item.growthRate * 100).toFixed(1)}%`)
-                            }
-                            if (item.yieldRate !== undefined && item.yieldRate !== 0) {
-                                infoItems.push(`Yield: ${(item.yieldRate * 100).toFixed(1)}%`)
-                            }
-                            if (item.interestRate !== undefined && item.interestRate !== 0) {
-                                infoItems.push(`Interest: ${(item.interestRate * 100).toFixed(1)}%`)
-                            }
-
-                            return (
-                                <div
-                                    key={item.id}
-                                    className="p-3 flex justify-between items-center hover:opacity-90 transition-all cursor-pointer shadow-sm"
-                                    style={{ backgroundColor: itemColor }}
-                                    onClick={() => handleEdit(item)}
-                                >
-                                    <div className="flex flex-col">
-                                        <span className="font-normal text-black">{item.name}</span>
-                                        {infoItems.length > 0 && (
-                                            <span className="text-xs text-black text-opacity-60 mt-1">
-                                                {infoItems.join(' • ')}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className="font-semibold text-black">
-                                            ${item.value.toLocaleString()}
-                                        </span>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleDelete(item.id)
-                                            }}
-                                            className="text-red-500 hover:text-red-700 font-bold text-xl"
-                                            title="Delete"
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
-                                </div>
-                            )
-                        })
+                        items.map((item) => (
+                            <FinancialItemCard
+                                key={item.id}
+                                item={item}
+                                onEdit={() => handleEdit(item)}
+                                onDelete={handleDelete}
+                                itemColor={itemColor}
+                            />
+                        ))
                     )}
                 </div>
 
@@ -142,7 +98,7 @@ function FinancialCategoryCard({
                             <div className="flex justify-between items-center">
                                 <span className="font-bold text-black text-lg">Total:</span>
                                 <span className="font-bold text-black text-xl">
-                                    ${total.toLocaleString()}
+                                    {formatCurrency(total)}
                                 </span>
                             </div>
                         </div>

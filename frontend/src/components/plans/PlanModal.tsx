@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { usePlans } from '../../context/PlansContext'
+import { Pencil, Trash2 } from 'lucide-react'
 
 interface PlanModalProps {
     isOpen: boolean
@@ -210,9 +211,9 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                                             )}
                                             <button
                                                 onClick={() => startEditing(plan.id, plan.name)}
-                                                className="px-3 py-1 bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium"
+                                                className="px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide flex items-center gap-2"
                                             >
-                                                ✏️ Rename
+                                                <Pencil size={14} /> Rename
                                             </button>
                                             {showConfirmDelete === plan.id ? (
                                                 <div className="flex gap-1">
@@ -232,10 +233,10 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                                             ) : (
                                                 <button
                                                     onClick={() => setShowConfirmDelete(plan.id)}
-                                                    className="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 text-sm font-medium"
+                                                    className="px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide flex items-center gap-2"
                                                     disabled={plans.length === 1}
                                                 >
-                                                    🗑️ Delete
+                                                    <Trash2 size={14} /> Delete
                                                 </button>
                                             )}
                                         </div>

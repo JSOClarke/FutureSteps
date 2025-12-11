@@ -15,7 +15,7 @@
   --color-gray-100: #F3F4F6;
   --color-gray-600: #4B5563;
   --color-gray-800: #1F2937;
-  
+
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -25,28 +25,22 @@ body {
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
-  font-weight: 300; /* Light by default - PrepToPlate standard */
+  font-weight: 300;
+  /* Light by default - PrepToPlate standard */
   color: var(--color-black);
   background-color: var(--color-white);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 400; /* Regular for headings */
-  letter-spacing: -0.02em; /* Tight letter spacing */
-  color: var(--color-black);
-}
-
-/* Remove all border-radius globally - Sharp corners everywhere */
-*,
-*::before,
-*::after {
-  border-radius: 0 !important;
-}
-
-/* Navigation Link Style (PrepToPlate standard) */
-.nav-link {
-  color: var(--color-black);
-  font-weight: 300;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 400;
+  /* Regular for headings */
+  letter-spacing: -0.02em;
+  /* Tight letter spacing */
   font-size: 14px;
   text-decoration: none;
   text-transform: uppercase;

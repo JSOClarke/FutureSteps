@@ -10,6 +10,7 @@ interface NavbarProps {
     onDeficitPriorityChange: (priority: string[]) => void
     milestones: Milestone[]
     onMilestonesChange: (milestones: Milestone[]) => void
+    onSettingsClick: () => void
 }
 
 function Navbar({
@@ -18,7 +19,8 @@ function Navbar({
     onSurplusPriorityChange,
     onDeficitPriorityChange,
     milestones,
-    onMilestonesChange
+    onMilestonesChange,
+    onSettingsClick
 }: NavbarProps) {
     const [surplusModalOpen, setSurplusModalOpen] = useState(false)
     const [deficitModalOpen, setDeficitModalOpen] = useState(false)
@@ -49,11 +51,7 @@ function Navbar({
                     minHeight: '80px'
                 }}
             >
-                <div className="flex items-center justify-between h-full">
-                    <h1 className="text-2xl font-bold text-gray-800">
-                        Finance Projection Calculator
-                    </h1>
-
+                <div className="flex items-center justify-center h-full">
                     <div className="flex items-center gap-3">
                         <PlanSwitcher />
 
@@ -77,6 +75,13 @@ function Navbar({
                             title="Configure how deficits are covered"
                         >
                             ⬇ Deficit Priority
+                        </button>
+                        <button
+                            onClick={onSettingsClick}
+                            className="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 hover:bg-gray-200 text-sm font-medium transition-colors"
+                            title="Open settings"
+                        >
+                            ⚙ Settings
                         </button>
                     </div>
                 </div>

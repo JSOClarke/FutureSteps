@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { FinancialItem, FinancialCategory, Frequency } from '../types'
 import CurrencyInput from './shared/CurrencyInput'
+import { useSettings } from '../context/SettingsContext'
 
 interface FinancialItemModalProps {
     isOpen: boolean
@@ -18,6 +19,7 @@ function FinancialItemModal({
     category,
 }: FinancialItemModalProps) {
     const currentYear = new Date().getFullYear()
+    const { defaultEndYear } = useSettings()
 
     // Basic fields
     const [name, setName] = useState('')
@@ -45,7 +47,14 @@ function FinancialItemModal({
             setName(initialData?.name || '')
             setValue(initialData?.value?.toString() || '')
             setStartYear(initialData?.startYear?.toString() || currentYear.toString())
-            setEndYear(initialData?.endYear?.toString() || '')
+
+            // Use default end year from settings for new items (income/expenses only)
+            if (!initialData && (category === 'income' || category === 'expenses') && defaultEndYear > 0) {
+                setEndYear(defaultEndYear.toString())
+            } else {
+                setEndYear(initialData?.endYear?.toString() || '')
+            }
+
             setFrequency(initialData?.frequency || 'annual')
             setGrowthRate(initialData?.growthRate ? (initialData.growthRate * 100).toString() : '')
             setYieldRate(initialData?.yieldRate ? (initialData.yieldRate * 100).toString() : '')
@@ -54,7 +63,7 @@ function FinancialItemModal({
             setMinimumPayment(initialData?.minimumPayment?.toString() || '')
             setErrors({})
         }
-    }, [isOpen, initialData, currentYear])
+    }, [isOpen, initialData, currentYear, category, defaultEndYear])
 
     const validate = () => {
         const newErrors: Record<string, string> = {}

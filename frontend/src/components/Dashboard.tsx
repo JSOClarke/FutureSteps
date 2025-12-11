@@ -3,6 +3,7 @@ import { usePlans } from '../context/PlansContext'
 import { Navbar } from './shared'
 import { GraphVisualization, ProjectionDetails } from './projections'
 import { FinancialCategoryCard } from './financial'
+import Settings from './Settings'
 
 // Create context for priority orders
 interface PriorityContextType {
@@ -17,8 +18,11 @@ const PriorityContext = createContext<PriorityContextType>({
 
 export const usePriority = () => useContext(PriorityContext)
 
+type View = 'dashboard' | 'settings'
+
 function Dashboard() {
     const [selectedYear, setSelectedYear] = useState<number | null>(null)
+    const [currentView, setCurrentView] = useState<View>('dashboard')
     const { activePlan, updatePlan, activePlanId } = usePlans()
 
     const surplusPriority = activePlan?.surplusPriority || []
@@ -46,53 +50,63 @@ function Dashboard() {
     return (
         <PriorityContext.Provider value={{ surplusPriority, deficitPriority }}>
             <div className="w-full space-y-4">
-                {/* Navbar */}
-                <Navbar
-                    surplusPriority={surplusPriority}
-                    deficitPriority={deficitPriority}
-                    onSurplusPriorityChange={handleSurplusPriorityChange}
-                    onDeficitPriorityChange={handleDeficitPriorityChange}
-                    milestones={milestones}
-                    onMilestonesChange={handleMilestonesChange}
-                />
-
-                {/* Top Section: Graph and Projection Details */}
-                <div className="flex gap-4">
-                    <GraphVisualization
-                        selectedYear={selectedYear}
-                        onYearSelect={setSelectedYear}
+                {/* Navbar - always shown */}
+                {currentView === 'dashboard' && (
+                    <Navbar
+                        surplusPriority={surplusPriority}
+                        deficitPriority={deficitPriority}
+                        onSurplusPriorityChange={handleSurplusPriorityChange}
+                        onDeficitPriorityChange={handleDeficitPriorityChange}
                         milestones={milestones}
+                        onMilestonesChange={handleMilestonesChange}
+                        onSettingsClick={() => setCurrentView('settings')}
                     />
-                    <ProjectionDetails selectedYear={selectedYear} />
-                </div>
+                )}
 
-                {/* Bottom Section: Financial Categories */}
-                <div className="flex gap-4">
-                    <FinancialCategoryCard
-                        title="Income"
-                        category="income"
-                        backgroundColor="#D4F4DD"
-                        itemColor="#A8E6C1"
-                    />
-                    <FinancialCategoryCard
-                        title="Expenses"
-                        category="expenses"
-                        backgroundColor="#FFDCE0"
-                        itemColor="#FFC4CB"
-                    />
-                    <FinancialCategoryCard
-                        title="Assets"
-                        category="assets"
-                        backgroundColor="#FFF3CD"
-                        itemColor="#FFE89A"
-                    />
-                    <FinancialCategoryCard
-                        title="Liabilities"
-                        category="liabilities"
-                        backgroundColor="#FFE5D9"
-                        itemColor="#FFD4B8"
-                    />
-                </div>
+                {/* Conditional view rendering */}
+                {currentView === 'settings' ? (
+                    <Settings onBack={() => setCurrentView('dashboard')} />
+                ) : (
+                    <>
+                        {/* Top Section: Graph and Projection Details */}
+                        <div className="flex gap-4">
+                            <GraphVisualization
+                                selectedYear={selectedYear}
+                                onYearSelect={setSelectedYear}
+                                milestones={milestones}
+                            />
+                            <ProjectionDetails selectedYear={selectedYear} />
+                        </div>
+
+                        {/* Bottom Section: Financial Categories */}
+                        <div className="flex gap-4">
+                            <FinancialCategoryCard
+                                title="Income"
+                                category="income"
+                                backgroundColor="#D4F4DD"
+                                itemColor="#A8E6C1"
+                            />
+                            <FinancialCategoryCard
+                                title="Expenses"
+                                category="expenses"
+                                backgroundColor="#FFDCE0"
+                                itemColor="#FFC4CB"
+                            />
+                            <FinancialCategoryCard
+                                title="Assets"
+                                category="assets"
+                                backgroundColor="#FFF3CD"
+                                itemColor="#FFE89A"
+                            />
+                            <FinancialCategoryCard
+                                title="Liabilities"
+                                category="liabilities"
+                                backgroundColor="#FFE5D9"
+                                itemColor="#FFD4B8"
+                            />
+                        </div>
+                    </>
+                )}
             </div>
         </PriorityContext.Provider>
     )

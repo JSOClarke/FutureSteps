@@ -75,7 +75,10 @@ function Dashboard() {
                                 onYearSelect={setSelectedYear}
                                 milestones={milestones}
                             />
-                            <ProjectionDetails selectedYear={selectedYear} />
+                            <ProjectionDetails
+                                selectedYear={selectedYear}
+                                onYearChange={setSelectedYear}
+                            />
                         </div>
 
                         {/* Bottom Section: Financial Categories */}

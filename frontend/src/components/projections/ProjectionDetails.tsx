@@ -4,9 +4,10 @@ import { CollapsibleSection } from '../shared'
 
 interface ProjectionDetailsProps {
     selectedYear: number | null
+    onYearChange?: (year: number) => void
 }
 
-function ProjectionDetails({ selectedYear }: ProjectionDetailsProps) {
+function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProps) {
     const { surplusPriority, deficitPriority } = usePriority()
     const { projection, config } = useProjections(surplusPriority, deficitPriority)
 
@@ -44,10 +45,25 @@ function ProjectionDetails({ selectedYear }: ProjectionDetailsProps) {
         >
             {/* Header */}
             <div className="p-6 pb-4 border-b">
-                <h2 className="text-xl font-bold text-gray-800 mb-1">Year {yearData.year}</h2>
-                <p className="text-xs text-gray-500">
-                    {selectedYear ? 'Click other bars to see different years' : 'Click on the graph to select a year'}
-                </p>
+                <div className="flex items-center gap-4 mb-2">
+                    <label className="text-sm font-normal text-gray-600 uppercase tracking-wide">Year:</label>
+                    <input
+                        type="number"
+                        value={yearData.year}
+                        onChange={(e) => onYearChange?.(parseInt(e.target.value))}
+                        min={projection.years[0]?.year || config.startYear}
+                        max={projection.years[projection.years.length - 1]?.year || config.startYear + config.numberOfYears - 1}
+                        className="flex-1 px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light text-center"
+                    />
+                </div>
+                <input
+                    type="range"
+                    value={yearData.year}
+                    onChange={(e) => onYearChange?.(parseInt(e.target.value))}
+                    min={projection.years[0]?.year || config.startYear}
+                    max={projection.years[projection.years.length - 1]?.year || config.startYear + config.numberOfYears - 1}
+                    className="w-full"
+                />
             </div>
 
             {/* Collapsible Sections */}
@@ -61,7 +77,7 @@ function ProjectionDetails({ selectedYear }: ProjectionDetailsProps) {
                         ) : (
                             <>
                                 {yearData.history.income.map(item => (
-                                    <div key={item.id} className="flex justify-between">
+                                    <div key={item.id} className="flex justify-between hover:bg-gray-50 transition-colors px-2 py-1 -mx-2">
                                         <span className="font-light truncate mr-2">{item.name}</span>
                                         <span className="font-medium whitespace-nowrap text-green-600">{formatCurrency(item.amount)}</span>
                                     </div>
@@ -84,7 +100,7 @@ function ProjectionDetails({ selectedYear }: ProjectionDetailsProps) {
                         ) : (
                             <>
                                 {yearData.history.expenses.map(item => (
-                                    <div key={item.id} className="flex justify-between">
+                                    <div key={item.id} className="flex justify-between hover:bg-gray-50 transition-colors px-2 py-1 -mx-2">
                                         <span className="font-light truncate mr-2">{item.name}</span>
                                         <span className="font-medium whitespace-nowrap text-red-600">{formatCurrency(item.amount)}</span>
                                     </div>
@@ -278,14 +294,14 @@ function ProjectionDetails({ selectedYear }: ProjectionDetailsProps) {
             </div>
 
             {/* Net Worth - Always Visible at Bottom */}
-            <div className="mt-auto p-6 bg-blue-50 border-t border-blue-200">
+            <div className="mt-auto p-6 bg-gray-50 border-t border-black">
                 <div className="flex justify-between items-center">
-                    <span className="font-bold text-gray-800">Net Worth:</span>
-                    <span className={`text-xl font-bold ${yearData.netWorth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className="font-normal text-black uppercase tracking-wide text-sm">Net Worth:</span>
+                    <span className={`text-xl font-normal ${yearData.netWorth >= 0 ? 'text-black' : 'text-black'}`}>
                         {formatCurrency(yearData.netWorth)}
                     </span>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-500 mt-2 font-light">
                     Projection: {config.startYear} - {config.startYear + config.numberOfYears - 1}
                 </p>
             </div>

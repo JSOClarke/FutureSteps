@@ -84,21 +84,21 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
 
                 {/* Export/Import Section */}
                 <div className="mb-6 p-4 bg-white border border-black">
-                    <h3 className="font-semibold text-gray-800 mb-3">📥 Backup & Restore</h3>
+                    <h3 className="font-normal text-black mb-3 text-sm uppercase tracking-wide">Backup & Restore</h3>
                     <div className="flex gap-2">
                         <button
                             onClick={exportPlans}
-                            className="flex-1 px-4 py-2 bg-green-600 text-white hover:bg-green-700 font-medium"
+                            className="flex-1 px-4 py-2 bg-black text-white hover:bg-gray-800 font-normal text-sm uppercase tracking-wide"
                             title="Download all plans as JSON file"
                         >
-                            💾 Export All Plans
+                            Export All Plans
                         </button>
                         <button
                             onClick={handleImport}
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 font-medium"
+                            className="flex-1 px-4 py-2 bg-white border border-black text-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide"
                             title="Import plans from JSON file"
                         >
-                            📂 Import Plans
+                            Import Plans
                         </button>
                     </div>
                     <p className="text-xs text-gray-600 mt-2">
@@ -108,25 +108,25 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
 
                 {/* Create New Plan */}
                 <div className="mb-6 p-4 bg-white border border-black">
-                    <h3 className="font-semibold text-gray-800 mb-3">Create New Plan</h3>
+                    <h3 className="font-normal text-black mb-3 text-sm uppercase tracking-wide">Create New Plan</h3>
                     <div className="flex gap-2">
                         <input
                             type="text"
                             value={newPlanName}
                             onChange={(e) => setNewPlanName(e.target.value)}
                             placeholder="Plan name (e.g., Conservative, Aggressive)"
-                            className="flex-1 px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="flex-1 px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
                             onKeyDown={(e) => e.key === 'Enter' && handleCreate(false)}
                         />
                         <button
                             onClick={() => handleCreate(false)}
-                            className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 font-medium"
+                            className="px-4 py-2 bg-black text-white hover:bg-gray-800 font-normal text-sm uppercase tracking-wide whitespace-nowrap"
                         >
                             Create Blank
                         </button>
                         <button
                             onClick={() => handleCreate(true)}
-                            className="px-4 py-2 bg-green-500 text-white hover:bg-green-600 font-medium"
+                            className="px-4 py-2 bg-white border border-black text-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide whitespace-nowrap"
                             title="Duplicate current plan"
                         >
                             Duplicate Current

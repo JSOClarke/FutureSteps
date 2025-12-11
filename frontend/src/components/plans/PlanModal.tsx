@@ -83,7 +83,7 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                 </div>
 
                 {/* Export/Import Section */}
-                <div className="mb-6 p-4 bg-green-50 border border-green-200">
+                <div className="mb-6 p-4 bg-white border border-black">
                     <h3 className="font-semibold text-gray-800 mb-3">📥 Backup & Restore</h3>
                     <div className="flex gap-2">
                         <button
@@ -107,7 +107,7 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                 </div>
 
                 {/* Create New Plan */}
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200">
+                <div className="mb-6 p-4 bg-white border border-black">
                     <h3 className="font-semibold text-gray-800 mb-3">Create New Plan</h3>
                     <div className="flex gap-2">
                         <input

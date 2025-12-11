@@ -46,44 +46,50 @@ function Navbar({
     return (
         <>
             <nav
-                className="w-full border border-black p-6 mb-4 bg-white"
+                className="w-full border border-black p-3 mb-4 bg-white"
                 style={{
-                    minHeight: '80px'
+                    minHeight: '60px'
                 }}
             >
-                <div className="flex items-center justify-center h-full">
-                    <div className="flex items-center gap-3">
-                        <PlanSwitcher />
+                <div className="flex items-center gap-8 h-full">
+                    {/* Logo */}
+                    <img
+                        src="/chronos-logo.png"
+                        alt="Chronos"
+                        className="h-14"
+                    />
 
-                        <MilestoneDropdown
-                            milestones={milestones}
-                            onAdd={handleAddMilestone}
-                            onEdit={handleEditMilestone}
-                            onDelete={handleDeleteMilestone}
-                        />
+                    {/* Navigation Items */}
+                    <PlanSwitcher />
 
-                        <button
-                            onClick={() => setSurplusModalOpen(true)}
-                            className="px-4 py-2 bg-green-100 border-2 border-green-300 text-green-800 hover:bg-green-200 text-sm font-medium transition-colors"
-                            title="Configure how surplus cash is allocated"
-                        >
-                            ⬆ Surplus Priority
-                        </button>
-                        <button
-                            onClick={() => setDeficitModalOpen(true)}
-                            className="px-4 py-2 bg-red-100 border-2 border-red-300 text-red-800 hover:bg-red-200 text-sm font-medium transition-colors"
-                            title="Configure how deficits are covered"
-                        >
-                            ⬇ Deficit Priority
-                        </button>
-                        <button
-                            onClick={onSettingsClick}
-                            className="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 hover:bg-gray-200 text-sm font-medium transition-colors"
-                            title="Open settings"
-                        >
-                            ⚙ Settings
-                        </button>
-                    </div>
+                    <MilestoneDropdown
+                        milestones={milestones}
+                        onAdd={handleAddMilestone}
+                        onEdit={handleEditMilestone}
+                        onDelete={handleDeleteMilestone}
+                    />
+
+                    <button
+                        onClick={() => setSurplusModalOpen(true)}
+                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                        title="Configure how surplus cash is allocated"
+                    >
+                        Surplus Priority
+                    </button>
+                    <button
+                        onClick={() => setDeficitModalOpen(true)}
+                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                        title="Configure how deficits are covered"
+                    >
+                        Deficit Priority
+                    </button>
+                    <button
+                        onClick={onSettingsClick}
+                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                        title="Open settings"
+                    >
+                        Settings
+                    </button>
                 </div>
             </nav>
 

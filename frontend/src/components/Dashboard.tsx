@@ -83,26 +83,26 @@ function Dashboard() {
                             <FinancialCategoryCard
                                 title="Income"
                                 category="income"
-                                backgroundColor="#D4F4DD"
-                                itemColor="#A8E6C1"
+                                backgroundColor="#FFFFFF"
+                                itemColor="#F3F4F6"
                             />
                             <FinancialCategoryCard
                                 title="Expenses"
                                 category="expenses"
-                                backgroundColor="#FFDCE0"
-                                itemColor="#FFC4CB"
+                                backgroundColor="#FFFFFF"
+                                itemColor="#F3F4F6"
                             />
                             <FinancialCategoryCard
                                 title="Assets"
                                 category="assets"
-                                backgroundColor="#FFF3CD"
-                                itemColor="#FFE89A"
+                                backgroundColor="#FFFFFF"
+                                itemColor="#F3F4F6"
                             />
                             <FinancialCategoryCard
                                 title="Liabilities"
                                 category="liabilities"
-                                backgroundColor="#FFE5D9"
-                                itemColor="#FFD4B8"
+                                backgroundColor="#FFFFFF"
+                                itemColor="#F3F4F6"
                             />
                         </div>
                     </>

@@ -54,13 +54,10 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
             <div className="relative">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className={`px-4 py-2 border-2 text-sm font-medium transition-colors ${milestones.length > 0
-                        ? 'bg-yellow-100 border-yellow-300 text-yellow-800 hover:bg-yellow-200'
-                        : 'bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200'
-                        }`}
+                    className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
                     title="Manage net worth milestones"
                 >
-                    🎯 Milestones {milestones.length > 0 && `(${milestones.length})`}
+                    Milestones {milestones.length > 0 && `(${milestones.length})`}
                 </button>
 
                 {isOpen && (
@@ -120,9 +117,9 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
                             <div className="p-3">
                                 <button
                                     onClick={handleAdd}
-                                    className="w-full px-3 py-2 bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium transition-colors"
+                                    className="w-full px-3 py-2 bg-black text-white hover:bg-gray-800 text-sm font-normal uppercase tracking-wide transition-colors"
                                 >
-                                    + Add New Milestone
+                                    Add New Milestone
                                 </button>
                             </div>
                         </div>

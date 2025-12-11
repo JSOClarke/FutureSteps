@@ -53,7 +53,7 @@ function FinancialCategoryCard({
     return (
         <>
             <div
-                className="flex-1 p-6 flex flex-col"
+                className="flex-1 p-6 flex flex-col border border-black"
                 style={{
                     backgroundColor,
                     minHeight: '300px',
@@ -61,13 +61,12 @@ function FinancialCategoryCard({
             >
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-2xl font-bold text-black">{title}</h3>
+                    <h3 className="text-2xl font-normal text-black">{title}</h3>
                     <button
                         onClick={handleAddNew}
-                        className="px-3 py-1 hover:opacity-90 transition-all text-sm font-medium text-black shadow-sm"
-                        style={{ backgroundColor: itemColor }}
+                        className="px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
                     >
-                        + Add New
+                        Add New
                     </button>
                 </div>
 

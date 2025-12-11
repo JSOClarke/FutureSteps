@@ -69,7 +69,7 @@ function Dashboard() {
                 ) : (
                     <>
                         {/* Top Section: Graph and Projection Details */}
-                        <div className="flex gap-4">
+                        <div className="flex flex-col lg:flex-row gap-4">
                             <GraphVisualization
                                 selectedYear={selectedYear}
                                 onYearSelect={setSelectedYear}
@@ -82,7 +82,7 @@ function Dashboard() {
                         </div>
 
                         {/* Bottom Section: Financial Categories */}
-                        <div className="flex gap-4">
+                        <div className="flex flex-col lg:flex-row gap-4">
                             <FinancialCategoryCard
                                 title="Income"
                                 category="income"

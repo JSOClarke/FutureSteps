@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useProjections } from '../../hooks/useProjections'
 import { usePriority } from '../Dashboard'
 import type { Milestone } from '../milestones/types'
@@ -21,10 +22,19 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
     const { surplusPriority, deficitPriority } = usePriority()
     const { projection } = useProjections(surplusPriority, deficitPriority)
 
+    // Detect mobile for vertical Y-axis labels
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false)
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 1024)
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
+
     if (!projection || projection.years.length === 0) {
         return (
             <div
-                className="w-[70%] border-2 flex items-center justify-center bg-white"
+                className="w-full lg:w-[70%] border-2 flex items-center justify-center bg-white"
                 style={{
                     borderColor: '#BAE6FD',
                     minHeight: '70vh'
@@ -69,7 +79,7 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
 
     return (
         <div
-            className="w-[70%] border border-black bg-white p-2 outline-none focus:outline-none [&_*]:outline-none [&_*:focus]:outline-none"
+            className="w-full lg:w-[70%] border border-black bg-white p-1 sm:p-2 outline-none focus:outline-none [&_*]:outline-none [&_*:focus]:outline-none"
             style={{
                 height: '70vh'
             }}
@@ -77,13 +87,14 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={chartData}
-                    margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+                    margin={{ top: 5, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}
                 >
                     <XAxis
                         dataKey="year"
                         hide={true}
                     />
                     <YAxis
+                        width={isMobile ? 20 : 60}
                         tickFormatter={(value) => {
                             const absValue = Math.abs(value)
                             if (absValue >= 1000000) {
@@ -93,7 +104,35 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                             }
                             return `$${value}`
                         }}
-                        tick={{ fontSize: 12 }}
+                        tick={(props) => {
+                            const { x, y, payload } = props
+                            const value = payload.value
+                            const absValue = Math.abs(value)
+                            let displayValue
+                            if (absValue >= 1000000) {
+                                displayValue = `$${(value / 1000000).toFixed(1)}M`
+                            } else if (absValue >= 1000) {
+                                displayValue = `$${(value / 1000).toFixed(0)}k`
+                            } else {
+                                displayValue = `$${value}`
+                            }
+
+                            return (
+                                <g transform={`translate(${x},${y})`}>
+                                    <text
+                                        x={0}
+                                        y={0}
+                                        dy={4}
+                                        textAnchor="end"
+                                        fill="#6B7280"
+                                        fontSize={12}
+                                        transform={isMobile ? 'rotate(-90)' : ''}
+                                    >
+                                        {displayValue}
+                                    </text>
+                                </g>
+                            )
+                        }}
                         stroke="#6B7280"
                     />
                     <Tooltip

@@ -14,7 +14,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
     if (!projection || projection.years.length === 0) {
         return (
             <div
-                className="w-[30%] border-2 flex items-center justify-center p-8 bg-white"
+                className="w-full lg:w-[30%] border-2 flex items-center justify-center p-8 bg-white"
                 style={{
                     borderColor: '#E9D5FF',
                     minHeight: '70vh'
@@ -38,7 +38,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
 
     return (
         <div
-            className="w-[30%] border border-black flex flex-col bg-white overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="w-full lg:w-[30%] border border-black flex flex-col bg-white overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             style={{
                 height: '70vh'
             }}

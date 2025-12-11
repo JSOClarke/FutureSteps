@@ -24,6 +24,7 @@ function Navbar({
 }: NavbarProps) {
     const [surplusModalOpen, setSurplusModalOpen] = useState(false)
     const [deficitModalOpen, setDeficitModalOpen] = useState(false)
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     const handleAddMilestone = (milestone: Omit<Milestone, 'id'>) => {
         const newMilestone: Milestone = {
@@ -51,7 +52,8 @@ function Navbar({
                     minHeight: '60px'
                 }}
             >
-                <div className="flex items-center gap-8 h-full">
+                {/* Desktop Navigation (hidden on mobile) */}
+                <div className="hidden lg:flex items-center gap-8 h-full">
                     {/* Logo */}
                     <img
                         src="/chronos-logo.png"
@@ -71,25 +73,91 @@ function Navbar({
 
                     <button
                         onClick={() => setSurplusModalOpen(true)}
-                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors whitespace-nowrap"
                         title="Configure how surplus cash is allocated"
                     >
                         Surplus Priority
                     </button>
                     <button
                         onClick={() => setDeficitModalOpen(true)}
-                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors whitespace-nowrap"
                         title="Configure how deficits are covered"
                     >
                         Deficit Priority
                     </button>
                     <button
                         onClick={onSettingsClick}
-                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors whitespace-nowrap"
                         title="Open settings"
                     >
                         Settings
                     </button>
+                </div>
+
+                {/* Mobile Navigation */}
+                <div className="lg:hidden">
+                    {/* Mobile Header: Logo + Hamburger */}
+                    <div className="flex items-center justify-between">
+                        <img
+                            src="/chronos-logo.png"
+                            alt="Chronos"
+                            className="h-10"
+                        />
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="p-2 hover:bg-gray-50 transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {/* Hamburger Icon */}
+                            <div className="w-6 h-5 flex flex-col justify-between">
+                                <span className={`block h-0.5 w-full bg-black transition-transform ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                                <span className={`block h-0.5 w-full bg-black transition-opacity ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
+                                <span className={`block h-0.5 w-full bg-black transition-transform ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+                            </div>
+                        </button>
+                    </div>
+
+                    {/* Mobile Dropdown Menu */}
+                    {mobileMenuOpen && (
+                        <div className="mt-4 pt-4 border-t border-black space-y-2 [&>*]:w-full [&>*>button]:w-full">
+                            <PlanSwitcher />
+
+                            <MilestoneDropdown
+                                milestones={milestones}
+                                onAdd={handleAddMilestone}
+                                onEdit={handleEditMilestone}
+                                onDelete={handleDeleteMilestone}
+                            />
+
+                            <button
+                                onClick={() => {
+                                    setSurplusModalOpen(true)
+                                    setMobileMenuOpen(false)
+                                }}
+                                className="w-full px-4 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                            >
+                                Surplus Priority
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setDeficitModalOpen(true)
+                                    setMobileMenuOpen(false)
+                                }}
+                                className="w-full px-4 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                            >
+                                Deficit Priority
+                            </button>
+                            <button
+                                onClick={() => {
+                                    onSettingsClick()
+                                    setMobileMenuOpen(false)
+                                }}
+                                className="w-full px-4 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                            >
+                                Settings
+                            </button>
+                        </div>
+                    )}
                 </div>
             </nav>
 

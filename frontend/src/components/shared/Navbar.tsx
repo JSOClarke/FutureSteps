@@ -4,6 +4,8 @@ import { MilestoneDropdown, type Milestone } from '../milestones'
 import { PlanSwitcher } from '../plans'
 import { LoginButton } from './LoginButton'
 
+import { NavButton } from './NavButton'
+
 interface NavbarProps {
     surplusPriority: string[]
     deficitPriority: string[]
@@ -11,7 +13,7 @@ interface NavbarProps {
     onDeficitPriorityChange: (priority: string[]) => void
     milestones: Milestone[]
     onMilestonesChange: (milestones: Milestone[]) => void
-    onSettingsClick: () => void
+    onProfileClick: () => void
 }
 
 function Navbar({
@@ -21,7 +23,7 @@ function Navbar({
     onDeficitPriorityChange,
     milestones,
     onMilestonesChange,
-    onSettingsClick
+    onProfileClick
 }: NavbarProps) {
     const [surplusModalOpen, setSurplusModalOpen] = useState(false)
     const [deficitModalOpen, setDeficitModalOpen] = useState(false)
@@ -54,7 +56,7 @@ function Navbar({
                 }}
             >
                 {/* Desktop Navigation (hidden on mobile) */}
-                <div className="hidden lg:flex items-center gap-8 h-full">
+                <div className="hidden lg:flex items-center gap-2 xl:gap-8 h-full">
                     {/* Logo */}
                     <img
                         src="/chronos-logo.png"
@@ -72,28 +74,27 @@ function Navbar({
                         onDelete={handleDeleteMilestone}
                     />
 
-                    <button
+                    <NavButton
                         onClick={() => setSurplusModalOpen(true)}
-                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors whitespace-nowrap"
                         title="Configure how surplus cash is allocated"
                     >
                         Surplus Priority
-                    </button>
-                    <button
+                    </NavButton>
+                    <NavButton
                         onClick={() => setDeficitModalOpen(true)}
-                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors whitespace-nowrap"
                         title="Configure how deficits are covered"
                     >
                         Deficit Priority
-                    </button>
-                    <button
-                        onClick={onSettingsClick}
-                        className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors whitespace-nowrap"
-                        title="Open settings"
+                    </NavButton>
+                    <NavButton
+                        onClick={onProfileClick}
+                        title="Open profile"
                     >
-                        Settings
-                    </button>
-                    <LoginButton />
+                        Profile
+                    </NavButton>
+                    <div className="ml-auto">
+                        <LoginButton />
+                    </div>
                 </div>
 
                 {/* Mobile Navigation */}
@@ -131,33 +132,33 @@ function Navbar({
                                 onDelete={handleDeleteMilestone}
                             />
 
-                            <button
+                            <NavButton
                                 onClick={() => {
                                     setSurplusModalOpen(true)
                                     setMobileMenuOpen(false)
                                 }}
-                                className="w-full px-4 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                                className="w-full"
                             >
                                 Surplus Priority
-                            </button>
-                            <button
+                            </NavButton>
+                            <NavButton
                                 onClick={() => {
                                     setDeficitModalOpen(true)
                                     setMobileMenuOpen(false)
                                 }}
-                                className="w-full px-4 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                                className="w-full"
                             >
                                 Deficit Priority
-                            </button>
-                            <button
+                            </NavButton>
+                            <NavButton
                                 onClick={() => {
-                                    onSettingsClick()
+                                    onProfileClick()
                                     setMobileMenuOpen(false)
                                 }}
-                                className="w-full px-4 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                                className="w-full"
                             >
-                                Settings
-                            </button>
+                                Profile
+                            </NavButton>
                             <div className="pt-2 border-t border-gray-200">
                                 <LoginButton />
                             </div>

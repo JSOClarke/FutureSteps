@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { usePlans } from '../../context/PlansContext'
 import PlanModal from './PlanModal'
 
+import { NavButton } from '../shared/NavButton'
+
 function PlanSwitcher() {
     const { plans, activePlanId, activePlan, setActivePlan } = usePlans()
     const [isOpen, setIsOpen] = useState(false)
@@ -27,15 +29,15 @@ function PlanSwitcher() {
     return (
         <>
             <div className="relative">
-                <button
+                <NavButton
                     onClick={() => setIsOpen(!isOpen)}
-                    className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors flex items-center gap-2"
+                    className="flex items-center gap-2"
                     title="Switch between plans"
                 >
                     {activePlan.name}
                     <span className="text-xs normal-case tracking-normal">(Plan {plans.findIndex(p => p.id === activePlanId) + 1}/{plans.length})</span>
                     <span className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
-                </button>
+                </NavButton>
 
                 {isOpen && (
                     <>

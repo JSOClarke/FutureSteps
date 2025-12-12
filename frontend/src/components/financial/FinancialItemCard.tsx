@@ -6,10 +6,9 @@ interface FinancialItemCardProps {
     item: FinancialItem
     onEdit: (item: FinancialItem) => void
     onDelete: (id: string) => void
-    itemColor?: string
 }
 
-export function FinancialItemCard({ item, onEdit, onDelete, itemColor }: FinancialItemCardProps) {
+export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardProps) {
     // Build info text for temporal and rate data
     const infoItems: string[] = []
 
@@ -34,7 +33,6 @@ export function FinancialItemCard({ item, onEdit, onDelete, itemColor }: Financi
     return (
         <div
             className="p-4 border border-black bg-white hover:bg-gray-50 transition-all shadow-sm flex justify-between items-center group"
-            style={itemColor ? { borderLeft: `4px solid ${itemColor}` } : undefined}
         >
             <div className="flex flex-col">
                 <span className="font-medium text-black text-lg">{item.name}</span>

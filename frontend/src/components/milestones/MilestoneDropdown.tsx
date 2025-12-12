@@ -4,6 +4,8 @@ import type { Milestone } from './types'
 import { formatCurrency } from '../../utils/formatters'
 import { Pencil, Trash2 } from 'lucide-react'
 
+import { NavButton } from '../shared/NavButton'
+
 
 interface MilestoneDropdownProps {
     milestones: Milestone[]
@@ -29,18 +31,23 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
         setIsOpen(false)
     }
 
-    const handleSave = (data: { name: string; value: number } | null) => {
+    const handleSave = (data: Omit<Milestone, 'id'> | null) => {
         if (!data) {
+            if (editingMilestone) {
+                if (confirm('Are you sure you want to delete this milestone?')) {
+                    onDelete(editingMilestone.id)
+                }
+            }
             setModalOpen(false)
             setEditingMilestone(null)
             return
         }
 
         if (editingMilestone) {
-            onEdit(editingMilestone.id, { ...data, type: editingMilestone.type || 'net_worth' })
+            onEdit(editingMilestone.id, data)
             setEditingMilestone(null)
         } else {
-            onAdd({ ...data, type: 'net_worth' }) // Default to net_worth for now
+            onAdd(data)
         }
         setModalOpen(false)
         setEditingMilestone(null)
@@ -55,13 +62,12 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
     return (
         <>
             <div className="relative">
-                <button
+                <NavButton
                     onClick={() => setIsOpen(!isOpen)}
-                    className="px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
                     title="Manage net worth milestones"
                 >
                     Milestones {milestones.length > 0 && `(${milestones.length})`}
-                </button>
+                </NavButton>
 
                 {isOpen && (
                     <>

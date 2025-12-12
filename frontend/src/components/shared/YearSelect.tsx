@@ -66,7 +66,7 @@ function YearSelect({
                 id={id}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black bg-white font-light"
             >
                 <option value="">{placeholder || 'Select year...'}</option>
 

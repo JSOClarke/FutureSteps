@@ -4,6 +4,8 @@ import AuthModal from './AuthModal'
 import { syncGuestData } from '../../utils/sync'
 import { supabase } from '../../lib/supabase'
 
+import { NavButton } from './NavButton'
+
 export function LoginButton() {
     const { user, signOut } = useAuth()
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -25,27 +27,27 @@ export function LoginButton() {
     if (user) {
         return (
             <div className="flex items-center gap-4">
-                <span className="text-sm font-light text-gray-600 hidden sm:inline">
+                <span className="text-sm font-light text-gray-600 hidden xl:inline max-w-[150px] truncate">
                     {user.email}
                 </span>
-                <button
+                <NavButton
                     onClick={signOut}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-colors"
+                    className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200"
                 >
                     Sign Out
-                </button>
+                </NavButton>
             </div>
         )
     }
 
     return (
         <>
-            <button
+            <NavButton
                 onClick={() => setIsModalOpen(true)}
-                className="px-4 py-2 bg-black text-white hover:bg-gray-800 text-sm font-medium transition-colors"
+                className="bg-black text-white hover:bg-gray-800 border-black"
             >
                 Sign In / Sign Up
-            </button>
+            </NavButton>
             <AuthModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

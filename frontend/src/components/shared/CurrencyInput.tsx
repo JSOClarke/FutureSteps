@@ -109,7 +109,7 @@ function CurrencyInput({
                     value={displayValue}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    className={`w-full ${prefix ? 'pl-7' : 'pl-3'} pr-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+                    className={`w-full ${prefix ? 'pl-7' : 'pl-3'} pr-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light ${className}`}
                     placeholder={placeholder}
                     inputMode="decimal"
                 />

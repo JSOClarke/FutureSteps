@@ -2,7 +2,7 @@ import { useState, createContext, useContext } from 'react'
 import { usePlans } from '../context/PlansContext'
 import { GraphVisualization, ProjectionDetails } from './projections'
 import { FinancialCategoryCard } from './financial'
-import Settings from './Settings'
+import Profile from './profile/Profile'
 import { Navbar } from './shared'
 
 
@@ -19,7 +19,7 @@ const PriorityContext = createContext<PriorityContextType>({
 
 export const usePriority = () => useContext(PriorityContext)
 
-type View = 'dashboard' | 'settings'
+type View = 'dashboard' | 'profile'
 
 function Dashboard() {
     const [selectedYear, setSelectedYear] = useState<number | null>(null)
@@ -60,12 +60,12 @@ function Dashboard() {
                         onDeficitPriorityChange={handleDeficitPriorityChange}
                         milestones={milestones}
                         onMilestonesChange={handleMilestonesChange}
-                        onSettingsClick={() => setCurrentView('settings')}
+                        onProfileClick={() => setCurrentView('profile')}
                     />
                 )}
 
-                {currentView === 'settings' ? (
-                    <Settings onBack={() => setCurrentView('dashboard')} />
+                {currentView === 'profile' ? (
+                    <Profile onBack={() => setCurrentView('dashboard')} />
                 ) : (
                     <>
 
@@ -89,25 +89,21 @@ function Dashboard() {
                                 title="Income"
                                 category="income"
                                 backgroundColor="#FFFFFF"
-                                itemColor="#F3F4F6"
                             />
                             <FinancialCategoryCard
                                 title="Expenses"
                                 category="expenses"
                                 backgroundColor="#FFFFFF"
-                                itemColor="#F3F4F6"
                             />
                             <FinancialCategoryCard
                                 title="Assets"
                                 category="assets"
                                 backgroundColor="#FFFFFF"
-                                itemColor="#F3F4F6"
                             />
                             <FinancialCategoryCard
                                 title="Liabilities"
                                 category="liabilities"
                                 backgroundColor="#FFFFFF"
-                                itemColor="#F3F4F6"
                             />
                         </div>
                     </>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useFinancialItems } from '../../context/FinancialItemsContext'
 import ReorderableList from '../ReorderableList'
+import { Modal } from '../shared/Modal'
 
 interface PriorityModalProps {
     isOpen: boolean
@@ -45,8 +46,6 @@ function PriorityModal({ isOpen, onClose, type, initialPriority, onSave }: Prior
         onClose()
     }
 
-    if (!isOpen) return null
-
     const listItems = priority
         .map(id => assets.find(a => a.id === id))
         .filter(Boolean)
@@ -56,59 +55,50 @@ function PriorityModal({ isOpen, onClose, type, initialPriority, onSave }: Prior
         }))
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white shadow-xl w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                        {type === 'surplus' ? 'Surplus Allocation' : 'Deficit Coverage'} Priority
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
-                    >
-                        ×
-                    </button>
-                </div>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={`${type === 'surplus' ? 'Surplus Allocation' : 'Deficit Coverage'} Priority`}
+            maxWidth="max-w-md"
+        >
+            <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-4 font-light">
+                    {type === 'surplus'
+                        ? 'When you have extra cash, allocate it to assets in this order:'
+                        : 'When you need cash, withdraw from assets in this order:'}
+                </p>
 
-                <div className="mb-4">
-                    <p className="text-sm text-gray-600 mb-4">
-                        {type === 'surplus'
-                            ? 'When you have extra cash, allocate it to assets in this order:'
-                            : 'When you need cash, withdraw from assets in this order:'}
+                {listItems.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8 font-light">
+                        No assets available. Add assets to set priority.
                     </p>
-
-                    {listItems.length === 0 ? (
-                        <p className="text-gray-500 text-center py-8">
-                            No assets available. Add assets to set priority.
-                        </p>
-                    ) : (
-                        <ReorderableList
-                            items={listItems}
-                            onReorder={handleReorder}
-                            title="Priority Order (Top = First)"
-                        />
-                    )}
-                </div>
-
-                <div className="flex gap-3 mt-6">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={listItems.length === 0}
-                        className="flex-1 px-4 py-2 bg-blue-500 text-white font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Save Priority
-                    </button>
-                </div>
+                ) : (
+                    <ReorderableList
+                        items={listItems}
+                        onReorder={handleReorder}
+                        title="Priority Order (Top = First)"
+                    />
+                )}
             </div>
-        </div>
+
+            <div className="flex gap-3 mt-6 pt-6 border-t border-gray-100">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex-1 px-4 py-2 bg-white text-black border border-black hover:bg-gray-50 text-sm font-normal uppercase tracking-wide transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={listItems.length === 0}
+                    className="flex-1 px-4 py-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-normal uppercase tracking-wide transition-colors"
+                >
+                    Save Priority
+                </button>
+            </div>
+        </Modal>
     )
 }
 

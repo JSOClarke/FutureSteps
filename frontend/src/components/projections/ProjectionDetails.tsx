@@ -75,7 +75,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                     rightContent={<span className="text-green-600 font-light">{formatCurrency(yearData.totalIncome)}</span>}
                 >
                     <div className="space-y-2">
-                        <p className="text-xs text-gray-500 mb-2">Active income sources for {yearData.year}</p>
+
                         {yearData.totalIncome === 0 ? (
                             <p className="font-light text-gray-400">No income this year</p>
                         ) : (
@@ -101,7 +101,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                     rightContent={<span className="text-red-600 font-light">{formatCurrency(yearData.totalExpenses)}</span>}
                 >
                     <div className="space-y-2">
-                        <p className="text-xs text-gray-500 mb-2">Active expenses for {yearData.year}</p>
+
                         {yearData.totalExpenses === 0 ? (
                             <p className="font-light text-gray-400">No expenses this year</p>
                         ) : (
@@ -131,7 +131,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                     }
                 >
                     <div className="space-y-2">
-                        <p className="text-xs text-gray-500 mb-2">Surplus/Deficit handling for {yearData.year}</p>
+
 
                         {yearData.history.surplus.length === 0 && yearData.history.deficit.length === 0 ? (
                             <p className="font-light text-gray-400">No surplus or deficit this year</p>

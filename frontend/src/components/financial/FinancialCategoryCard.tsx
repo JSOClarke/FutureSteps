@@ -2,21 +2,19 @@ import { useState } from 'react'
 import type { FinancialItem, FinancialCategory } from '../../types'
 import { useFinancialItems } from '../../context/FinancialItemsContext'
 import FinancialItemModal from '../FinancialItemModal'
-import { formatCurrency } from '../../utils/formatters'
+
 import { FinancialItemCard } from './FinancialItemCard'
 
 interface FinancialCategoryCardProps {
     title: string
     category: FinancialCategory
     backgroundColor: string
-    itemColor: string
 }
 
 function FinancialCategoryCard({
     title,
     category,
     backgroundColor,
-    itemColor,
 }: FinancialCategoryCardProps) {
     const { getItemsByCategory, addItem, updateItem, deleteItem } = useFinancialItems()
     const items = getItemsByCategory(category)
@@ -50,7 +48,7 @@ function FinancialCategoryCard({
         }
     }
 
-    const total = items.reduce((sum, item) => sum + item.value, 0)
+
 
     return (
         <>
@@ -85,25 +83,12 @@ function FinancialCategoryCard({
                                 item={item}
                                 onEdit={() => handleEdit(item)}
                                 onDelete={handleDelete}
-                                itemColor={itemColor}
                             />
                         ))
                     )}
                 </div>
 
-                {/* Total */}
-                {items.length > 0 && (
-                    <>
-                        <div className="border-t-2 border-black border-opacity-20 mt-3 pt-3">
-                            <div className="flex justify-between items-center">
-                                <span className="font-bold text-black text-lg">Total:</span>
-                                <span className="font-bold text-black text-xl">
-                                    {formatCurrency(total)}
-                                </span>
-                            </div>
-                        </div>
-                    </>
-                )}
+
             </div>
 
             <FinancialItemModal

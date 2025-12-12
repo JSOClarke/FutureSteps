@@ -105,7 +105,7 @@ function Onboarding() {
                             <img
                                 src="/chronos-logo.png"
                                 alt="Chronos"
-                                className="h-32 mx-auto mb-8"
+                                className="h-32 mx-auto mb-8 mix-blend-multiply contrast-125 brightness-110"
                             />
                             <h1 className="text-4xl font-normal text-black mb-4 uppercase tracking-wide">
                                 Welcome to Chronos

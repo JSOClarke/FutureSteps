@@ -2,17 +2,21 @@ import type { ButtonHTMLAttributes } from 'react'
 
 interface NavButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     active?: boolean
+    variant?: 'primary' | 'secondary'
 }
 
-export function NavButton({ className = '', active, ...props }: NavButtonProps) {
+export function NavButton({ className = '', active, variant = 'secondary', ...props }: NavButtonProps) {
+    const baseStyles = "px-3 lg:px-6 py-3 border text-sm font-light uppercase tracking-wide transition-colors whitespace-nowrap"
+    const variants = {
+        primary: "bg-black text-white border-black hover:bg-gray-800",
+        secondary: "bg-white text-black border-black hover:bg-gray-50"
+    }
+
     return (
         <button
             className={`
-                px-3 lg:px-6 py-3 
-                bg-white border border-black 
-                text-black hover:bg-gray-50 
-                text-sm font-light uppercase tracking-wide 
-                transition-colors whitespace-nowrap
+                ${baseStyles}
+                ${variants[variant]}
                 ${active ? 'bg-gray-100' : ''}
                 ${className}
             `}

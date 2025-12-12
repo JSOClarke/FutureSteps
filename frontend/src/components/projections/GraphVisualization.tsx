@@ -35,9 +35,8 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
     if (!projection || projection.years.length === 0) {
         return (
             <div
-                className="w-full lg:w-[70%] border-2 flex items-center justify-center bg-white"
+                className="w-full lg:w-[70%] border border-black flex items-center justify-center bg-white"
                 style={{
-                    borderColor: '#BAE6FD',
                     minHeight: '70vh'
                 }}
             >

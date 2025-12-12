@@ -61,7 +61,7 @@ function Navbar({
                     <img
                         src="/chronos-logo.png"
                         alt="Chronos"
-                        className="h-14"
+                        className="h-14 mix-blend-multiply contrast-125 brightness-110"
                     />
 
                     {/* Navigation Items */}
@@ -104,7 +104,7 @@ function Navbar({
                         <img
                             src="/chronos-logo.png"
                             alt="Chronos"
-                            className="h-10"
+                            className="h-10 mix-blend-multiply contrast-125 brightness-110"
                         />
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

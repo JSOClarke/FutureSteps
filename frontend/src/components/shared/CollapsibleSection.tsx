@@ -11,7 +11,7 @@ function CollapsibleSection({ title, children, defaultExpanded = false, rightCon
     const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
     return (
-        <div className="border-b">
+        <div className="border-b border-black">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"

@@ -15,9 +15,8 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
     if (!projection || projection.years.length === 0) {
         return (
             <div
-                className="w-full lg:w-[30%] border-2 flex items-center justify-center p-8 bg-white"
+                className="w-full lg:w-[30%] border border-black flex items-center justify-center p-8 bg-white"
                 style={{
-                    borderColor: '#E9D5FF',
                     minHeight: '70vh'
                 }}
             >
@@ -45,7 +44,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
             }}
         >
             {/* Header */}
-            <div className="p-6 pb-4 border-b">
+            <div className="p-6 pb-4 border-b border-black">
                 <div className="flex items-center gap-4 mb-2">
                     <label className="text-sm font-normal text-gray-600 uppercase tracking-wide">Year:</label>
                     <input

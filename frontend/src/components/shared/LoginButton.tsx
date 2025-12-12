@@ -44,7 +44,7 @@ export function LoginButton() {
         <>
             <NavButton
                 onClick={() => setIsModalOpen(true)}
-                className="bg-black text-white hover:bg-gray-800 border-black"
+                variant="primary"
             >
                 Sign In / Sign Up
             </NavButton>

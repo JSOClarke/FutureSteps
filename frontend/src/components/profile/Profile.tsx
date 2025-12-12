@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '../../context/UserContext'
+import { SUPPORTED_CURRENCIES } from '../../data/currencyData'
 
 interface ProfileProps {
     onBack: () => void
@@ -12,6 +13,7 @@ function Profile({ onBack }: ProfileProps) {
     const [dateOfBirth, setDateOfBirth] = useState(userProfile?.dateOfBirth || '')
     const [country, setCountry] = useState(userProfile?.country || '')
     const [customDeathDate, setCustomDeathDate] = useState(userProfile?.customDeathDate || '')
+    const [currency, setCurrency] = useState(userProfile?.currency || 'USD')
 
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
     const [isSaving, setIsSaving] = useState(false)
@@ -22,6 +24,7 @@ function Profile({ onBack }: ProfileProps) {
             setDateOfBirth(userProfile.dateOfBirth || '')
             setCountry(userProfile.country || '')
             setCustomDeathDate(userProfile.customDeathDate || '')
+            setCurrency(userProfile.currency || 'USD')
         }
     }, [userProfile])
 
@@ -34,7 +37,8 @@ function Profile({ onBack }: ProfileProps) {
                 full_name: fullName,
                 dateOfBirth: dateOfBirth,
                 country: country,
-                customDeathDate: customDeathDate || undefined
+                customDeathDate: customDeathDate || undefined,
+                currency: currency
             })
             setMessage({ type: 'success', text: 'Profile updated successfully!' })
         } catch (error) {
@@ -122,6 +126,28 @@ function Profile({ onBack }: ProfileProps) {
                             />
                             <p className="text-gray-500 text-sm mt-1">
                                 Leave empty to use the default life expectancy calculation.
+                            </p>
+                        </div>
+
+                        {/* Currency */}
+                        <div>
+                            <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+                                Currency
+                            </label>
+                            <select
+                                id="currency"
+                                value={currency}
+                                onChange={(e) => setCurrency(e.target.value)}
+                                className="w-full px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black bg-white font-light"
+                            >
+                                {SUPPORTED_CURRENCIES.map(curr => (
+                                    <option key={curr.code} value={curr.code}>
+                                        {curr.name} ({curr.symbol})
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="text-gray-500 text-sm mt-1">
+                                This will be used for all monetary values throughout the application.
                             </p>
                         </div>
 

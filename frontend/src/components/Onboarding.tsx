@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useUser } from '../context/UserContext'
 import { usePlans } from '../context/PlansContext'
 import { COUNTRIES, calculateDeathDate } from '../data/lifeExpectancyData'
+import { getDefaultCurrency } from '../data/currencyData'
 import AuthModal from './shared/AuthModal'
 
 function Onboarding() {
@@ -54,6 +55,7 @@ function Onboarding() {
             dateOfBirth,
             country,
             customDeathDate: customDeathDate || calculatedDeathDate,
+            currency: getDefaultCurrency(country)
         })
 
         // Create Plan (Guest)
@@ -78,6 +80,7 @@ function Onboarding() {
             dateOfBirth,
             country,
             customDeathDate: customDeathDate || calculatedDeathDate,
+            currency: getDefaultCurrency(country)
         })
 
         await createPlan(planName, 'My first financial plan')

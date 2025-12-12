@@ -1,5 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import { formatCurrency } from '../../utils/formatters'
+import { useCurrency } from '../../hooks/useCurrency'
 import type { FinancialItem } from '../../types'
 
 interface FinancialItemCardProps {
@@ -9,6 +10,7 @@ interface FinancialItemCardProps {
 }
 
 export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardProps) {
+    const currency = useCurrency()
     // Build info text for temporal and rate data
     const infoItems: string[] = []
 
@@ -45,7 +47,7 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
 
             <div className="flex items-center gap-4">
                 <span className="font-bold text-black text-lg">
-                    {formatCurrency(item.value)}
+                    {formatCurrency(item.value, currency)}
                 </span>
 
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

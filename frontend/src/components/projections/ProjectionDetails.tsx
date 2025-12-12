@@ -2,6 +2,7 @@ import { useProjections } from '../../hooks/useProjections'
 import { usePriority } from '../Dashboard'
 import { CollapsibleSection } from '../shared'
 import { formatCurrency } from '../../utils/formatters'
+import { useCurrency } from '../../hooks/useCurrency'
 
 interface ProjectionDetailsProps {
     selectedYear: number | null
@@ -11,6 +12,7 @@ interface ProjectionDetailsProps {
 function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProps) {
     const { surplusPriority, deficitPriority } = usePriority()
     const { projection, config } = useProjections(surplusPriority, deficitPriority)
+    const currency = useCurrency()
 
     if (!projection || projection.years.length === 0) {
         return (
@@ -71,7 +73,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                 {/* Income Details */}
                 <CollapsibleSection
                     title="Income Details"
-                    rightContent={<span className="text-green-600 font-light">{formatCurrency(yearData.totalIncome)}</span>}
+                    rightContent={<span className="text-green-600 font-light">{formatCurrency(yearData.totalIncome, currency)}</span>}
                 >
                     <div className="space-y-2">
 
@@ -82,12 +84,12 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                 {yearData.history.income.map(item => (
                                     <div key={item.id} className="flex justify-between hover:bg-gray-50 transition-colors px-2 py-1 -mx-2">
                                         <span className="font-light truncate mr-2">{item.name}</span>
-                                        <span className="font-medium whitespace-nowrap text-green-600">{formatCurrency(item.amount)}</span>
+                                        <span className="font-medium whitespace-nowrap text-green-600">{formatCurrency(item.amount, currency)}</span>
                                     </div>
                                 ))}
                                 <div className="flex justify-between pt-2 border-t font-semibold">
                                     <span>Total Income:</span>
-                                    <span className="text-green-600">{formatCurrency(yearData.totalIncome)}</span>
+                                    <span className="text-green-600">{formatCurrency(yearData.totalIncome, currency)}</span>
                                 </div>
                             </>
                         )}
@@ -97,7 +99,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                 {/* Expense Details */}
                 <CollapsibleSection
                     title="Expense Details"
-                    rightContent={<span className="text-red-600 font-light">{formatCurrency(yearData.totalExpenses)}</span>}
+                    rightContent={<span className="text-red-600 font-light">{formatCurrency(yearData.totalExpenses, currency)}</span>}
                 >
                     <div className="space-y-2">
 
@@ -108,12 +110,12 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                 {yearData.history.expenses.map(item => (
                                     <div key={item.id} className="flex justify-between hover:bg-gray-50 transition-colors px-2 py-1 -mx-2">
                                         <span className="font-light truncate mr-2">{item.name}</span>
-                                        <span className="font-medium whitespace-nowrap text-red-600">{formatCurrency(item.amount)}</span>
+                                        <span className="font-medium whitespace-nowrap text-red-600">{formatCurrency(item.amount, currency)}</span>
                                     </div>
                                 ))}
                                 <div className="flex justify-between pt-2 border-t font-semibold">
                                     <span>Total Expenses:</span>
-                                    <span className="text-red-600">{formatCurrency(yearData.totalExpenses)}</span>
+                                    <span className="text-red-600">{formatCurrency(yearData.totalExpenses, currency)}</span>
                                 </div>
                             </>
                         )}
@@ -125,7 +127,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                     title="Cashflow Allocation"
                     rightContent={
                         <span className={`font-light ${yearData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {formatCurrency(yearData.netCashflow)}
+                            {formatCurrency(yearData.netCashflow, currency)}
                         </span>
                     }
                 >
@@ -145,7 +147,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                             return (
                                                 <div key={item.assetId} className="flex justify-between text-sm">
                                                     <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-green-600">+{formatCurrency(item.amount)}</span>
+                                                    <span className="font-medium text-green-600">+{formatCurrency(item.amount, currency)}</span>
                                                 </div>
                                             )
                                         })}
@@ -161,7 +163,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                             return (
                                                 <div key={item.assetId} className="flex justify-between text-sm">
                                                     <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-red-600">-{formatCurrency(item.amount)}</span>
+                                                    <span className="font-medium text-red-600">-{formatCurrency(item.amount, currency)}</span>
                                                 </div>
                                             )
                                         })}
@@ -173,7 +175,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                     <div className="flex justify-between">
                                         <span>Net Cashflow:</span>
                                         <span className={yearData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                            {formatCurrency(yearData.netCashflow)}
+                                            {formatCurrency(yearData.netCashflow, currency)}
                                         </span>
                                     </div>
                                 </div>
@@ -211,7 +213,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                             return (
                                                 <div key={item.assetId} className="flex justify-between text-sm">
                                                     <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-green-600">+{formatCurrency(item.growthAmount)}</span>
+                                                    <span className="font-medium text-green-600">+{formatCurrency(item.growthAmount, currency)}</span>
                                                 </div>
                                             )
                                         })}
@@ -227,7 +229,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                             return (
                                                 <div key={item.assetId} className="flex justify-between text-sm">
                                                     <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-green-600">+{formatCurrency(item.yieldAmount)}</span>
+                                                    <span className="font-medium text-green-600">+{formatCurrency(item.yieldAmount, currency)}</span>
                                                 </div>
                                             )
                                         })}
@@ -243,7 +245,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                             return (
                                                 <div key={item.assetId} className="flex justify-between text-sm">
                                                     <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-blue-600">+{formatCurrency(item.amount)}</span>
+                                                    <span className="font-medium text-blue-600">+{formatCurrency(item.amount, currency)}</span>
                                                 </div>
                                             )
                                         })}
@@ -285,7 +287,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                 {yearData.assets.map(asset => (
                                     <div key={asset.id} className="flex justify-between">
                                         <span className="font-light truncate mr-2">{asset.name}</span>
-                                        <span className="font-medium whitespace-nowrap">{formatCurrency(asset.value)}</span>
+                                        <span className="font-medium whitespace-nowrap">{formatCurrency(asset.value, currency)}</span>
                                     </div>
                                 ))}
                                 <div className="flex justify-between pt-2 border-t font-semibold">
@@ -315,7 +317,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                     <div key={liability.id} className="flex justify-between">
                                         <span className="font-light truncate mr-2">{liability.name}</span>
                                         <span className="font-medium whitespace-nowrap text-red-600">
-                                            {formatCurrency(liability.value)}
+                                            {formatCurrency(liability.value, currency)}
                                         </span>
                                     </div>
                                 ))}
@@ -336,7 +338,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                 <div className="flex justify-between items-center">
                     <span className="font-normal text-black uppercase tracking-wide text-sm">Net Worth:</span>
                     <span className={`text-xl font-normal ${yearData.netWorth >= 0 ? 'text-black' : 'text-black'}`}>
-                        {formatCurrency(yearData.netWorth)}
+                        {formatCurrency(yearData.netWorth, currency)}
                     </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-2 font-light">

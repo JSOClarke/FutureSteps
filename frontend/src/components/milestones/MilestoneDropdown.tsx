@@ -2,6 +2,7 @@ import { useState } from 'react'
 import MilestoneModal from './MilestoneModal'
 import type { Milestone } from './types'
 import { formatCurrency } from '../../utils/formatters'
+import { useCurrency } from '../../hooks/useCurrency'
 import { Pencil, Trash2 } from 'lucide-react'
 
 import { NavButton } from '../shared/NavButton'
@@ -17,6 +18,7 @@ interface MilestoneDropdownProps {
 function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDropdownProps) {
     const [isOpen, setIsOpen] = useState(false)
     const [modalOpen, setModalOpen] = useState(false)
+    const currency = useCurrency()
     const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null)
 
     const handleAdd = () => {
@@ -101,7 +103,7 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
                                                 <div className="text-sm text-gray-600">
                                                     {milestone.type === 'year'
                                                         ? milestone.value
-                                                        : formatCurrency(milestone.value)}
+                                                        : formatCurrency(milestone.value, currency)}
                                                 </div>
                                             </div>
                                             <div className="flex gap-1 ml-2">

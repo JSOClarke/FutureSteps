@@ -12,6 +12,7 @@ import {
     ReferenceLine
 } from 'recharts'
 import { formatCurrency } from '../../utils/formatters'
+import { useCurrency } from '../../hooks/useCurrency'
 
 interface GraphVisualizationProps {
     selectedYear: number | null
@@ -22,6 +23,7 @@ interface GraphVisualizationProps {
 function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milestones }: GraphVisualizationProps) {
     const { surplusPriority, deficitPriority } = usePriority()
     const { projection } = useProjections(surplusPriority, deficitPriority)
+    const currency = useCurrency()
 
     // Detect mobile for vertical Y-axis labels
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false)
@@ -95,7 +97,7 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                     <p className="font-semibold mb-2">{year}</p>
                     {payload.map((entry: any) => (
                         <p key={entry.name} style={{ color: entry.color }} className="text-sm">
-                            {entry.name}: {formatCurrency(entry.value)}
+                            {entry.name}: {formatCurrency(entry.value, currency)}
                         </p>
                     ))}
                     {yearMilestones.length > 0 && (
@@ -218,7 +220,7 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                                             <title>
                                                 {m.milestone.name}: {m.milestone.type === 'year'
                                                     ? m.milestone.value
-                                                    : formatCurrency(m.milestone.value)}
+                                                    : formatCurrency(m.milestone.value, currency)}
                                             </title>
                                         </g>
                                     ))}

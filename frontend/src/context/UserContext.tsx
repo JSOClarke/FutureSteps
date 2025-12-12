@@ -38,7 +38,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                         full_name: data.full_name,
                         dateOfBirth: data.date_of_birth,
                         country: data.country,
-                        customDeathDate: data.custom_death_date
+                        customDeathDate: data.custom_death_date,
+                        currency: data.currency
                     })
                 }
             } else {
@@ -108,7 +109,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 full_name: profileData.full_name,
                 date_of_birth: profileData.dateOfBirth,
                 country: profileData.country,
-                custom_death_date: profileData.customDeathDate
+                custom_death_date: profileData.customDeathDate,
+                currency: profileData.currency
             }
 
             const { error } = await supabase

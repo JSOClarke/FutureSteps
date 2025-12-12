@@ -50,4 +50,5 @@ export interface UserProfile {
     dateOfBirth?: string
     country?: string
     customDeathDate?: string
+    currency?: string // ISO currency code (e.g., 'USD', 'EUR', 'GBP')
 }

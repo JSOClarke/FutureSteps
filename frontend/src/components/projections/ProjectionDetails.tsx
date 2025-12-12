@@ -192,7 +192,8 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                             +{formatCurrency(
                                 yearData.history.growth.reduce((sum, g) => sum + g.growthAmount, 0) +
                                 yearData.history.yield.reduce((sum, y) => sum + y.yieldAmount, 0) +
-                                yearData.history.contributions.reduce((sum, c) => sum + c.amount, 0)
+                                yearData.history.contributions.reduce((sum, c) => sum + c.amount, 0),
+                                currency
                             )}
                         </span>
                     }
@@ -260,7 +261,8 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                             +{formatCurrency(
                                                 yearData.history.growth.reduce((sum, g) => sum + g.growthAmount, 0) +
                                                 yearData.history.yield.reduce((sum, y) => sum + y.yieldAmount, 0) +
-                                                yearData.history.contributions.reduce((sum, c) => sum + c.amount, 0)
+                                                yearData.history.contributions.reduce((sum, c) => sum + c.amount, 0),
+                                                currency
                                             )}
                                         </span>
                                     </div>
@@ -275,7 +277,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                     title="Assets"
                     rightContent={
                         <span className="font-light">
-                            {formatCurrency(yearData.assets.reduce((sum, a) => sum + a.value, 0))}
+                            {formatCurrency(yearData.assets.reduce((sum, a) => sum + a.value, 0), currency)}
                         </span>
                     }
                 >
@@ -292,7 +294,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                 ))}
                                 <div className="flex justify-between pt-2 border-t font-semibold">
                                     <span>Total Assets:</span>
-                                    <span>{formatCurrency(yearData.assets.reduce((sum, a) => sum + a.value, 0))}</span>
+                                    <span>{formatCurrency(yearData.assets.reduce((sum, a) => sum + a.value, 0), currency)}</span>
                                 </div>
                             </>
                         )}
@@ -304,7 +306,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                     title="Liabilities"
                     rightContent={
                         <span className="text-red-600 font-light">
-                            {formatCurrency(yearData.liabilities.reduce((sum, l) => sum + l.value, 0))}
+                            {formatCurrency(yearData.liabilities.reduce((sum, l) => sum + l.value, 0), currency)}
                         </span>
                     }
                 >
@@ -324,7 +326,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
                                 <div className="flex justify-between pt-2 border-t font-semibold">
                                     <span>Total Liabilities:</span>
                                     <span className="text-red-600">
-                                        {formatCurrency(yearData.liabilities.reduce((sum, l) => sum + l.value, 0))}
+                                        {formatCurrency(yearData.liabilities.reduce((sum, l) => sum + l.value, 0), currency)}
                                     </span>
                                 </div>
                             </>

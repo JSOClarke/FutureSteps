@@ -11,7 +11,7 @@ import {
     ResponsiveContainer,
     ReferenceLine
 } from 'recharts'
-import { formatCurrency } from '../../utils/formatters'
+import { formatCurrency, getCurrencySymbol } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 
 interface GraphVisualizationProps {
@@ -143,25 +143,27 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                     <YAxis
                         width={isMobile ? 20 : 60}
                         tickFormatter={(value) => {
+                            const currencySymbol = getCurrencySymbol(currency)
                             const absValue = Math.abs(value)
                             if (absValue >= 1000000) {
-                                return `$${(value / 1000000).toFixed(1)}M`
+                                return `${currencySymbol}${(value / 1000000).toFixed(1)}M`
                             } else if (absValue >= 1000) {
-                                return `$${(value / 1000).toFixed(0)}k`
+                                return `${currencySymbol}${(value / 1000).toFixed(0)}k`
                             }
-                            return `$${value}`
+                            return `${currencySymbol}${value}`
                         }}
                         tick={(props) => {
                             const { x, y, payload } = props
                             const value = payload.value
+                            const currencySymbol = getCurrencySymbol(currency)
                             const absValue = Math.abs(value)
                             let displayValue
                             if (absValue >= 1000000) {
-                                displayValue = `$${(value / 1000000).toFixed(1)}M`
+                                displayValue = `${currencySymbol}${(value / 1000000).toFixed(1)}M`
                             } else if (absValue >= 1000) {
-                                displayValue = `$${(value / 1000).toFixed(0)}k`
+                                displayValue = `${currencySymbol}${(value / 1000).toFixed(0)}k`
                             } else {
-                                displayValue = `$${value}`
+                                displayValue = `${currencySymbol}${value}`
                             }
 
                             return (

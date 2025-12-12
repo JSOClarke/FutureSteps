@@ -112,7 +112,7 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                                     <p className="text-sm">
                                         {m.milestone.name}: {m.milestone.type === 'year'
                                             ? m.milestone.value
-                                            : formatCurrency(m.milestone.value)}
+                                            : formatCurrency(m.milestone.value, currency)}
                                     </p>
                                 </div>
                             ))}

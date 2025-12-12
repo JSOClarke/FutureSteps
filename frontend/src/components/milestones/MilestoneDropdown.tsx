@@ -37,9 +37,10 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
         }
 
         if (editingMilestone) {
-            onEdit(editingMilestone.id, data)
+            onEdit(editingMilestone.id, { ...data, type: editingMilestone.type || 'net_worth' })
+            setEditingMilestone(null)
         } else {
-            onAdd(data)
+            onAdd({ ...data, type: 'net_worth' }) // Default to net_worth for now
         }
         setModalOpen(false)
         setEditingMilestone(null)

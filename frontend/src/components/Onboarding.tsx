@@ -1,24 +1,29 @@
 import { useState } from 'react'
 import { useUser } from '../context/UserContext'
+import { usePlans } from '../context/PlansContext'
 import { COUNTRIES, calculateDeathDate } from '../data/lifeExpectancyData'
+import AuthModal from './shared/AuthModal'
 
 function Onboarding() {
     const { createProfile } = useUser()
+    const { createPlan } = usePlans()
     const [currentSlide, setCurrentSlide] = useState(0)
     const [fadeIn, setFadeIn] = useState(true)
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
 
     // Form data
     const [name, setName] = useState('')
     const [dateOfBirth, setDateOfBirth] = useState('')
     const [country, setCountry] = useState('')
     const [customDeathDate, setCustomDeathDate] = useState('')
+    const [planName, setPlanName] = useState('My First Plan')
 
     const calculatedDeathDate = dateOfBirth && country
         ? calculateDeathDate(dateOfBirth, country)
         : ''
 
     const handleNext = () => {
-        if (currentSlide < 2) {
+        if (currentSlide < 3) {
             setFadeIn(false)
             setTimeout(() => {
                 setCurrentSlide(currentSlide + 1)
@@ -37,27 +42,52 @@ function Onboarding() {
         }
     }
 
-    const handleComplete = () => {
-        if (!name || !dateOfBirth || !country) {
+    const handleGuestComplete = async () => {
+        if (!name || !dateOfBirth || !country || !planName) {
             alert('Please fill in all required fields')
             return
         }
 
-        // Fade out before completing
-        setFadeIn(false)
-        setTimeout(() => {
-            createProfile({
-                name,
-                dateOfBirth,
-                country,
-                customDeathDate: customDeathDate || calculatedDeathDate,
-            })
-        }, 300)
+        // Create Profile (Guest)
+        await createProfile({
+            full_name: name,
+            dateOfBirth,
+            country,
+            customDeathDate: customDeathDate || calculatedDeathDate,
+        })
+
+        // Create Plan (Guest)
+        await createPlan(planName, 'My first financial plan')
+    }
+
+    const handleSignUpComplete = () => {
+        setIsAuthModalOpen(true)
+    }
+
+    const handleAuthSuccess = async () => {
+        // After successful signup/login, create the profile and plan
+        // The AuthModal handles the auth part, but we need to ensure profile/plan are created
+        // Wait, if they sign up, the UserContext will update with the new user.
+        // We should call createProfile and createPlan AFTER auth.
+
+        // Actually, createProfile handles both auth and guest.
+        // So we can just call it.
+
+        await createProfile({
+            full_name: name,
+            dateOfBirth,
+            country,
+            customDeathDate: customDeathDate || calculatedDeathDate,
+        })
+
+        await createPlan(planName, 'My first financial plan')
+        setIsAuthModalOpen(false)
     }
 
     const canProceed = () => {
         if (currentSlide === 0) return true
         if (currentSlide === 1) return name && dateOfBirth && country
+        if (currentSlide === 2) return !!planName
         return true
     }
 
@@ -169,8 +199,51 @@ function Onboarding() {
                         </div>
                     )}
 
-                    {/* Slide 3: Life Projection */}
+                    {/* Slide 3: Plan Setup */}
                     {currentSlide === 2 && (
+                        <div>
+                            <h2 className="text-3xl font-normal text-black mb-2 uppercase tracking-wide">
+                                Name Your Plan
+                            </h2>
+                            <p className="text-gray-600 font-light mb-8">
+                                Give your first financial plan a name. You can create more plans later.
+                            </p>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                                        Plan Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={planName}
+                                        onChange={(e) => setPlanName(e.target.value)}
+                                        placeholder="e.g., Early Retirement, Dream Home"
+                                        className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4 mt-8">
+                                <button
+                                    onClick={handleBack}
+                                    className="flex-1 px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
+                                >
+                                    Back
+                                </button>
+                                <button
+                                    onClick={handleNext}
+                                    disabled={!canProceed()}
+                                    className="flex-1 px-6 py-3 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Slide 4: Life Projection & Completion */}
+                    {currentSlide === 3 && (
                         <div>
                             <h2 className="text-3xl font-normal text-black mb-2 uppercase tracking-wide">
                                 Life Projection
@@ -211,18 +284,24 @@ function Onboarding() {
                                 </p>
                             </div>
 
-                            <div className="flex gap-4 mt-8">
+                            <div className="flex flex-col gap-4 mt-8">
                                 <button
-                                    onClick={handleBack}
-                                    className="flex-1 px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
+                                    onClick={handleSignUpComplete}
+                                    className="w-full px-6 py-4 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors"
                                 >
-                                    Back
+                                    Sign Up to Save Progress
                                 </button>
                                 <button
-                                    onClick={handleComplete}
-                                    className="flex-1 px-6 py-3 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors"
+                                    onClick={handleGuestComplete}
+                                    className="w-full px-6 py-4 bg-white border border-black text-black hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
                                 >
-                                    Complete Setup
+                                    Continue as Guest
+                                </button>
+                                <button
+                                    onClick={handleBack}
+                                    className="w-full text-gray-500 hover:text-black text-sm underline"
+                                >
+                                    Back
                                 </button>
                             </div>
                         </div>
@@ -231,7 +310,7 @@ function Onboarding() {
 
                 {/* Slide Indicators */}
                 <div className="flex justify-center gap-2 mt-12">
-                    {[0, 1, 2].map((index) => (
+                    {[0, 1, 2, 3].map((index) => (
                         <div
                             key={index}
                             className={`h-2 w-2 transition-colors ${currentSlide === index ? 'bg-black' : 'bg-gray-300'
@@ -240,6 +319,12 @@ function Onboarding() {
                     ))}
                 </div>
             </div>
+
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                onSuccess={handleAuthSuccess}
+            />
         </div>
     )
 }

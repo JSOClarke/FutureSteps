@@ -1,40 +1,46 @@
 import Dashboard from './components/Dashboard'
 import Onboarding from './components/Onboarding'
 import { UserProvider, useUser } from './context/UserContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { PlansProvider } from './context/PlansContext'
 import { FinancialItemsProvider } from './context/FinancialItemsContext'
 import { SettingsProvider } from './context/SettingsContext'
 import './index.css'
 
 function AppContent() {
-  const { userProfile } = useUser()
+  const { loading: authLoading } = useAuth()
+  const { userProfile, loading: profileLoading } = useUser()
 
-  // Show onboarding if no user profile exists
-  if (!userProfile) {
-    return <Onboarding />
+  if (authLoading || profileLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
   }
 
-  // Show dashboard if user profile exists
   return (
-    <div className="animate-fade-in">
-      <SettingsProvider>
-        <PlansProvider>
-          <FinancialItemsProvider>
-            <div className="min-h-screen bg-gray-50 p-4">
-              <Dashboard />
-            </div>
-          </FinancialItemsProvider>
-        </PlansProvider>
-      </SettingsProvider>
-    </div>
+    <SettingsProvider>
+      <PlansProvider>
+        <FinancialItemsProvider>
+          <div className="animate-fade-in">
+            {!userProfile ? (
+              <Onboarding />
+            ) : (
+              <div className="min-h-screen bg-gray-50 p-4">
+                <Dashboard />
+              </div>
+            )}
+          </div>
+        </FinancialItemsProvider>
+      </PlansProvider>
+    </SettingsProvider>
   )
 }
 
 function App() {
   return (
-    <UserProvider>
-      <AppContent />
-    </UserProvider>
+    <AuthProvider>
+      <UserProvider>
+        <AppContent />
+      </UserProvider>
+    </AuthProvider>
   )
 }
 

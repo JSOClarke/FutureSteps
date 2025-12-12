@@ -8,7 +8,7 @@ interface PlanModalProps {
 }
 
 function PlanModal({ isOpen, onClose }: PlanModalProps) {
-    const { plans, activePlanId, createPlan, deletePlan, renamePlan, setActivePlan, exportPlans, importPlans } = usePlans()
+    const { plans, activePlanId, createPlan, deletePlan, renamePlan, setActivePlan } = usePlans()
     const [newPlanName, setNewPlanName] = useState('')
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editName, setEditName] = useState('')
@@ -52,23 +52,7 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
         setEditName(currentName)
     }
 
-    const handleImport = () => {
-        const input = document.createElement('input')
-        input.type = 'file'
-        input.accept = '.json'
-        input.onchange = async (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0]
-            if (file) {
-                try {
-                    await importPlans(file)
-                    onClose()
-                } catch (error) {
-                    // Error already shown in importPlans
-                }
-            }
-        }
-        input.click()
-    }
+
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -83,29 +67,7 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                     </button>
                 </div>
 
-                {/* Export/Import Section */}
-                <div className="mb-6 p-4 bg-white border border-black">
-                    <h3 className="font-normal text-black mb-3 text-sm uppercase tracking-wide">Backup & Restore</h3>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={exportPlans}
-                            className="flex-1 px-4 py-2 bg-black text-white hover:bg-gray-800 font-normal text-sm uppercase tracking-wide"
-                            title="Download all plans as JSON file"
-                        >
-                            Export All Plans
-                        </button>
-                        <button
-                            onClick={handleImport}
-                            className="flex-1 px-4 py-2 bg-white border border-black text-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide"
-                            title="Import plans from JSON file"
-                        >
-                            Import Plans
-                        </button>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-2">
-                        Export creates a backup file. Import replaces all current plans with the imported ones.
-                    </p>
-                </div>
+
 
                 {/* Create New Plan */}
                 <div className="mb-6 p-4 bg-white border border-black">

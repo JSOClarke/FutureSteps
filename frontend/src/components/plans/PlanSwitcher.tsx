@@ -7,7 +7,22 @@ function PlanSwitcher() {
     const [isOpen, setIsOpen] = useState(false)
     const [showModal, setShowModal] = useState(false)
 
-    if (!activePlan) return null
+    if (!activePlan) {
+        return (
+            <>
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="px-6 py-3 bg-black text-white hover:bg-gray-800 text-sm font-normal uppercase tracking-wide transition-colors"
+                >
+                    Create Plan
+                </button>
+                <PlanModal
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                />
+            </>
+        )
+    }
 
     return (
         <>

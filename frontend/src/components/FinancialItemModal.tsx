@@ -30,10 +30,9 @@ function FinancialItemModal({
     // Calculate max year based on death date
     const maxYear = userProfile?.customDeathDate
         ? new Date(userProfile.customDeathDate).getFullYear()
-        : (userProfile
+        : userProfile?.dateOfBirth && userProfile?.country
             ? new Date(calculateDeathDate(userProfile.dateOfBirth, userProfile.country)).getFullYear()
-            : currentYear + 50)
-
+            : new Date().getFullYear() + 30 // Fallback
     // Basic fields
     const [name, setName] = useState('')
     const [value, setValue] = useState('')

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PriorityModal } from '../priorities'
 import { MilestoneDropdown, type Milestone } from '../milestones'
 import { PlanSwitcher } from '../plans'
+import { LoginButton } from './LoginButton'
 
 interface NavbarProps {
     surplusPriority: string[]
@@ -92,6 +93,7 @@ function Navbar({
                     >
                         Settings
                     </button>
+                    <LoginButton />
                 </div>
 
                 {/* Mobile Navigation */}
@@ -156,6 +158,9 @@ function Navbar({
                             >
                                 Settings
                             </button>
+                            <div className="pt-2 border-t border-gray-200">
+                                <LoginButton />
+                            </div>
                         </div>
                     )}
                 </div>

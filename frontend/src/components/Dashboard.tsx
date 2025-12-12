@@ -1,9 +1,10 @@
 import { useState, createContext, useContext } from 'react'
 import { usePlans } from '../context/PlansContext'
-import { Navbar } from './shared'
 import { GraphVisualization, ProjectionDetails } from './projections'
 import { FinancialCategoryCard } from './financial'
 import Settings from './Settings'
+import { Navbar } from './shared'
+
 
 // Create context for priority orders
 interface PriorityContextType {
@@ -63,11 +64,12 @@ function Dashboard() {
                     />
                 )}
 
-                {/* Conditional view rendering */}
                 {currentView === 'settings' ? (
                     <Settings onBack={() => setCurrentView('dashboard')} />
                 ) : (
                     <>
+
+
                         {/* Top Section: Graph and Projection Details */}
                         <div className="flex flex-col lg:flex-row gap-4">
                             <GraphVisualization

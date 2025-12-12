@@ -23,3 +23,31 @@ export interface FinancialItem {
     interestRate?: number // Annual interest rate (e.g., 0.045 for 4.5%)
     minimumPayment?: number // Annual minimum payment
 }
+
+export interface Milestone {
+    id: string
+    name: string
+    value: number
+    type: 'net_worth' | 'year'
+    color?: string
+}
+
+export interface Plan {
+    id: string
+    name: string
+    description?: string
+    createdAt: string // ISO string
+    financialItems: FinancialItem[]
+    milestones: Milestone[]
+    surplusPriority: string[]
+    deficitPriority: string[]
+}
+
+export interface UserProfile {
+    id: string
+    email: string
+    full_name?: string
+    dateOfBirth?: string
+    country?: string
+    customDeathDate?: string
+}

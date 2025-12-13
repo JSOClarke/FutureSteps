@@ -5,12 +5,15 @@ import type { Milestone } from '../milestones/types'
 import {
     BarChart,
     Bar,
+    LineChart,
+    Line,
     XAxis,
     YAxis,
     Tooltip,
     ResponsiveContainer,
     ReferenceLine
 } from 'recharts'
+import { BarChart3, TrendingUp, Settings } from 'lucide-react'
 import { formatCurrency, getCurrencySymbol } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 
@@ -25,6 +28,13 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
     const { projection } = useProjections(surplusPriority, deficitPriority)
     const currency = useCurrency()
 
+    // Chart type state
+    const [chartType, setChartType] = useState<'bar' | 'line'>('line')
+
+    // Toggle collapse state
+    const [isToggleExpanded, setIsToggleExpanded] = useState(true)
+    const [hideTimeout, setHideTimeout] = useState<number | null>(null)
+
     // Detect mobile for vertical Y-axis labels
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false)
 
@@ -33,6 +43,29 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
     }, [])
+
+    // Auto-hide toggle after 3 seconds
+    useEffect(() => {
+        if (isToggleExpanded) {
+            if (hideTimeout) clearTimeout(hideTimeout)
+            const timeout = window.setTimeout(() => {
+                setIsToggleExpanded(false)
+            }, 3000)
+            setHideTimeout(timeout)
+        }
+        return () => {
+            if (hideTimeout) clearTimeout(hideTimeout)
+        }
+    }, [isToggleExpanded])
+
+    const handleChartTypeChange = (type: 'bar' | 'line') => {
+        setChartType(type)
+        setIsToggleExpanded(true) // Reset timer when user interacts
+    }
+
+    const handleToggleExpand = () => {
+        setIsToggleExpanded(true)
+    }
 
     if (!projection || projection.years.length === 0) {
         return (
@@ -126,111 +159,267 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
 
     return (
         <div
-            className="w-full lg:w-[70%] border border-black bg-white p-1 sm:p-2 outline-none focus:outline-none [&_*]:outline-none [&_*:focus]:outline-none"
+            className="w-full lg:w-[70%] border border-black bg-white p-1 sm:p-2 outline-none focus:outline-none [&_*]:outline-none [&_*:focus]:outline-none relative"
             style={{
                 height: '70vh'
             }}
         >
-            <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                    data={chartData}
-                    margin={{ top: 5, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}
+            {/* Chart Type Toggle - Collapsible */}
+            {isToggleExpanded ? (
+                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex gap-1 sm:gap-2 z-10 bg-white border border-black p-1">
+                    <button
+                        onClick={() => handleChartTypeChange('bar')}
+                        className={`p-1.5 sm:p-2 transition-colors ${chartType === 'bar'
+                                ? 'bg-black text-white'
+                                : 'bg-white text-black hover:bg-gray-100'
+                            }`}
+                        title="Bar Chart"
+                    >
+                        <BarChart3 size={16} className="sm:w-5 sm:h-5" />
+                    </button>
+                    <button
+                        onClick={() => handleChartTypeChange('line')}
+                        className={`p-1.5 sm:p-2 transition-colors ${chartType === 'line'
+                                ? 'bg-black text-white'
+                                : 'bg-white text-black hover:bg-gray-100'
+                            }`}
+                        title="Line Chart"
+                    >
+                        <TrendingUp size={16} className="sm:w-5 sm:h-5" />
+                    </button>
+                </div>
+            ) : (
+                <button
+                    onClick={handleToggleExpand}
+                    className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 p-1 sm:p-1.5 bg-white border border-black text-black hover:bg-gray-100 transition-colors"
+                    title="Chart Options"
                 >
-                    <XAxis
-                        dataKey="year"
-                        hide={true}
-                    />
-                    <YAxis
-                        width={isMobile ? 20 : 60}
-                        tickFormatter={(value) => {
-                            const currencySymbol = getCurrencySymbol(currency)
-                            const absValue = Math.abs(value)
-                            if (absValue >= 1000000) {
-                                return `${currencySymbol}${(value / 1000000).toFixed(1)}M`
-                            } else if (absValue >= 1000) {
-                                return `${currencySymbol}${(value / 1000).toFixed(0)}k`
+                    <Settings size={14} className="sm:w-4 sm:h-4" />
+                </button>
+            )}
+            <ResponsiveContainer width="100%" height="100%">
+                {chartType === 'bar' ? (
+                    <BarChart
+                        data={chartData}
+                        margin={{ top: 5, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}
+                    >
+                        <XAxis
+                            dataKey="year"
+                            hide={true}
+                        />
+                        <YAxis
+                            width={isMobile ? 20 : 60}
+                            tickFormatter={(value) => {
+                                const currencySymbol = getCurrencySymbol(currency)
+                                const absValue = Math.abs(value)
+                                if (absValue >= 1000000) {
+                                    return `${currencySymbol}${(value / 1000000).toFixed(1)}M`
+                                } else if (absValue >= 1000) {
+                                    return `${currencySymbol}${(value / 1000).toFixed(0)}k`
+                                }
+                                return `${currencySymbol}${value}`
+                            }}
+                            tick={(props) => {
+                                const { x, y, payload } = props
+                                const value = payload.value
+                                const currencySymbol = getCurrencySymbol(currency)
+                                const absValue = Math.abs(value)
+                                let displayValue
+                                if (absValue >= 1000000) {
+                                    displayValue = `${currencySymbol}${(value / 1000000).toFixed(1)}M`
+                                } else if (absValue >= 1000) {
+                                    displayValue = `${currencySymbol}${(value / 1000).toFixed(0)}k`
+                                } else {
+                                    displayValue = `${currencySymbol}${value}`
+                                }
+
+                                return (
+                                    <g transform={`translate(${x},${y})`}>
+                                        <text
+                                            x={0}
+                                            y={0}
+                                            dy={4}
+                                            textAnchor="end"
+                                            fill="#6B7280"
+                                            fontSize={12}
+                                            transform={isMobile ? 'rotate(-90)' : ''}
+                                        >
+                                            {displayValue}
+                                        </text>
+                                    </g>
+                                )
+                            }}
+                            stroke="#6B7280"
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+
+                        <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
+                        <Bar
+                            dataKey="Net Worth"
+                            fill="#3B82F6"
+                            cursor="pointer"
+                            onClick={handleBarClick}
+                            shape={(props: any) => {
+                                const { x, y, width, height, payload } = props
+                                // Check if this year has any milestones
+                                const yearMilestones = milestoneYears.filter(m => m.year === payload.year)
+
+                                return (
+                                    <>
+                                        {/* Regular bar */}
+                                        <rect
+                                            x={x}
+                                            y={y}
+                                            width={width}
+                                            height={height}
+                                            fill="#3B82F6"
+                                        />
+                                        {/* Milestone markers - green squares above bar, stacked if multiple */}
+                                        {yearMilestones.map((m, index) => (
+                                            <g key={m.milestone.id}>
+                                                <rect
+                                                    x={x + width / 2 - 6}
+                                                    y={y - 25 - (index * 18)}
+                                                    width={12}
+                                                    height={12}
+                                                    fill={m.milestone.color || "#22C55E"}
+                                                    stroke={m.milestone.color ? undefined : "#16A34A"}
+                                                    strokeWidth={1}
+                                                />
+                                                <title>
+                                                    {m.milestone.name}: {m.milestone.type === 'year'
+                                                        ? m.milestone.value
+                                                        : formatCurrency(m.milestone.value, currency)}
+                                                </title>
+                                            </g>
+                                        ))}
+                                    </>
+                                )
+                            }}
+                        />
+                    </BarChart>
+                ) : (
+                    <LineChart
+                        data={chartData}
+                        margin={{ top: 10, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}
+                        onClick={(data) => {
+                            if (data && data.activeLabel) {
+                                onYearSelect(Number(data.activeLabel))
                             }
-                            return `${currencySymbol}${value}`
                         }}
-                        tick={(props) => {
-                            const { x, y, payload } = props
-                            const value = payload.value
-                            const currencySymbol = getCurrencySymbol(currency)
-                            const absValue = Math.abs(value)
-                            let displayValue
-                            if (absValue >= 1000000) {
-                                displayValue = `${currencySymbol}${(value / 1000000).toFixed(1)}M`
-                            } else if (absValue >= 1000) {
-                                displayValue = `${currencySymbol}${(value / 1000).toFixed(0)}k`
-                            } else {
-                                displayValue = `${currencySymbol}${value}`
-                            }
+                    >
+                        <XAxis
+                            dataKey="year"
+                            hide={true}
+                        />
+                        <YAxis
+                            width={isMobile ? 20 : 60}
+                            tickFormatter={(value) => {
+                                const currencySymbol = getCurrencySymbol(currency)
+                                const absValue = Math.abs(value)
+                                if (absValue >= 1000000) {
+                                    return `${currencySymbol}${(value / 1000000).toFixed(1)}M`
+                                } else if (absValue >= 1000) {
+                                    return `${currencySymbol}${(value / 1000).toFixed(0)}k`
+                                }
+                                return `${currencySymbol}${value}`
+                            }}
+                            tick={(props) => {
+                                const { x, y, payload } = props
+                                const value = payload.value
+                                const currencySymbol = getCurrencySymbol(currency)
+                                const absValue = Math.abs(value)
+                                let displayValue
+                                if (absValue >= 1000000) {
+                                    displayValue = `${currencySymbol}${(value / 1000000).toFixed(1)}M`
+                                } else if (absValue >= 1000) {
+                                    displayValue = `${currencySymbol}${(value / 1000).toFixed(0)}k`
+                                } else {
+                                    displayValue = `${currencySymbol}${value}`
+                                }
 
-                            return (
-                                <g transform={`translate(${x},${y})`}>
-                                    <text
-                                        x={0}
-                                        y={0}
-                                        dy={4}
-                                        textAnchor="end"
-                                        fill="#6B7280"
-                                        fontSize={12}
-                                        transform={isMobile ? 'rotate(-90)' : ''}
-                                    >
-                                        {displayValue}
-                                    </text>
-                                </g>
-                            )
-                        }}
-                        stroke="#6B7280"
-                    />
-                    <Tooltip content={<CustomTooltip />} />
+                                return (
+                                    <g transform={`translate(${x},${y})`}>
+                                        <text
+                                            x={0}
+                                            y={0}
+                                            dy={4}
+                                            textAnchor="end"
+                                            fill="#6B7280"
+                                            fontSize={12}
+                                            transform={isMobile ? 'rotate(-90)' : ''}
+                                        >
+                                            {displayValue}
+                                        </text>
+                                    </g>
+                                )
+                            }}
+                            stroke="#6B7280"
+                        />
+                        <Tooltip content={<CustomTooltip />} />
 
-                    <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
-                    <Bar
-                        dataKey="Net Worth"
-                        fill="#3B82F6"
-                        cursor="pointer"
-                        onClick={handleBarClick}
-                        shape={(props: any) => {
-                            const { x, y, width, height, payload } = props
-                            // Check if this year has any milestones
-                            const yearMilestones = milestoneYears.filter(m => m.year === payload.year)
+                        <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
+                        <Line
+                            type="monotone"
+                            dataKey="Net Worth"
+                            stroke="#3B82F6"
+                            strokeWidth={2}
+                            dot={(props: any) => {
+                                const { cx, cy, payload } = props
+                                const yearMilestones = milestoneYears.filter(m => m.year === payload.year)
 
-                            return (
-                                <>
-                                    {/* Regular bar */}
-                                    <rect
-                                        x={x}
-                                        y={y}
-                                        width={width}
-                                        height={height}
-                                        fill="#3B82F6"
-                                    />
-                                    {/* Milestone markers - green squares above bar, stacked if multiple */}
-                                    {yearMilestones.map((m, index) => (
-                                        <g key={m.milestone.id}>
-                                            <rect
-                                                x={x + width / 2 - 6}
-                                                y={y - 25 - (index * 18)}
-                                                width={12}
-                                                height={12}
-                                                fill={m.milestone.color || "#22C55E"}
-                                                stroke={m.milestone.color ? undefined : "#16A34A"}
-                                                strokeWidth={1}
-                                            />
-                                            <title>
-                                                {m.milestone.name}: {m.milestone.type === 'year'
-                                                    ? m.milestone.value
-                                                    : formatCurrency(m.milestone.value, currency)}
-                                            </title>
-                                        </g>
-                                    ))}
-                                </>
-                            )
-                        }}
-                    />
-                </BarChart>
+                                // Regular dot
+                                if (yearMilestones.length === 0) {
+                                    return (
+                                        <circle
+                                            cx={cx}
+                                            cy={cy}
+                                            r={3}
+                                            fill="#3B82F6"
+                                            stroke="#fff"
+                                            strokeWidth={1}
+                                            style={{ cursor: 'pointer' }}
+                                        />
+                                    )
+                                }
+
+                                // Dot with milestone markers
+                                return (
+                                    <g>
+                                        <circle
+                                            cx={cx}
+                                            cy={cy}
+                                            r={3}
+                                            fill="#3B82F6"
+                                            stroke="#fff"
+                                            strokeWidth={1}
+                                            style={{ cursor: 'pointer' }}
+                                        />
+                                        {yearMilestones.map((m, index) => (
+                                            <g key={m.milestone.id}>
+                                                <rect
+                                                    x={cx - 6}
+                                                    y={cy - 25 - (index * 18)}
+                                                    width={12}
+                                                    height={12}
+                                                    fill={m.milestone.color || "#22C55E"}
+                                                    stroke={m.milestone.color ? undefined : "#16A34A"}
+                                                    strokeWidth={1}
+                                                />
+                                                <title>
+                                                    {m.milestone.name}: {m.milestone.type === 'year'
+                                                        ? m.milestone.value
+                                                        : formatCurrency(m.milestone.value, currency)}
+                                                </title>
+                                            </g>
+                                        ))}
+                                    </g>
+                                )
+                            }}
+                            activeDot={{ r: 5, cursor: 'pointer' }}
+                        />
+                    </LineChart>
+                )}
             </ResponsiveContainer>
         </div>
     )

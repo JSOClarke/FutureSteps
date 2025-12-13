@@ -70,7 +70,7 @@ function Dashboard() {
                 {currentView === 'profile' ? (
                     <Profile onBack={() => setCurrentView('dashboard')} />
                 ) : currentView === 'simulation' ? (
-                    <RunSimulation />
+                    <RunSimulation onBack={() => setCurrentView('dashboard')} />
                 ) : (
                     <>
 

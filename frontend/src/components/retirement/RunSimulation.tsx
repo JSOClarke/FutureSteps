@@ -1,20 +1,73 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { runRetirementSimulation, calculateInitialWithdrawal, type SimulationResult } from '../../utils/retirementSimulation'
 import { DEFAULT_PARAMS } from '../../data/marketData'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
+import { usePlans } from '../../context/PlansContext'
+import { useProjections } from '../../hooks/useProjections'
+import { useUser } from '../../context/UserContext'
 import CurrencyInput from '../shared/CurrencyInput'
 import SuccessRateCard from './SuccessRateCard'
 import PortfolioPathsChart from './PortfolioPathsChart'
 
-function RunSimulation() {
+interface RunSimulationProps {
+    onBack: () => void
+}
+
+type PortfolioSource = 'custom' | 'plan'
+
+function RunSimulation({ onBack }: RunSimulationProps) {
     const currency = useCurrency()
+    const { plans, activePlanId } = usePlans()
+    const { userProfile } = useUser()
+
+    // Portfolio source mode
+    const [portfolioSource, setPortfolioSource] = useState<PortfolioSource>('custom')
+    const [selectedPlanId, setSelectedPlanId] = useState<string>(activePlanId || '')
+    const [startAge, setStartAge] = useState<number>(65)
+
+    // Get projection data for selected plan
+    const selectedPlan = plans.find(p => p.id === selectedPlanId)
+    const { projection } = useProjections(
+        selectedPlan?.surplusPriority || [],
+        selectedPlan?.deficitPriority || []
+    )
+
+    // Calculate net worth at specified age from projection
+    const getNetWorthAtAge = (age: number): number => {
+        if (!projection || !userProfile?.dateOfBirth) return 0
+
+        const birthYear = new Date(userProfile.dateOfBirth).getFullYear()
+        const targetYear = birthYear + age
+        const currentYear = new Date().getFullYear()
+        const yearsFromNow = targetYear - currentYear
+
+        if (yearsFromNow < 0 || yearsFromNow >= projection.years.length) return 0
+
+        const yearData = projection.years[yearsFromNow]
+        return yearData?.netWorth || 0
+    }
 
     // Form state
     const [initialPortfolio, setInitialPortfolio] = useState<number>(1000000)
     const [retirementYears, setRetirementYears] = useState<number>(30)
     const [stockAllocation, setStockAllocation] = useState<number>(60)
     const [withdrawalRate, setWithdrawalRate] = useState<number>(4)
+    const [numberOfSimulations, setNumberOfSimulations] = useState<number>(DEFAULT_PARAMS.numberOfSimulations)
+    const [simulationTechnique, setSimulationTechnique] = useState<string>('monte-carlo')
+    const [dataSource, setDataSource] = useState<'monte-carlo' | 'historical'>('monte-carlo')
+
+    // Advanced options toggle
+    const [showAdvanced, setShowAdvanced] = useState(false)
+
+    // Auto-update portfolio value when in plan mode
+    useEffect(() => {
+        if (portfolioSource === 'plan' && selectedPlanId && startAge) {
+            const calculatedValue = getNetWorthAtAge(startAge)
+            setInitialPortfolio(calculatedValue)
+        }
+    }, [portfolioSource, selectedPlanId, startAge, projection, userProfile])
 
     // Simulation state
     const [isRunning, setIsRunning] = useState(false)
@@ -35,7 +88,8 @@ function RunSimulation() {
             retirementYears,
             stockAllocation: stockAllocation / 100,
             bondAllocation: bondAllocation / 100,
-            numberOfSimulations: DEFAULT_PARAMS.numberOfSimulations,
+            numberOfSimulations: numberOfSimulations,
+            dataSource: dataSource,
         })
 
         setResult(simulationResult)
@@ -47,6 +101,15 @@ function RunSimulation() {
     return (
         <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-7xl mx-auto">
+                {/* Back Button */}
+                <button
+                    onClick={onBack}
+                    className="flex items-center gap-2 text-gray-600 hover:text-black mb-4 transition-colors"
+                >
+                    <ArrowLeft size={20} />
+                    <span>Back to Dashboard</span>
+                </button>
+
                 <h1 className="text-3xl font-light mb-6">Run Simulation</h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -56,19 +119,99 @@ function RunSimulation() {
                             <h2 className="text-xl font-light mb-6">Parameters</h2>
 
                             <div className="space-y-6">
-                                {/* Portfolio Value */}
+                                {/* Mode Selection */}
                                 <div>
-                                    <CurrencyInput
-                                        label="Starting Portfolio Value"
-                                        value={initialPortfolio.toString()}
-                                        onChange={(value) => setInitialPortfolio(Number(value) || 0)}
-                                        placeholder="1,000,000"
-                                        allowDecimals={false}
-                                    />
-                                    <p className="text-xs text-gray-600 mt-1">
-                                        Total portfolio value at retirement
-                                    </p>
+                                    <label className="block text-sm font-normal mb-3">Portfolio Value Source</label>
+                                    <div className="flex gap-4">
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="portfolioSource"
+                                                value="custom"
+                                                checked={portfolioSource === 'custom'}
+                                                onChange={() => setPortfolioSource('custom')}
+                                                className="w-4 h-4"
+                                            />
+                                            <span className="text-sm">Custom Value</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="portfolioSource"
+                                                value="plan"
+                                                checked={portfolioSource === 'plan'}
+                                                onChange={() => setPortfolioSource('plan')}
+                                                className="w-4 h-4"
+                                            />
+                                            <span className="text-sm">Use Plan Data</span>
+                                        </label>
+                                    </div>
                                 </div>
+
+                                {/* Plan Selection - Show when in plan mode */}
+                                {portfolioSource === 'plan' && (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-normal mb-2">
+                                                Select Plan
+                                            </label>
+                                            <select
+                                                value={selectedPlanId}
+                                                onChange={(e) => setSelectedPlanId(e.target.value)}
+                                                className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
+                                            >
+                                                <option value="">-- Select a Plan --</option>
+                                                {plans.map((plan) => (
+                                                    <option key={plan.id} value={plan.id}>
+                                                        {plan.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-normal mb-2">
+                                                Starting Age
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={startAge}
+                                                onChange={(e) => setStartAge(Number(e.target.value))}
+                                                className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
+                                                min="18"
+                                                max="100"
+                                            />
+                                            <p className="text-xs text-gray-600 mt-1">
+                                                Age when retirement begins
+                                            </p>
+                                        </div>
+
+                                        {selectedPlanId && (
+                                            <div className="bg-blue-50 border border-blue-200 p-3 rounded">
+                                                <p className="text-sm text-gray-700">
+                                                    <span className="font-medium">Calculated Portfolio at Age {startAge}:</span><br />
+                                                    <span className="text-lg font-light">{formatCurrency(initialPortfolio, currency)}</span>
+                                                </p>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+
+                                {/* Portfolio Value - Show when in custom mode */}
+                                {portfolioSource === 'custom' && (
+                                    <div>
+                                        <CurrencyInput
+                                            label="Starting Portfolio Value"
+                                            value={initialPortfolio.toString()}
+                                            onChange={(value) => setInitialPortfolio(Number(value) || 0)}
+                                            placeholder="1,000,000"
+                                            allowDecimals={false}
+                                        />
+                                        <p className="text-xs text-gray-600 mt-1">
+                                            Total portfolio value at retirement
+                                        </p>
+                                    </div>
+                                )}
 
                                 {/* Retirement Years */}
                                 <div>
@@ -124,6 +267,97 @@ function RunSimulation() {
                                     <p className="text-xs text-gray-600 mt-1">
                                         Initial withdrawal: {formatCurrency(annualWithdrawal, currency)}
                                     </p>
+                                </div>
+
+                                {/* Advanced Options - Collapsible */}
+                                <div className="border-t border-gray-200 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAdvanced(!showAdvanced)}
+                                        className="flex items-center justify-between w-full text-sm font-medium hover:text-gray-700 transition-colors"
+                                    >
+                                        <span>Advanced Options</span>
+                                        <span className="text-gray-400">{showAdvanced ? '−' : '+'}</span>
+                                    </button>
+
+                                    {showAdvanced && (
+                                        <div className="mt-4 space-y-4 pl-2 border-l-2 border-gray-200">
+                                            {/* Data Source */}
+                                            <div>
+                                                <label className="block text-sm font-normal mb-2">
+                                                    Market Data Source
+                                                </label>
+                                                <select
+                                                    value={dataSource}
+                                                    onChange={(e) => setDataSource(e.target.value as 'monte-carlo' | 'historical')}
+                                                    className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
+                                                >
+                                                    <option value="monte-carlo">Simulated Returns (Monte Carlo)</option>
+                                                    <option value="historical">Historical Data (S&P 500, 1970-2024)</option>
+                                                </select>
+                                                <p className="text-xs text-gray-600 mt-1">
+                                                    {dataSource === 'historical'
+                                                        ? 'Uses actual market returns from random historical years'
+                                                        : 'Generates random returns based on statistical averages'}
+                                                </p>
+                                            </div>
+
+                                            {/* Simulation Technique */}
+                                            <div>
+                                                <label className="block text-sm font-normal mb-2">
+                                                    Simulation Technique
+                                                </label>
+                                                <select
+                                                    value={simulationTechnique}
+                                                    onChange={(e) => setSimulationTechnique(e.target.value)}
+                                                    className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
+                                                >
+                                                    <option value="monte-carlo">Monte Carlo</option>
+                                                    <option value="historical" disabled>Historical Simulation (Coming Soon)</option>
+                                                    <option value="bootstrap" disabled>Bootstrap (Coming Soon)</option>
+                                                </select>
+                                                <p className="text-xs text-gray-600 mt-1">
+                                                    Method used to generate market scenarios
+                                                </p>
+                                            </div>
+
+                                            {/* Number of Simulations - Only show for Monte Carlo */}
+                                            {simulationTechnique === 'monte-carlo' && (
+                                                <div>
+                                                    <label className="block text-sm font-normal mb-2">
+                                                        Monte Carlo Simulations
+                                                    </label>
+                                                    <div className="flex gap-2 mb-2">
+                                                        {[1000, 5000, 10000].map((count) => (
+                                                            <button
+                                                                key={count}
+                                                                type="button"
+                                                                onClick={() => setNumberOfSimulations(count)}
+                                                                className={`px-3 py-1 text-xs border transition-colors ${numberOfSimulations === count
+                                                                    ? 'bg-black text-white border-black'
+                                                                    : 'bg-white text-black border-gray-300 hover:border-black'
+                                                                    }`}
+                                                            >
+                                                                {count.toLocaleString()}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    <input
+                                                        type="number"
+                                                        value={numberOfSimulations}
+                                                        onChange={(e) => setNumberOfSimulations(Number(e.target.value))}
+                                                        className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
+                                                        min="100"
+                                                        max="50000"
+                                                        step="100"
+                                                    />
+                                                    <p className="text-xs text-gray-600 mt-1">
+                                                        More simulations = more accurate results (slower)
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Run Button */}

@@ -1,6 +1,8 @@
 // Market data for retirement simulations
 // Using simplified historical averages for Monte Carlo analysis
 
+import { getRandomHistoricalYear } from './historicalReturns'
+
 /**
  * Historical market return statistics
  * Based on long-term S&P 500 and bond market data
@@ -68,5 +70,22 @@ export function generateMarketReturn(stockAllocation: number, bondAllocation: nu
     return {
         portfolioReturn,
         inflation: Math.max(0, inflation), // Ensure non-negative inflation
+    }
+}
+
+/**
+ * Generate market returns using historical data
+ */
+export function generateHistoricalReturn(stockAllocation: number, bondAllocation: number): {
+    portfolioReturn: number
+    inflation: number
+} {
+    const yearData = getRandomHistoricalYear()
+
+    const portfolioReturn = (yearData.sp500Return * stockAllocation) + (yearData.bondReturn * bondAllocation)
+
+    return {
+        portfolioReturn,
+        inflation: yearData.inflationRate,
     }
 }

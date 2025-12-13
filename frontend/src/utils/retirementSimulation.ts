@@ -1,4 +1,4 @@
-import { generateMarketReturn, DEFAULT_PARAMS } from '../data/marketData'
+import { generateMarketReturn, generateHistoricalReturn, DEFAULT_PARAMS } from '../data/marketData'
 
 /**
  * Parameters for retirement simulation
@@ -10,6 +10,7 @@ export interface SimulationParams {
     stockAllocation: number        // Percentage in stocks (0-1)
     bondAllocation: number         // Percentage in bonds (0-1)
     numberOfSimulations: number    // Number of Monte Carlo iterations
+    dataSource?: 'monte-carlo' | 'historical' // Data source for returns
 }
 
 /**
@@ -41,7 +42,7 @@ export interface SimulationResult {
  * Run a single retirement simulation
  */
 function simulateSinglePath(params: SimulationParams): SimulationPath {
-    const { initialPortfolio, annualWithdrawal, retirementYears, stockAllocation, bondAllocation } = params
+    const { initialPortfolio, annualWithdrawal, retirementYears, stockAllocation, bondAllocation, dataSource = 'monte-carlo' } = params
 
     let portfolio = initialPortfolio
     let currentWithdrawal = annualWithdrawal
@@ -50,8 +51,10 @@ function simulateSinglePath(params: SimulationParams): SimulationPath {
     let failureYear: number | undefined
 
     for (let year = 1; year <= retirementYears; year++) {
-        // Generate market returns for this year
-        const { portfolioReturn, inflation } = generateMarketReturn(stockAllocation, bondAllocation)
+        // Generate market returns based on data source
+        const { portfolioReturn, inflation } = dataSource === 'historical'
+            ? generateHistoricalReturn(stockAllocation, bondAllocation)
+            : generateMarketReturn(stockAllocation, bondAllocation)
 
         // Apply market return to portfolio
         portfolio = portfolio * (1 + portfolioReturn)

@@ -61,7 +61,7 @@ function Navbar({
                 <div className="hidden lg:flex items-center gap-2 xl:gap-8 h-full">
                     {/* Logo */}
                     <img
-                        src="/chronos-logo.png"
+                        src="/logo.png"
                         alt="FutureSteps"
                         className="h-14 mix-blend-multiply contrast-125 brightness-110"
                     />
@@ -110,7 +110,7 @@ function Navbar({
                     {/* Mobile Header: Logo + Hamburger */}
                     <div className="flex items-center justify-between">
                         <img
-                            src="/chronos-logo.png"
+                            src="/logo.png"
                             alt="FutureSteps"
                             className="h-10 mix-blend-multiply contrast-125 brightness-110"
                         />

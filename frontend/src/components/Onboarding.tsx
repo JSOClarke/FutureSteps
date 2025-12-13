@@ -119,7 +119,7 @@ function Onboarding() {
                     {currentSlide === 0 && (
                         <div className="text-center">
                             <img
-                                src="/chronos-logo.png"
+                                src="/logo.png"
                                 alt="FutureSteps"
                                 className="h-32 mx-auto mb-8 mix-blend-multiply contrast-125 brightness-110"
                             />

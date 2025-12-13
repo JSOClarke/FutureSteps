@@ -60,28 +60,30 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
             {/* Create New Plan */}
             <div className="mb-6 p-4 bg-white border border-black">
                 <h3 className="font-normal text-black mb-3 text-sm uppercase tracking-wide">Create New Plan</h3>
-                <div className="flex gap-2">
+                <div className="space-y-2">
                     <input
                         type="text"
                         value={newPlanName}
                         onChange={(e) => setNewPlanName(e.target.value)}
                         placeholder="Plan name (e.g., Conservative, Aggressive)"
-                        className="flex-1 px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                        className="w-full px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
                         onKeyDown={(e) => e.key === 'Enter' && handleCreate(false)}
                     />
-                    <button
-                        onClick={() => handleCreate(false)}
-                        className="px-4 py-2 bg-black text-white hover:bg-gray-800 font-normal text-sm uppercase tracking-wide whitespace-nowrap transition-colors"
-                    >
-                        Create Blank
-                    </button>
-                    <button
-                        onClick={() => handleCreate(true)}
-                        className="px-4 py-2 bg-white border border-black text-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide whitespace-nowrap transition-colors"
-                        title="Duplicate current plan"
-                    >
-                        Duplicate Current
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handleCreate(false)}
+                            className="flex-1 px-3 py-2 bg-black text-white hover:bg-gray-800 font-normal text-xs sm:text-sm uppercase tracking-wide transition-colors"
+                        >
+                            Create Blank
+                        </button>
+                        <button
+                            onClick={() => handleCreate(true)}
+                            className="flex-1 px-3 py-2 bg-white border border-black text-black hover:bg-gray-50 font-normal text-xs sm:text-sm uppercase tracking-wide transition-colors"
+                            title="Duplicate current plan"
+                        >
+                            Duplicate
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -97,7 +99,7 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                                 : 'border-gray-200 bg-white'
                                 } hover:bg-gray-50 transition-colors`}
                         >
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                 <div className="flex-1">
                                     {editingId === plan.id ? (
                                         <div className="flex gap-2">
@@ -147,21 +149,21 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                                 </div>
 
                                 {editingId !== plan.id && (
-                                    <div className="flex gap-2 ml-4">
+                                    <div className="flex flex-wrap gap-2 mt-2 sm:mt-0 sm:ml-4">
                                         {plan.id !== activePlanId && (
                                             <button
                                                 onClick={() => {
                                                     setActivePlan(plan.id)
                                                     onClose()
                                                 }}
-                                                className="px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                                                className="px-2 sm:px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-xs sm:text-sm font-light uppercase tracking-wide transition-colors"
                                             >
-                                                Switch To
+                                                Switch
                                             </button>
                                         )}
                                         <button
                                             onClick={() => startEditing(plan.id, plan.name)}
-                                            className="px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide flex items-center gap-2 transition-colors"
+                                            className="px-2 sm:px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-xs sm:text-sm font-light uppercase tracking-wide flex items-center gap-1 transition-colors"
                                         >
                                             <Pencil size={14} /> Rename
                                         </button>
@@ -169,13 +171,13 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                                             <div className="flex gap-1">
                                                 <button
                                                     onClick={() => handleDelete(plan.id)}
-                                                    className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 text-sm font-medium uppercase tracking-wide transition-colors"
+                                                    className="px-2 sm:px-3 py-1 bg-red-600 text-white hover:bg-red-700 text-xs sm:text-sm font-medium uppercase tracking-wide transition-colors"
                                                 >
                                                     Confirm
                                                 </button>
                                                 <button
                                                     onClick={() => setShowConfirmDelete(null)}
-                                                    className="px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide transition-colors"
+                                                    className="px-2 sm:px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-xs sm:text-sm font-light uppercase tracking-wide transition-colors"
                                                 >
                                                     Cancel
                                                 </button>
@@ -183,7 +185,7 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                                         ) : (
                                             <button
                                                 onClick={() => setShowConfirmDelete(plan.id)}
-                                                className="px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-sm font-light uppercase tracking-wide flex items-center gap-2 transition-colors"
+                                                className="px-2 sm:px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-xs sm:text-sm font-light uppercase tracking-wide flex items-center gap-1 transition-colors"
                                                 disabled={plans.length === 1}
                                             >
                                                 <Trash2 size={14} /> Delete

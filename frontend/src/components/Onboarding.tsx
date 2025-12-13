@@ -95,8 +95,21 @@ function Onboarding() {
     }
 
     return (
-        <div className="min-h-screen bg-white flex items-center justify-center p-8">
-            <div className="w-full max-w-2xl">
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+            <div className="w-full max-w-2xl bg-white border border-black p-8 relative">
+                {/* Sign In Button - Top Right */}
+                <button
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className="absolute top-4 right-4 px-4 py-2 text-sm bg-black text-white hover:bg-gray-800 transition-colors"
+                >
+                    Sign In
+                </button>
+
+                {/* Logo/Title */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-light mb-2">ChronosProjections</h1>
+                    <p className="text-gray-600 text-sm">Financial projection planning</p>
+                </div>
                 {/* Slide Content with Fade */}
                 <div
                     className="transition-opacity duration-300"

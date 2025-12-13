@@ -4,6 +4,7 @@ import { GraphVisualization, ProjectionDetails } from './projections'
 import { FinancialCategoryCard } from './financial'
 import Profile from './profile/Profile'
 import { Navbar } from './shared'
+import RunSimulation from './retirement/RunSimulation'
 
 
 // Create context for priority orders
@@ -19,7 +20,7 @@ const PriorityContext = createContext<PriorityContextType>({
 
 export const usePriority = () => useContext(PriorityContext)
 
-type View = 'dashboard' | 'profile'
+type View = 'dashboard' | 'profile' | 'simulation'
 
 function Dashboard() {
     const [selectedYear, setSelectedYear] = useState<number | null>(null)
@@ -61,11 +62,15 @@ function Dashboard() {
                         milestones={milestones}
                         onMilestonesChange={handleMilestonesChange}
                         onProfileClick={() => setCurrentView('profile')}
+                        onSimulationClick={() => setCurrentView('simulation')}
                     />
                 )}
 
+                {/* Views */}
                 {currentView === 'profile' ? (
                     <Profile onBack={() => setCurrentView('dashboard')} />
+                ) : currentView === 'simulation' ? (
+                    <RunSimulation />
                 ) : (
                     <>
 

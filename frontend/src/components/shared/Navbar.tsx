@@ -14,6 +14,7 @@ interface NavbarProps {
     milestones: Milestone[]
     onMilestonesChange: (milestones: Milestone[]) => void
     onProfileClick: () => void
+    onSimulationClick: () => void
 }
 
 function Navbar({
@@ -23,7 +24,8 @@ function Navbar({
     onDeficitPriorityChange,
     milestones,
     onMilestonesChange,
-    onProfileClick
+    onProfileClick,
+    onSimulationClick
 }: NavbarProps) {
     const [surplusModalOpen, setSurplusModalOpen] = useState(false)
     const [deficitModalOpen, setDeficitModalOpen] = useState(false)
@@ -85,6 +87,12 @@ function Navbar({
                         title="Configure how deficits are covered"
                     >
                         Deficit Priority
+                    </NavButton>
+                    <NavButton
+                        onClick={onSimulationClick}
+                        title="Run retirement simulation"
+                    >
+                        Run Simulation
                     </NavButton>
                     <NavButton
                         onClick={onProfileClick}
@@ -149,6 +157,15 @@ function Navbar({
                                 className="w-full"
                             >
                                 Deficit Priority
+                            </NavButton>
+                            <NavButton
+                                onClick={() => {
+                                    onSimulationClick()
+                                    setMobileMenuOpen(false)
+                                }}
+                                className="w-full"
+                            >
+                                Run Simulation
                             </NavButton>
                             <NavButton
                                 onClick={() => {

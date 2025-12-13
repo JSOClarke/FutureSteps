@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="frontend/public/chronos-logo.png" alt="ChronosProjections Logo" width="200"/>
+  <img src="frontend/public/chronos-logo.png" alt="FutureSteps Logo" width="200"/>
   
-  # ChronosProjections
+  # FutureSteps
   
   **Advanced Financial Projection & Retirement Planning Tool**
   
@@ -20,7 +20,7 @@
 
 ## Overview
 
-ChronosProjections is a sophisticated financial planning application that helps users visualize their financial future through detailed projections, milestone tracking, and retirement simulations. Built with modern web technologies, it provides an intuitive interface for managing income, expenses, assets, and liabilities while projecting net worth trajectories over time.
+FutureSteps is a sophisticated financial planning application that helps users visualize their financial future through detailed projections, milestone tracking, and retirement simulations. Built with modern web technologies, it provides an intuitive interface for managing income, expenses, assets, and liabilities while projecting net worth trajectories over time.
 
 ## Key Features
 
@@ -86,8 +86,8 @@ ChronosProjections is a sophisticated financial planning application that helps 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/ChronosProjections.git
-   cd ChronosProjections
+   git clone https://github.com/yourusername/FutureSteps.git
+   cd FutureSteps
    ```
 
 2. **Install dependencies**
@@ -122,7 +122,7 @@ ChronosProjections is a sophisticated financial planning application that helps 
 ## Project Structure
 
 ```
-ChronosProjections/
+FutureSteps/
 ├── frontend/
 │   ├── public/              # Static assets
 │   │   ├── chronos-logo.png
@@ -181,7 +181,7 @@ ChronosProjections/
 
 ## Authentication
 
-ChronosProjections supports multiple authentication methods:
+FutureSteps supports multiple authentication methods:
 
 - **Email/Password**: Traditional account creation
 - **Google OAuth**: One-click sign-in
@@ -236,12 +236,12 @@ This project is proprietary software. All rights reserved.
 ## Contact
 
 For questions, suggestions, or support:
-- Email: support@chronosprojections.com
+- Email: support@futuresteps.com
 - Website: https://chronosprojections.netlify.app/
 
 ---
 
 <div align="center">
   <p>Built for better financial futures</p>
-  <p><strong>ChronosProjections</strong> - Plan Today, Prosper Tomorrow</p>
+  <p><strong>FutureSteps</strong> - Plan Today, Prosper Tomorrow</p>
 </div>

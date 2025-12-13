@@ -62,7 +62,7 @@ function Navbar({
                     {/* Logo */}
                     <img
                         src="/chronos-logo.png"
-                        alt="Chronos"
+                        alt="FutureSteps"
                         className="h-14 mix-blend-multiply contrast-125 brightness-110"
                     />
 
@@ -111,7 +111,7 @@ function Navbar({
                     <div className="flex items-center justify-between">
                         <img
                             src="/chronos-logo.png"
-                            alt="Chronos"
+                            alt="FutureSteps"
                             className="h-10 mix-blend-multiply contrast-125 brightness-110"
                         />
                         <button

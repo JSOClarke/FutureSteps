@@ -107,7 +107,7 @@ function Onboarding() {
 
                 {/* Logo/Title */}
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-light mb-2">ChronosProjections</h1>
+                    <h1 className="text-3xl font-light mb-2">FutureSteps</h1>
                     <p className="text-gray-600 text-sm">Financial projection planning</p>
                 </div>
                 {/* Slide Content with Fade */}
@@ -120,11 +120,11 @@ function Onboarding() {
                         <div className="text-center">
                             <img
                                 src="/chronos-logo.png"
-                                alt="Chronos"
+                                alt="FutureSteps"
                                 className="h-32 mx-auto mb-8 mix-blend-multiply contrast-125 brightness-110"
                             />
                             <h1 className="text-4xl font-normal text-black mb-4 uppercase tracking-wide">
-                                Welcome to Chronos
+                                Welcome to FutureSteps
                             </h1>
                             <p className="text-lg text-gray-600 font-light mb-12 max-w-md mx-auto">
                                 Plan your financial future with precision. Let's start by getting to know you.

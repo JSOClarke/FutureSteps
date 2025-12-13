@@ -5,8 +5,9 @@ import type { Milestone } from '../milestones/types'
 import {
     BarChart,
     Bar,
-    LineChart,
     Line,
+    Area,
+    ComposedChart,
     XAxis,
     YAxis,
     Tooltip,
@@ -125,10 +126,18 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
             const year = label
             const yearMilestones = milestoneYears.filter(m => m.year === year)
 
+            // Filter out duplicate entries (Area and Line both have "Net Worth")
+            const uniquePayload = payload.reduce((acc: any[], entry: any) => {
+                if (!acc.find(item => item.dataKey === entry.dataKey)) {
+                    acc.push(entry)
+                }
+                return acc
+            }, [])
+
             return (
                 <div className="bg-white border border-gray-200 p-3 rounded shadow-lg outline-none">
                     <p className="font-semibold mb-2">{year}</p>
-                    {payload.map((entry: any) => (
+                    {uniquePayload.map((entry: any) => (
                         <p key={entry.name} style={{ color: entry.color }} className="text-sm">
                             {entry.name}: {formatCurrency(entry.value, currency)}
                         </p>
@@ -170,8 +179,8 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                     <button
                         onClick={() => handleChartTypeChange('bar')}
                         className={`p-1.5 sm:p-2 transition-colors ${chartType === 'bar'
-                                ? 'bg-black text-white'
-                                : 'bg-white text-black hover:bg-gray-100'
+                            ? 'bg-black text-white'
+                            : 'bg-white text-black hover:bg-gray-100'
                             }`}
                         title="Bar Chart"
                     >
@@ -180,8 +189,8 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                     <button
                         onClick={() => handleChartTypeChange('line')}
                         className={`p-1.5 sm:p-2 transition-colors ${chartType === 'line'
-                                ? 'bg-black text-white'
-                                : 'bg-white text-black hover:bg-gray-100'
+                            ? 'bg-black text-white'
+                            : 'bg-white text-black hover:bg-gray-100'
                             }`}
                         title="Line Chart"
                     >
@@ -299,7 +308,7 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                         />
                     </BarChart>
                 ) : (
-                    <LineChart
+                    <ComposedChart
                         data={chartData}
                         margin={{ top: 10, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}
                         onClick={(data) => {
@@ -308,6 +317,12 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                             }
                         }}
                     >
+                        <defs>
+                            <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.5} />
+                                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
                         <XAxis
                             dataKey="year"
                             hide={true}
@@ -359,6 +374,16 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                         <Tooltip content={<CustomTooltip />} />
 
                         <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
+
+                        {/* Solid color Area below the line */}
+                        <Area
+                            type="monotone"
+                            dataKey="Net Worth"
+                            stroke="none"
+                            fill="#3B82F6"
+                            fillOpacity={0.2}
+                        />
+
                         <Line
                             type="monotone"
                             dataKey="Net Worth"
@@ -418,7 +443,7 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                             }}
                             activeDot={{ r: 5, cursor: 'pointer' }}
                         />
-                    </LineChart>
+                    </ComposedChart>
                 )}
             </ResponsiveContainer>
         </div>

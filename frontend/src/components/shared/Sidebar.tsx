@@ -1,32 +1,32 @@
 import { useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Home, User, Settings, FileText, LogOut, ChevronDown, FolderOpen } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { usePlans } from '../../context/PlansContext'
 import PlanModal from '../plans/PlanModal'
 
 interface SidebarProps {
-    currentPage: string
-    onNavigate: (page: string) => void
     isCollapsed: boolean
     onToggleCollapse: () => void
 }
 
-export function Sidebar({ currentPage, onNavigate, isCollapsed, onToggleCollapse }: SidebarProps) {
+export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     const { signOut, user } = useAuth()
     const { plans, activePlanId, setActivePlanId } = usePlans()
     const [plansExpanded, setPlansExpanded] = useState(true)
     const [showPlanModal, setShowPlanModal] = useState(false)
+    const navigate = useNavigate()
 
     const handlePlanClick = (planId: string) => {
         setActivePlanId(planId)
-        onNavigate('plans') // Navigate to plans page when selecting a plan
+        navigate('/plans')
     }
 
     const navigation = [
-        { id: 'dashboard', label: 'Dashboard', icon: Home },
-        { id: 'profile', label: 'Profile', icon: User },
-        { id: 'settings', label: 'Settings', icon: Settings },
-        { id: 'reports', label: 'Reports', icon: FileText },
+        { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard' },
+        { id: 'profile', label: 'Profile', icon: User, path: '/profile' },
+        { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
+        { id: 'reports', label: 'Reports', icon: FileText, path: '/reports' },
     ]
 
     return (
@@ -82,15 +82,14 @@ export function Sidebar({ currentPage, onNavigate, isCollapsed, onToggleCollapse
                     <nav className="flex-1 p-4 space-y-1">
                         {navigation.map((item) => {
                             const Icon = item.icon
-                            const isActive = currentPage === item.id
                             return (
-                                <button
+                                <NavLink
                                     key={item.id}
+                                    to={item.path}
                                     onClick={() => {
-                                        onNavigate(item.id)
                                         if (window.innerWidth < 1024) onToggleCollapse()
                                     }}
-                                    className={`
+                                    className={({ isActive }) => `
                                         w-full flex items-center gap-3 px-4 py-3
                                         transition-colors font-light text-sm uppercase tracking-wide
                                         ${isActive
@@ -103,7 +102,7 @@ export function Sidebar({ currentPage, onNavigate, isCollapsed, onToggleCollapse
                                 >
                                     <Icon className="w-5 h-5 flex-shrink-0" />
                                     {!isCollapsed && <span>{item.label}</span>}
-                                </button>
+                                </NavLink>
                             )
                         })}
 

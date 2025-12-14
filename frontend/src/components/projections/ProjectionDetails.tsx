@@ -1,5 +1,5 @@
 import { useProjections } from '../../hooks/useProjections'
-import { usePriority } from '../Dashboard'
+import { usePriority } from '../../pages/PlansPage'
 import { CollapsibleSection } from '../shared'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'

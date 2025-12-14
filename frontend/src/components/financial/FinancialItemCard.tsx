@@ -35,19 +35,19 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
     return (
         <div
             onClick={() => onEdit(item)}
-            className="p-4 border border-black bg-white hover:bg-gray-50 transition-all shadow-sm flex justify-between items-center group cursor-pointer"
+            className="px-3 py-2 border border-black bg-white hover:bg-gray-50 transition-all shadow-sm flex justify-between items-center group cursor-pointer"
         >
-            <div className="flex flex-col">
-                <span className="font-medium text-black text-lg">{item.name}</span>
+            <div className="flex flex-col min-w-0 flex-1">
+                <span className="font-medium text-black text-base">{item.name}</span>
                 {infoItems.length > 0 && (
-                    <span className="text-xs text-gray-500 mt-1 font-light uppercase tracking-wide">
+                    <span className="text-xs text-gray-500 font-light uppercase tracking-wide">
                         {infoItems.join(' • ')}
                     </span>
                 )}
             </div>
 
-            <div className="flex items-center gap-4">
-                <span className="font-bold text-black text-lg">
+            <div className="flex items-center gap-3 flex-shrink-0">
+                <span className="font-bold text-black text-base">
                     {formatCurrency(item.value, currency)}
                 </span>
 
@@ -57,10 +57,10 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
                             e.stopPropagation() // Prevent card click
                             onDelete(item.id)
                         }}
-                        className="p-2 text-black hover:bg-red-100 hover:text-red-600 rounded-full transition-colors"
+                        className="p-1.5 text-black hover:bg-red-100 hover:text-red-600 rounded-full transition-colors"
                         title="Delete item"
                     >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                     </button>
                 </div>
             </div>

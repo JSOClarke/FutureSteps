@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useProjections } from '../../hooks/useProjections'
-import { usePriority } from '../Dashboard'
+import { usePriority } from '../../pages/PlansPage'
 import type { Milestone } from '../milestones/types'
 import {
     BarChart,

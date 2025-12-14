@@ -52,32 +52,30 @@ function FinancialCategoryCard({
         }
     }
 
-
-
     return (
         <>
             <div
-                className="flex-1 p-6 flex flex-col border border-black"
+                className="flex-1 p-4 flex flex-col border border-black"
                 style={{
                     backgroundColor,
                     minHeight: '300px',
                 }}
             >
                 {/* Header */}
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-2xl font-normal text-black">{title}</h3>
+                <div className="flex justify-between items-center mb-3">
+                    <h3 className="text-xl font-normal text-black">{title}</h3>
                     <button
                         onClick={handleAddNew}
-                        className="px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
+                        className="px-3 py-1.5 bg-black text-white hover:bg-gray-800 transition-colors text-xs font-normaluppercase tracking-wide"
                     >
                         Add New
                     </button>
                 </div>
 
-                <div className="border-t-2 border-black border-opacity-20 mb-3" />
+                <div className="border-t-2 border-black border-opacity-20 mb-2" />
 
                 {/* Items List */}
-                <div className="flex-1 overflow-y-auto space-y-2">
+                <div className="flex-1 overflow-y-auto space-y-1.5">
                     {items.length === 0 ? (
                         <p className="text-gray-500 font-light text-center py-8">No items yet. Click "Add New" to create one.</p>
                     ) : (
@@ -91,8 +89,6 @@ function FinancialCategoryCard({
                         ))
                     )}
                 </div>
-
-
             </div>
 
             <FinancialItemModal

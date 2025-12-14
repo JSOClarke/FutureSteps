@@ -52,3 +52,35 @@ export interface UserProfile {
     customDeathDate?: string
     currency?: string // ISO currency code (e.g., 'USD', 'EUR', 'GBP')
 }
+
+export interface FinancialSnapshot {
+    id: string
+    user_id: string
+    created_at: string // ISO timestamp
+    total_income: number
+    total_expenses: number
+    total_assets: number
+    total_liabilities: number
+    net_worth: number
+    income_count?: number
+    expense_count?: number
+    asset_count?: number
+    liability_count?: number
+    note?: string
+}
+
+export interface SnapshotItem {
+    id: string
+    snapshot_id: string
+    created_at: string
+    name: string
+    amount: number
+    category: FinancialCategory
+}
+
+export interface DashboardItem {
+    id: string
+    name: string
+    amount: number
+    category: FinancialCategory
+}

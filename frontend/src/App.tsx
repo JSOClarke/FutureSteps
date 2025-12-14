@@ -4,6 +4,8 @@ import { UserProvider, useUser } from './context/UserContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { PlansProvider } from './context/PlansContext'
 import { FinancialItemsProvider } from './context/FinancialItemsContext'
+import { SnapshotsProvider } from './context/SnapshotsContext'
+import { DashboardItemsProvider } from './context/DashboardItemsContext'
 import { SettingsProvider } from './context/SettingsContext'
 import { MainLayout } from './components/layouts/MainLayout'
 import { DashboardPage, PlansPage, SettingsPage, ReportsPage } from './pages'
@@ -45,7 +47,11 @@ function App() {
         <SettingsProvider>
           <PlansProvider>
             <FinancialItemsProvider>
-              <AppContent />
+              <SnapshotsProvider>
+                <DashboardItemsProvider>
+                  <AppContent />
+                </DashboardItemsProvider>
+              </SnapshotsProvider>
             </FinancialItemsProvider>
           </PlansProvider>
         </SettingsProvider>

@@ -10,6 +10,22 @@ interface FinancialItemsContextType {
     updateItem: (id: string, item: Partial<FinancialItem>) => Promise<void>
     deleteItem: (id: string) => Promise<void>
     getItemsByCategory: (category: FinancialCategory) => FinancialItem[]
+    getTotalIncome: () => number
+    getTotalExpenses: () => number
+    getTotalAssets: () => number
+    getTotalLiabilities: () => number
+    getNetWorth: () => number
+    getCurrentSnapshot: () => {
+        totalIncome: number
+        totalExpenses: number
+        totalAssets: number
+        totalLiabilities: number
+        netWorth: number
+        incomeCount: number
+        expenseCount: number
+        assetCount: number
+        liabilityCount: number
+    }
 }
 
 const FinancialItemsContext = createContext<FinancialItemsContextType | undefined>(undefined)
@@ -199,8 +215,62 @@ export function FinancialItemsProvider({ children }: { children: React.ReactNode
         return items.filter(item => item.category === category)
     }
 
+    const getTotalIncome = () => {
+        return items
+            .filter(item => item.category === 'income')
+            .reduce((sum, item) => sum + item.value, 0)
+    }
+
+    const getTotalExpenses = () => {
+        return items
+            .filter(item => item.category === 'expenses')
+            .reduce((sum, item) => sum + item.value, 0)
+    }
+
+    const getTotalAssets = () => {
+        return items
+            .filter(item => item.category === 'assets')
+            .reduce((sum, item) => sum + item.value, 0)
+    }
+
+    const getTotalLiabilities = () => {
+        return items
+            .filter(item => item.category === 'liabilities')
+            .reduce((sum, item) => sum + item.value, 0)
+    }
+
+    const getNetWorth = () => {
+        return getTotalAssets() - getTotalLiabilities()
+    }
+
+    const getCurrentSnapshot = () => {
+        return {
+            totalIncome: getTotalIncome(),
+            totalExpenses: getTotalExpenses(),
+            totalAssets: getTotalAssets(),
+            totalLiabilities: getTotalLiabilities(),
+            netWorth: getNetWorth(),
+            incomeCount: items.filter(i => i.category === 'income').length,
+            expenseCount: items.filter(i => i.category === 'expenses').length,
+            assetCount: items.filter(i => i.category === 'assets').length,
+            liabilityCount: items.filter(i => i.category === 'liabilities').length
+        }
+    }
+
     return (
-        <FinancialItemsContext.Provider value={{ items, addItem, updateItem, deleteItem, getItemsByCategory }}>
+        <FinancialItemsContext.Provider value={{
+            items,
+            addItem,
+            updateItem,
+            deleteItem,
+            getItemsByCategory,
+            getTotalIncome,
+            getTotalExpenses,
+            getTotalAssets,
+            getTotalLiabilities,
+            getNetWorth,
+            getCurrentSnapshot
+        }}>
             {children}
         </FinancialItemsContext.Provider>
     )

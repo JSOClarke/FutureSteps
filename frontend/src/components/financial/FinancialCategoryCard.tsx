@@ -28,8 +28,12 @@ function FinancialCategoryCard({
     }
 
     const handleEdit = (item: FinancialItem) => {
+        // Set the item first
         setEditingItem(item)
-        setIsModalOpen(true)
+        // Defer opening modal by one tick to ensure state is fully updated
+        setTimeout(() => {
+            setIsModalOpen(true)
+        }, 0)
     }
 
     const handleSave = (data: Omit<FinancialItem, 'id' | 'category'>) => {
@@ -92,6 +96,7 @@ function FinancialCategoryCard({
             </div>
 
             <FinancialItemModal
+                key={editingItem?.id || 'new'} // Force remount when item changes
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSave}

@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import type { FinancialItem } from '../../types'
@@ -34,7 +34,8 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
 
     return (
         <div
-            className="p-4 border border-black bg-white hover:bg-gray-50 transition-all shadow-sm flex justify-between items-center group"
+            onClick={() => onEdit(item)}
+            className="p-4 border border-black bg-white hover:bg-gray-50 transition-all shadow-sm flex justify-between items-center group cursor-pointer"
         >
             <div className="flex flex-col">
                 <span className="font-medium text-black text-lg">{item.name}</span>
@@ -52,14 +53,10 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
 
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                        onClick={() => onEdit(item)}
-                        className="p-2 text-black hover:bg-gray-200 rounded-full transition-colors"
-                        title="Edit item"
-                    >
-                        <Pencil size={16} />
-                    </button>
-                    <button
-                        onClick={() => onDelete(item.id)}
+                        onClick={(e) => {
+                            e.stopPropagation() // Prevent card click
+                            onDelete(item.id)
+                        }}
                         className="p-2 text-black hover:bg-red-100 hover:text-red-600 rounded-full transition-colors"
                         title="Delete item"
                     >

@@ -3,6 +3,7 @@ import { useSnapshots } from '../context/SnapshotsContext'
 import { useDashboardItems } from '../context/DashboardItemsContext'
 import { SnapshotHistoryTable } from '../components/dashboard/SnapshotHistoryTable'
 import { DashboardCategoryCard } from '../components/dashboard/DashboardCategoryCard'
+import { PageHeader } from '../components/shared/PageHeader'
 import { useState, useEffect } from 'react'
 import { useCurrency } from '../hooks/useCurrency'
 import { formatCurrency } from '../utils/formatters'
@@ -96,11 +97,10 @@ export function DashboardPage() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-normal">Financial Dashboard</h1>
-                <p className="text-sm text-gray-600 mt-1">Track your finances over time</p>
-            </div>
+            <PageHeader
+                title="Financial Dashboard"
+                subtitle="Track your finances over time"
+            />
 
             {/* Most Recent Snapshot */}
             {mostRecentSnapshot && !isCreatingSnapshot && (

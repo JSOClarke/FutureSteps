@@ -80,7 +80,7 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
                         />
 
                         {/* Dropdown menu */}
-                        <div className="absolute right-0 mt-2 w-80 bg-white border border-black shadow-lg z-20">
+                        <div className="absolute left-0 mt-2 w-80 bg-white border border-black shadow-lg z-20">
                             <div className="p-3 border-b border-gray-200">
                                 <h3 className="font-semibold text-gray-800">Milestone Goals</h3>
                             </div>

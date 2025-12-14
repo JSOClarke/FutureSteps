@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft } from 'lucide-react'
 import { runRetirementSimulation, calculateInitialWithdrawal, type SimulationResult } from '../../utils/retirementSimulation'
 import { DEFAULT_PARAMS } from '../../data/marketData'
 import { formatCurrency } from '../../utils/formatters'
@@ -12,13 +11,13 @@ import SuccessRateCard from './SuccessRateCard'
 import PortfolioPathsChart from './PortfolioPathsChart'
 
 interface RunSimulationProps {
-    onBack: () => void
+    onBack?: () => void  // Optional, mainly used for modal close
     lockToPlan?: boolean  // If true, locks to current plan without showing mode selector
 }
 
 type PortfolioSource = 'custom' | 'plan'
 
-function RunSimulation({ onBack, lockToPlan = false }: RunSimulationProps) {
+function RunSimulation({ lockToPlan = false }: RunSimulationProps) {
     const currency = useCurrency()
     const { plans, activePlanId } = usePlans()
     const { userProfile } = useUser()
@@ -102,15 +101,6 @@ function RunSimulation({ onBack, lockToPlan = false }: RunSimulationProps) {
     return (
         <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-7xl mx-auto">
-                {/* Back Button */}
-                <button
-                    onClick={onBack}
-                    className="flex items-center gap-2 text-gray-600 hover:text-black mb-4 transition-colors"
-                >
-                    <ArrowLeft size={20} />
-                    <span>Back to Dashboard</span>
-                </button>
-
                 <h1 className="text-3xl font-light mb-6">Run Simulation</h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

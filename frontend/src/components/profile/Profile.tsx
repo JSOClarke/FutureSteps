@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '../../context/UserContext'
+import { PageHeader } from '../shared/PageHeader'
 import { SUPPORTED_CURRENCIES } from '../../data/currencyData'
 
 function Profile() {
@@ -46,10 +47,14 @@ function Profile() {
     }
 
     return (
-        <div className="w-full">
+        <div className="w-full space-y-6">
+            <PageHeader
+                title="Profile"
+                subtitle="Manage your personal information and preferences"
+            />
+
             {/* Profile Form */}
             <div className="border border-black p-8 bg-white">
-                <h1 className="text-3xl font-light mb-8">My Profile</h1>
                 <div className="max-w-2xl">
                     <div className="space-y-6">
                         {/* Full Name */}

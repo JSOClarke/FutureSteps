@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Home, User, Settings, FileText, LogOut, ChevronDown, FolderOpen, Trash2, Plus } from 'lucide-react'
+import { Home, User, Settings, FileText, LogOut, ChevronDown, FolderOpen, X, Plus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { usePlans } from '../../context/PlansContext'
 
@@ -170,18 +170,13 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                                                 >
                                                     {plan.name}
                                                 </button>
-                                                <div className="flex items-center gap-1">
-                                                    {activePlanId === plan.id && (
-                                                        <span className="text-black font-bold">✓</span>
-                                                    )}
-                                                    <button
-                                                        onClick={(e) => handleDeletePlan(plan.id, plan.name, e)}
-                                                        className="p-1 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-all"
-                                                        title={`Delete ${plan.name}`}
-                                                    >
-                                                        <Trash2 size={12} />
-                                                    </button>
-                                                </div>
+                                                <button
+                                                    onClick={(e) => handleDeletePlan(plan.id, plan.name, e)}
+                                                    className="p-1 text-gray-400 hover:text-red-600 transition-all"
+                                                    title={`Delete ${plan.name}`}
+                                                >
+                                                    <X size={14} />
+                                                </button>
                                             </div>
                                         ))}
 

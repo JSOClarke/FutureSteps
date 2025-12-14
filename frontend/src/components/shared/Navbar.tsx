@@ -58,12 +58,12 @@ function Navbar({
                 }}
             >
                 {/* Desktop Navigation (hidden on mobile) */}
-                <div className="hidden lg:flex items-center gap-2 xl:gap-8 h-full">
+                <div className="hidden lg:flex items-center gap-1.5 xl:gap-6 h-full flex-wrap max-w-full">
                     {/* Logo */}
                     <img
                         src="/logo.png"
                         alt="FutureSteps"
-                        className="h-14 mix-blend-multiply contrast-125 brightness-110"
+                        className="h-12 xl:h-14 mix-blend-multiply contrast-125 brightness-110 flex-shrink-0"
                     />
 
                     {/* Navigation Items */}
@@ -80,19 +80,19 @@ function Navbar({
                         onClick={() => setSurplusModalOpen(true)}
                         title="Configure how surplus cash is allocated"
                     >
-                        Surplus Priority
+                        Surplus
                     </NavButton>
                     <NavButton
                         onClick={() => setDeficitModalOpen(true)}
                         title="Configure how deficits are covered"
                     >
-                        Deficit Priority
+                        Deficit
                     </NavButton>
                     <NavButton
                         onClick={onSimulationClick}
                         title="Run retirement simulation"
                     >
-                        Run Simulation
+                        Simulation
                     </NavButton>
                     <NavButton
                         onClick={onProfileClick}
@@ -100,7 +100,7 @@ function Navbar({
                     >
                         Profile
                     </NavButton>
-                    <div className="ml-auto">
+                    <div className="ml-auto flex-shrink-0">
                         <LoginButton />
                     </div>
                 </div>

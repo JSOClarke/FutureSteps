@@ -97,6 +97,9 @@ export function PlansProvider({ children }: { children: React.ReactNode }) {
     const activePlan = plans.find((p) => p.id === activePlanId) || null
 
     const createPlan = async (name: string, description?: string) => {
+        console.log('createPlan called with name:', name, 'description:', description)
+        console.log('User in PlansContext:', user ? `ID: ${user.id}` : 'NULL - will save to localStorage')
+
         const tempId = crypto.randomUUID()
         const newPlan: Plan = {
             id: tempId,
@@ -115,6 +118,7 @@ export function PlansProvider({ children }: { children: React.ReactNode }) {
         setActivePlanId(tempId)
 
         if (user) {
+            console.log('Saving plan to Supabase for user:', user.id)
             // Authenticated: Save to Supabase
             const { data, error } = await supabase
                 .from('plans')
@@ -127,15 +131,17 @@ export function PlansProvider({ children }: { children: React.ReactNode }) {
                 .single()
 
             if (error) {
-                console.error('Error creating plan:', error)
+                console.error('Error creating plan in Supabase:', error)
                 setPlans(prev => prev.filter(p => p.id !== tempId))
                 return
             }
 
+            console.log('Plan created in Supabase successfully:', data)
             // Update with real ID
             setPlans(prev => prev.map(p => p.id === tempId ? { ...p, id: data.id } : p))
             setActivePlanId(data.id)
         } else {
+            console.log('No user - saving plan to localStorage')
             // Guest: Save to localStorage
             localStorage.setItem('guest_plans', JSON.stringify(updatedPlans))
         }

@@ -21,13 +21,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         try {
             if (isLogin) {
                 await signInWithEmail(email, password)
-                if (onSuccess) onSuccess()
-                onClose()
             } else {
                 await signUpWithEmail(email, password)
-                alert('Account created! You can now sign in.')
-                setIsLogin(true)
             }
+            // Call onSuccess for both login and signup
+            if (onSuccess) await onSuccess()
+            onClose()
         } catch (err) {
             // Error is handled in context
         } finally {

@@ -1,18 +1,30 @@
 import { useState } from 'react'
 import { useUser } from '../context/UserContext'
+import { useAuth } from '../context/AuthContext'
 import { usePlans } from '../context/PlansContext'
 import { COUNTRIES, calculateDeathDate } from '../data/lifeExpectancyData'
 import { getDefaultCurrency } from '../data/currencyData'
 import AuthModal from './shared/AuthModal'
 
+type OnboardingMode = 'welcome' | 'signup' | 'onboarding'
+
 function Onboarding() {
     const { createProfile } = useUser()
+    const { signUpWithEmail } = useAuth()
     const { createPlan } = usePlans()
+
+    const [mode, setMode] = useState<OnboardingMode>('welcome')
     const [currentSlide, setCurrentSlide] = useState(0)
     const [fadeIn, setFadeIn] = useState(true)
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+    const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
-    // Form data
+    // Signup form data
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+
+    // Onboarding form data
     const [name, setName] = useState('')
     const [dateOfBirth, setDateOfBirth] = useState('')
     const [country, setCountry] = useState('')
@@ -24,7 +36,7 @@ function Onboarding() {
         : ''
 
     const handleNext = () => {
-        if (currentSlide < 3) {
+        if (currentSlide < 2) {
             setFadeIn(false)
             setTimeout(() => {
                 setCurrentSlide(currentSlide + 1)
@@ -43,103 +55,201 @@ function Onboarding() {
         }
     }
 
-    const handleGuestComplete = async () => {
+    const handleSignUp = async () => {
+        if (!email || !password) {
+            setError('Please enter email and password')
+            return
+        }
+
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters')
+            return
+        }
+
+        setLoading(true)
+        setError(null)
+
+        try {
+            await signUpWithEmail(email, password)
+            // After signup, move to onboarding
+            setMode('onboarding')
+            setCurrentSlide(0)
+        } catch (err: any) {
+            setError(err.message || 'Error creating account')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleCompleteOnboarding = async () => {
         if (!name || !dateOfBirth || !country || !planName) {
             alert('Please fill in all required fields')
             return
         }
 
-        // Create Profile (Guest)
-        await createProfile({
-            full_name: name,
-            dateOfBirth,
-            country,
-            customDeathDate: customDeathDate || calculatedDeathDate,
-            currency: getDefaultCurrency(country)
-        })
+        setLoading(true)
+        try {
+            await createProfile({
+                full_name: name,
+                dateOfBirth,
+                country,
+                customDeathDate: customDeathDate || calculatedDeathDate,
+                currency: getDefaultCurrency(country)
+            })
 
-        // Create Plan (Guest)
-        await createPlan(planName, 'My first financial plan')
+            await createPlan(planName, 'My first financial plan')
+        } catch (err) {
+            console.error('Error completing onboarding:', err)
+            alert('Error saving your information. Please try again.')
+        } finally {
+            setLoading(false)
+        }
     }
 
-    const handleSignUpComplete = () => {
-        setIsAuthModalOpen(true)
-    }
-
-    const handleAuthSuccess = async () => {
-        // After successful signup/login, create the profile and plan
-        // The AuthModal handles the auth part, but we need to ensure profile/plan are created
-        // Wait, if they sign up, the UserContext will update with the new user.
-        // We should call createProfile and createPlan AFTER auth.
-
-        // Actually, createProfile handles both auth and guest.
-        // So we can just call it.
-
-        await createProfile({
-            full_name: name,
-            dateOfBirth,
-            country,
-            customDeathDate: customDeathDate || calculatedDeathDate,
-            currency: getDefaultCurrency(country)
-        })
-
-        await createPlan(planName, 'My first financial plan')
-        setIsAuthModalOpen(false)
+    const handleSignInSuccess = () => {
+        setIsSignInModalOpen(false)
+        // User will be redirected to dashboard by App.tsx since they have a profile
     }
 
     const canProceed = () => {
-        if (currentSlide === 0) return true
-        if (currentSlide === 1) return name && dateOfBirth && country
-        if (currentSlide === 2) return !!planName
+        if (currentSlide === 0) return name && dateOfBirth && country
+        if (currentSlide === 1) return !!planName
         return true
     }
 
+    // Welcome screen
+    if (mode === 'welcome') {
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+                <div className="w-full max-w-2xl bg-white border border-black p-8">
+                    <div className="text-center mb-12">
+                        <img
+                            src="/logo.png"
+                            alt="FutureSteps"
+                            className="h-32 mx-auto mb-8 mix-blend-multiply contrast-125 brightness-110"
+                        />
+                        <h1 className="text-4xl font-normal text-black mb-4 uppercase tracking-wide">
+                            Welcome to FutureSteps
+                        </h1>
+                        <p className="text-lg text-gray-600 font-light max-w-md mx-auto">
+                            Plan your financial future with precision
+                        </p>
+                    </div>
+
+                    <div className="space-y-4 max-w-md mx-auto">
+                        <button
+                            onClick={() => setIsSignInModalOpen(true)}
+                            className="w-full px-8 py-4 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors"
+                        >
+                            Sign In
+                        </button>
+                        <button
+                            onClick={() => setMode('signup')}
+                            className="w-full px-8 py-4 bg-white border border-black text-black hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
+                        >
+                            Sign Up
+                        </button>
+                        <button
+                            onClick={() => setMode('onboarding')}
+                            className="w-full px-8 py-4 bg-white border border-black text-black hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
+                        >
+                            Continue as Guest
+                        </button>
+                    </div>
+                </div>
+
+                <AuthModal
+                    isOpen={isSignInModalOpen}
+                    onClose={() => setIsSignInModalOpen(false)}
+                    onSuccess={handleSignInSuccess}
+                />
+            </div>
+        )
+    }
+
+    // Signup screen
+    if (mode === 'signup') {
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+                <div className="w-full max-w-md bg-white border border-black p-8">
+                    <h2 className="text-3xl font-normal text-black mb-2 uppercase tracking-wide">
+                        Create Account
+                    </h2>
+                    <p className="text-gray-600 font-light mb-8">
+                        Enter your credentials to get started
+                    </p>
+
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                                Email *
+                            </label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="your@email.com"
+                                className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                                Password *
+                            </label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="Min. 6 characters"
+                                minLength={6}
+                                className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                            />
+                        </div>
+
+                        {error && (
+                            <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm">
+                                {error}
+                            </div>
+                        )}
+
+                        <div className="space-y-4">
+                            <button
+                                onClick={handleSignUp}
+                                disabled={loading}
+                                className="w-full px-6 py-4 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Creating Account...' : 'Create Account'}
+                            </button>
+                            <button
+                                onClick={() => setMode('welcome')}
+                                disabled={loading}
+                                className="w-full text-gray-500 hover:text-black text-sm underline disabled:opacity-50"
+                            >
+                                Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // Onboarding slides
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-            <div className="w-full max-w-2xl bg-white border border-black p-8 relative">
-                {/* Sign In Button - Top Right */}
-                <button
-                    onClick={() => setIsAuthModalOpen(true)}
-                    className="absolute top-4 right-4 px-4 py-2 text-sm bg-black text-white hover:bg-gray-800 transition-colors"
-                >
-                    Sign In
-                </button>
-
-                {/* Logo/Title */}
+            <div className="w-full max-w-2xl bg-white border border-black p-8">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-light mb-2">FutureSteps</h1>
                     <p className="text-gray-600 text-sm">Financial projection planning</p>
                 </div>
-                {/* Slide Content with Fade */}
+
                 <div
                     className="transition-opacity duration-300"
                     style={{ opacity: fadeIn ? 1 : 0 }}
                 >
-                    {/* Slide 1: Welcome */}
+                    {/* Slide 1: Personal Info */}
                     {currentSlide === 0 && (
-                        <div className="text-center">
-                            <img
-                                src="/logo.png"
-                                alt="FutureSteps"
-                                className="h-32 mx-auto mb-8 mix-blend-multiply contrast-125 brightness-110"
-                            />
-                            <h1 className="text-4xl font-normal text-black mb-4 uppercase tracking-wide">
-                                Welcome to FutureSteps
-                            </h1>
-                            <p className="text-lg text-gray-600 font-light mb-12 max-w-md mx-auto">
-                                Plan your financial future with precision. Let's start by getting to know you.
-                            </p>
-                            <button
-                                onClick={handleNext}
-                                className="px-8 py-4 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors"
-                            >
-                                Get Started
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Slide 2: Personal Info */}
-                    {currentSlide === 1 && (
                         <div>
                             <h2 className="text-3xl font-normal text-black mb-2 uppercase tracking-wide">
                                 Personal Information
@@ -149,7 +259,6 @@ function Onboarding() {
                             </p>
 
                             <div className="space-y-6">
-                                {/* Name */}
                                 <div>
                                     <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                         Full Name *
@@ -163,7 +272,6 @@ function Onboarding() {
                                     />
                                 </div>
 
-                                {/* Date of Birth */}
                                 <div>
                                     <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                         Date of Birth *
@@ -177,7 +285,6 @@ function Onboarding() {
                                     />
                                 </div>
 
-                                {/* Country */}
                                 <div>
                                     <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                         Country *
@@ -199,7 +306,7 @@ function Onboarding() {
 
                             <div className="flex gap-4 mt-8">
                                 <button
-                                    onClick={handleBack}
+                                    onClick={() => setMode('welcome')}
                                     className="flex-1 px-6 py-3 bg-white border border-black text-black hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
                                 >
                                     Back
@@ -215,29 +322,27 @@ function Onboarding() {
                         </div>
                     )}
 
-                    {/* Slide 3: Plan Setup */}
-                    {currentSlide === 2 && (
+                    {/* Slide 2: Plan Setup */}
+                    {currentSlide === 1 && (
                         <div>
                             <h2 className="text-3xl font-normal text-black mb-2 uppercase tracking-wide">
                                 Name Your Plan
                             </h2>
                             <p className="text-gray-600 font-light mb-8">
-                                Give your first financial plan a name. You can create more plans later.
+                                Give your first financial plan a name
                             </p>
 
-                            <div className="space-y-6">
-                                <div>
-                                    <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
-                                        Plan Name *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={planName}
-                                        onChange={(e) => setPlanName(e.target.value)}
-                                        placeholder="e.g., Early Retirement, Dream Home"
-                                        className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
-                                    />
-                                </div>
+                            <div>
+                                <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                                    Plan Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={planName}
+                                    onChange={(e) => setPlanName(e.target.value)}
+                                    placeholder="e.g., Early Retirement, Dream Home"
+                                    className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                                />
                             </div>
 
                             <div className="flex gap-4 mt-8">
@@ -258,8 +363,8 @@ function Onboarding() {
                         </div>
                     )}
 
-                    {/* Slide 4: Life Projection & Completion */}
-                    {currentSlide === 3 && (
+                    {/* Slide 3: Life Projection & Complete */}
+                    {currentSlide === 2 && (
                         <div>
                             <h2 className="text-3xl font-normal text-black mb-2 uppercase tracking-wide">
                                 Life Projection
@@ -269,7 +374,7 @@ function Onboarding() {
                             </p>
 
                             <div className="bg-gray-50 border border-black p-6 mb-6">
-                                <div className="text-center mb-4">
+                                <div className="text-center">
                                     <p className="text-sm font-normal text-black uppercase tracking-wide mb-2">
                                         Estimated End Date
                                     </p>
@@ -283,8 +388,7 @@ function Onboarding() {
                                 </div>
                             </div>
 
-                            {/* Custom Death Date */}
-                            <div>
+                            <div className="mb-6">
                                 <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                     Customize End Date (Optional)
                                 </label>
@@ -300,22 +404,18 @@ function Onboarding() {
                                 </p>
                             </div>
 
-                            <div className="flex flex-col gap-4 mt-8">
+                            <div className="space-y-4">
                                 <button
-                                    onClick={handleSignUpComplete}
-                                    className="w-full px-6 py-4 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors"
+                                    onClick={handleCompleteOnboarding}
+                                    disabled={loading}
+                                    className="w-full px-6 py-4 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Sign Up to Save Progress
-                                </button>
-                                <button
-                                    onClick={handleGuestComplete}
-                                    className="w-full px-6 py-4 bg-white border border-black text-black hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
-                                >
-                                    Continue as Guest
+                                    {loading ? 'Saving...' : 'Get Started'}
                                 </button>
                                 <button
                                     onClick={handleBack}
-                                    className="w-full text-gray-500 hover:text-black text-sm underline"
+                                    disabled={loading}
+                                    className="w-full text-gray-500 hover:text-black text-sm underline disabled:opacity-50"
                                 >
                                     Back
                                 </button>
@@ -326,7 +426,7 @@ function Onboarding() {
 
                 {/* Slide Indicators */}
                 <div className="flex justify-center gap-2 mt-12">
-                    {[0, 1, 2, 3].map((index) => (
+                    {[0, 1, 2].map((index) => (
                         <div
                             key={index}
                             className={`h-2 w-2 transition-colors ${currentSlide === index ? 'bg-black' : 'bg-gray-300'
@@ -335,12 +435,6 @@ function Onboarding() {
                     ))}
                 </div>
             </div>
-
-            <AuthModal
-                isOpen={isAuthModalOpen}
-                onClose={() => setIsAuthModalOpen(false)}
-                onSuccess={handleAuthSuccess}
-            />
         </div>
     )
 }

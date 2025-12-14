@@ -149,12 +149,18 @@ function Onboarding() {
                         >
                             Sign Up
                         </button>
-                        <button
-                            onClick={() => setMode('onboarding')}
-                            className="w-full px-8 py-4 bg-white border border-black text-black hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
-                        >
-                            Continue as Guest
-                        </button>
+
+                        <div className="border-t border-gray-200 pt-4">
+                            <p className="text-xs text-gray-500 text-center mb-3">
+                                ⚠️ Guest mode: Your data will NOT be saved permanently
+                            </p>
+                            <button
+                                onClick={() => setMode('onboarding')}
+                                className="w-full px-8 py-4 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
+                            >
+                                Continue as Guest
+                            </button>
+                        </div>
                     </div>
                 </div>
 

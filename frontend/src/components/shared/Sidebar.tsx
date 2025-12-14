@@ -30,6 +30,16 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
         closeSidebarOnMobile()
     }
 
+    const handleGuestSignIn = () => {
+        // Clear all guest data
+        localStorage.removeItem('guest_profile')
+        localStorage.removeItem('guest_plans')
+        localStorage.removeItem('guest_financial_items')
+
+        // Reload the app to trigger onboarding
+        window.location.href = '/'
+    }
+
 
 
     const handleDeletePlan = async (planId: string, planName: string, e: React.MouseEvent) => {
@@ -202,25 +212,56 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
 
                     {/* User info & Logout */}
                     <div className="p-4 border-t border-gray-200">
-                        {user && !isCollapsed && (
-                            <div className="mb-3 px-4">
-                                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Signed in as</p>
-                                <p className="text-sm font-light truncate">{user.email}</p>
-                            </div>
+                        {user ? (
+                            <>
+                                {!isCollapsed && (
+                                    <div className="mb-3 px-4">
+                                        <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Signed in as</p>
+                                        <p className="text-sm font-light truncate">{user.email}</p>
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => signOut()}
+                                    className={`
+                                        w-full flex items-center gap-3 px-4 py-3
+                                        text-black hover:bg-gray-100 transition-colors
+                                        font-light text-sm uppercase tracking-wide
+                                        ${isCollapsed ? 'justify-center' : ''}
+                                    `}
+                                    title={isCollapsed ? 'Sign Out' : undefined}
+                                >
+                                    <LogOut className="w-5 h-5 flex-shrink-0" />
+                                    {!isCollapsed && <span>Sign Out</span>}
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                {!isCollapsed && (
+                                    <div className="mb-3 px-4">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                            <p className="text-xs text-orange-600 uppercase tracking-wide font-medium">Guest Mode</p>
+                                        </div>
+                                        <p className="text-xs text-gray-600 font-light leading-relaxed">
+                                            ⚠️ Your data will be lost when you close this browser. Sign in to save permanently.
+                                        </p>
+                                    </div>
+                                )}
+                                <button
+                                    onClick={handleGuestSignIn}
+                                    className={`
+                                        w-full flex items-center gap-3 px-4 py-3
+                                        bg-black text-white hover:bg-gray-800 transition-colors
+                                        font-light text-sm uppercase tracking-wide
+                                        ${isCollapsed ? 'justify-center' : ''}
+                                    `}
+                                    title={isCollapsed ? 'Sign In' : undefined}
+                                >
+                                    <User className="w-5 h-5 flex-shrink-0" />
+                                    {!isCollapsed && <span>Sign In</span>}
+                                </button>
+                            </>
                         )}
-                        <button
-                            onClick={() => signOut()}
-                            className={`
-                                w-full flex items-center gap-3 px-4 py-3
-                                text-black hover:bg-gray-100 transition-colors
-                                font-light text-sm uppercase tracking-wide
-                                ${isCollapsed ? 'justify-center' : ''}
-                            `}
-                            title={isCollapsed ? 'Sign Out' : undefined}
-                        >
-                            <LogOut className="w-5 h-5 flex-shrink-0" />
-                            {!isCollapsed && <span>Sign Out</span>}
-                        </button>
                     </div>
                 </div>
             </aside>

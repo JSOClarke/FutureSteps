@@ -13,17 +13,18 @@ import PortfolioPathsChart from './PortfolioPathsChart'
 
 interface RunSimulationProps {
     onBack: () => void
+    lockToPlan?: boolean  // If true, locks to current plan without showing mode selector
 }
 
 type PortfolioSource = 'custom' | 'plan'
 
-function RunSimulation({ onBack }: RunSimulationProps) {
+function RunSimulation({ onBack, lockToPlan = false }: RunSimulationProps) {
     const currency = useCurrency()
     const { plans, activePlanId } = usePlans()
     const { userProfile } = useUser()
 
-    // Portfolio source mode
-    const [portfolioSource, setPortfolioSource] = useState<PortfolioSource>('custom')
+    // Portfolio source mode - lock to plan if specified
+    const [portfolioSource, setPortfolioSource] = useState<PortfolioSource>(lockToPlan ? 'plan' : 'custom')
     const [selectedPlanId, setSelectedPlanId] = useState<string>(activePlanId || '')
     const [startAge, setStartAge] = useState<number>(65)
 
@@ -119,55 +120,59 @@ function RunSimulation({ onBack }: RunSimulationProps) {
                             <h2 className="text-xl font-light mb-6">Parameters</h2>
 
                             <div className="space-y-6">
-                                {/* Mode Selection */}
-                                <div>
-                                    <label className="block text-sm font-normal mb-3">Portfolio Value Source</label>
-                                    <div className="flex gap-4">
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="portfolioSource"
-                                                value="custom"
-                                                checked={portfolioSource === 'custom'}
-                                                onChange={() => setPortfolioSource('custom')}
-                                                className="w-4 h-4"
-                                            />
-                                            <span className="text-sm">Custom Value</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="portfolioSource"
-                                                value="plan"
-                                                checked={portfolioSource === 'plan'}
-                                                onChange={() => setPortfolioSource('plan')}
-                                                className="w-4 h-4"
-                                            />
-                                            <span className="text-sm">Use Plan Data</span>
-                                        </label>
+                                {/* Mode Selection - Hide when locked to plan */}
+                                {!lockToPlan && (
+                                    <div>
+                                        <label className="block text-sm font-normal mb-3">Portfolio Value Source</label>
+                                        <div className="flex gap-4">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="portfolioSource"
+                                                    value="custom"
+                                                    checked={portfolioSource === 'custom'}
+                                                    onChange={() => setPortfolioSource('custom')}
+                                                    className="w-4 h-4"
+                                                />
+                                                <span className="text-sm">Custom Value</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="portfolioSource"
+                                                    value="plan"
+                                                    checked={portfolioSource === 'plan'}
+                                                    onChange={() => setPortfolioSource('plan')}
+                                                    className="w-4 h-4"
+                                                />
+                                                <span className="text-sm">Use Plan Data</span>
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
-                                {/* Plan Selection - Show when in plan mode */}
+                                {/* Plan Selection - Show when in plan mode, hide dropdown when locked */}
                                 {portfolioSource === 'plan' && (
                                     <>
-                                        <div>
-                                            <label className="block text-sm font-normal mb-2">
-                                                Select Plan
-                                            </label>
-                                            <select
-                                                value={selectedPlanId}
-                                                onChange={(e) => setSelectedPlanId(e.target.value)}
-                                                className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
-                                            >
-                                                <option value="">-- Select a Plan --</option>
-                                                {plans.map((plan) => (
-                                                    <option key={plan.id} value={plan.id}>
-                                                        {plan.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
+                                        {!lockToPlan && (
+                                            <div>
+                                                <label className="block text-sm font-normal mb-2">
+                                                    Select Plan
+                                                </label>
+                                                <select
+                                                    value={selectedPlanId}
+                                                    onChange={(e) => setSelectedPlanId(e.target.value)}
+                                                    className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
+                                                >
+                                                    <option value="">-- Select a Plan --</option>
+                                                    {plans.map((plan) => (
+                                                        <option key={plan.id} value={plan.id}>
+                                                            {plan.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        )}
 
                                         <div>
                                             <label className="block text-sm font-normal mb-2">

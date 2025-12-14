@@ -3,6 +3,7 @@ import { usePlans } from '../context/PlansContext'
 import { GraphVisualization, ProjectionDetails } from '../components/projections'
 import { FinancialCategoryCard } from '../components/financial'
 import { Navbar } from '../components/shared'
+import RunSimulation from '../components/retirement/RunSimulation'
 
 // Create context for priority orders
 interface PriorityContextType {
@@ -19,6 +20,7 @@ export const usePriority = () => useContext(PriorityContext)
 
 export function PlansPage() {
     const [selectedYear, setSelectedYear] = useState<number | null>(null)
+    const [showSimulation, setShowSimulation] = useState(false)
     const { activePlan, updatePlan, activePlanId } = usePlans()
 
     const surplusPriority = activePlan?.surplusPriority || []
@@ -53,7 +55,7 @@ export function PlansPage() {
                 onDeficitPriorityChange={handleDeficitPriorityChange}
                 milestones={milestones}
                 onMilestonesChange={handleMilestonesChange}
-                onSimulationClick={() => { }}
+                onSimulationClick={() => setShowSimulation(true)}
             />
 
             {/* Page content */}
@@ -95,6 +97,28 @@ export function PlansPage() {
                     />
                 </div>
             </div>
+
+            {/* Plan-Specific Simulation Modal */}
+            {showSimulation && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white border-2 border-black w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+                        <div className="sticky top-0 bg-white border-b-2 border-black p-4 flex justify-between items-center">
+                            <h2 className="text-2xl font-normal">
+                                Simulation: {activePlan?.name || 'Current Plan'}
+                            </h2>
+                            <button
+                                onClick={() => setShowSimulation(false)}
+                                className="px-4 py-2 border border-black hover:bg-gray-100 transition-colors text-sm font-normal uppercase tracking-wide"
+                            >
+                                Close
+                            </button>
+                        </div>
+                        <div className="p-4">
+                            <RunSimulation onBack={() => setShowSimulation(false)} lockToPlan={true} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </PriorityContext.Provider>
     )
 }

@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Home, User, Settings, FileText, LogOut, ChevronDown, FolderOpen } from 'lucide-react'
+import { Home, User, Settings, FileText, LogOut, ChevronDown, FolderOpen, Trash2, Plus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { usePlans } from '../../context/PlansContext'
-import PlanModal from '../plans/PlanModal'
 
 interface SidebarProps {
     isCollapsed: boolean
@@ -12,14 +11,45 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     const { signOut, user } = useAuth()
-    const { plans, activePlanId, setActivePlanId } = usePlans()
+    const { plans, activePlanId, setActivePlanId, createPlan, deletePlan } = usePlans()
     const [plansExpanded, setPlansExpanded] = useState(true)
-    const [showPlanModal, setShowPlanModal] = useState(false)
+    const [creatingPlan, setCreatingPlan] = useState(false)
+    const [newPlanName, setNewPlanName] = useState('')
     const navigate = useNavigate()
 
     const handlePlanClick = (planId: string) => {
         setActivePlanId(planId)
         navigate('/plans')
+    }
+
+    const handleCreatePlan = async () => {
+        if (!newPlanName.trim()) return
+
+        setCreatingPlan(true)
+        try {
+            await createPlan(newPlanName.trim())
+            setNewPlanName('')
+        } catch (error) {
+            console.error('Failed to create plan:', error)
+            alert('Failed to create plan. Please try again.')
+        } finally {
+            setCreatingPlan(false)
+        }
+    }
+
+    const handleDeletePlan = async (planId: string, planName: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+
+        if (!confirm(`Delete "${planName}"? This will also delete all items in this plan.`)) {
+            return
+        }
+
+        try {
+            await deletePlan(planId)
+        } catch (error) {
+            console.error('Failed to delete plan:', error)
+            alert('Failed to delete plan. Please try again.')
+        }
     }
 
     const navigation = [
@@ -79,7 +109,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 p-4 space-y-1">
+                    <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                         {navigation.map((item) => {
                             const Icon = item.icon
                             return (
@@ -123,31 +153,65 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                                 {plansExpanded && (
                                     <div className="ml-4 mt-1 space-y-1">
                                         {plans.map((plan) => (
-                                            <button
+                                            <div
                                                 key={plan.id}
-                                                onClick={() => handlePlanClick(plan.id)}
                                                 className={`
-                                                    w-full text-left px-4 py-2 text-xs font-light
-                                                    transition-colors flex items-center justify-between
+                                                    group flex items-center justify-between px-4 py-2
+                                                    transition-colors
                                                     ${activePlanId === plan.id
                                                         ? 'bg-gray-200 text-black'
                                                         : 'text-gray-600 hover:bg-gray-50'
                                                     }
                                                 `}
                                             >
-                                                <span className="truncate">{plan.name}</span>
-                                                {activePlanId === plan.id && (
-                                                    <span className="text-black font-bold ml-2">✓</span>
-                                                )}
-                                            </button>
+                                                <button
+                                                    onClick={() => handlePlanClick(plan.id)}
+                                                    className="flex-1 text-left text-xs font-light truncate"
+                                                >
+                                                    {plan.name}
+                                                </button>
+                                                <div className="flex items-center gap-1">
+                                                    {activePlanId === plan.id && (
+                                                        <span className="text-black font-bold">✓</span>
+                                                    )}
+                                                    <button
+                                                        onClick={(e) => handleDeletePlan(plan.id, plan.name, e)}
+                                                        className="p-1 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-all"
+                                                        title={`Delete ${plan.name}`}
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
+                                                </div>
+                                            </div>
                                         ))}
 
-                                        <button
-                                            onClick={() => setShowPlanModal(true)}
-                                            className="w-full text-left px-4 py-2 text-xs font-light text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
-                                        >
-                                            + Manage Plans
-                                        </button>
+                                        {/* Inline Create Plan */}
+                                        <div className="px-4 py-2">
+                                            <form
+                                                onSubmit={(e) => {
+                                                    e.preventDefault()
+                                                    handleCreatePlan()
+                                                }}
+                                                className="flex gap-1"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    value={newPlanName}
+                                                    onChange={(e) => setNewPlanName(e.target.value)}
+                                                    placeholder="New plan name"
+                                                    className="flex-1 px-2 py-1 text-xs border border-gray-300 focus:outline-none focus:border-black"
+                                                    disabled={creatingPlan}
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    disabled={creatingPlan || !newPlanName.trim()}
+                                                    className="p-1 bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 transition-colors"
+                                                    title="Create plan"
+                                                >
+                                                    <Plus size={14} />
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -156,7 +220,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                         {/* Plans icon when collapsed */}
                         {isCollapsed && (
                             <button
-                                onClick={() => setShowPlanModal(true)}
+                                onClick={onToggleCollapse}
                                 className="w-full flex items-center justify-center px-4 py-3 text-black hover:bg-gray-100 transition-colors"
                                 title="Plans"
                             >
@@ -203,12 +267,6 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
-
-            {/* Plan Modal */}
-            <PlanModal
-                isOpen={showPlanModal}
-                onClose={() => setShowPlanModal(false)}
-            />
         </>
     )
 }

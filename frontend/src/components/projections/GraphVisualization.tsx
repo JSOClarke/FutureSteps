@@ -76,7 +76,7 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                     minHeight: '70vh'
                 }}
             >
-                <p className="text-2xl font-light text-gray-600">
+                <p className="text-2xl font-light text-gray-600 text-center">
                     Add financial items to see projections
                 </p>
             </div>

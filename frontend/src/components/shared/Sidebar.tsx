@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { Home, User, Settings, FileText, LogOut, ChevronDown, FolderOpen, X, Plus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { usePlans } from '../../context/PlansContext'
+import CreatePlanModal from '../plans/CreatePlanModal'
 
 interface SidebarProps {
     isCollapsed: boolean
@@ -11,10 +12,9 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     const { signOut, user } = useAuth()
-    const { plans, activePlanId, setActivePlanId, createPlan, deletePlan } = usePlans()
+    const { plans, activePlanId, setActivePlanId, deletePlan } = usePlans()
     const [plansExpanded, setPlansExpanded] = useState(true)
-    const [creatingPlan, setCreatingPlan] = useState(false)
-    const [newPlanName, setNewPlanName] = useState('')
+    const [showCreateModal, setShowCreateModal] = useState(false)
     const navigate = useNavigate()
 
     // Reusable handler to close sidebar on mobile after navigation
@@ -30,20 +30,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
         closeSidebarOnMobile()
     }
 
-    const handleCreatePlan = async () => {
-        if (!newPlanName.trim()) return
 
-        setCreatingPlan(true)
-        try {
-            await createPlan(newPlanName.trim())
-            setNewPlanName('')
-        } catch (error) {
-            console.error('Failed to create plan:', error)
-            alert('Failed to create plan. Please try again.')
-        } finally {
-            setCreatingPlan(false)
-        }
-    }
 
     const handleDeletePlan = async (planId: string, planName: string, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -186,32 +173,15 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                                             </div>
                                         ))}
 
-                                        {/* Inline Create Plan */}
+                                        {/* Add Plan Button */}
                                         <div className="px-4 py-2">
-                                            <form
-                                                onSubmit={(e) => {
-                                                    e.preventDefault()
-                                                    handleCreatePlan()
-                                                }}
-                                                className="flex gap-1"
+                                            <button
+                                                onClick={() => setShowCreateModal(true)}
+                                                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
                                             >
-                                                <input
-                                                    type="text"
-                                                    value={newPlanName}
-                                                    onChange={(e) => setNewPlanName(e.target.value)}
-                                                    placeholder="New plan name"
-                                                    className="flex-1 px-2 py-1 text-xs border border-gray-300 focus:outline-none focus:border-black"
-                                                    disabled={creatingPlan}
-                                                />
-                                                <button
-                                                    type="submit"
-                                                    disabled={creatingPlan || !newPlanName.trim()}
-                                                    className="p-1 bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 transition-colors"
-                                                    title="Create plan"
-                                                >
-                                                    <Plus size={14} />
-                                                </button>
-                                            </form>
+                                                <Plus size={16} />
+                                                Add Plan
+                                            </button>
                                         </div>
                                     </div>
                                 )}
@@ -270,6 +240,12 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
+
+            {/* Create Plan Modal */}
+            <CreatePlanModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+            />
         </>
     )
 }

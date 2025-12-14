@@ -2,11 +2,7 @@ import { useState, useEffect } from 'react'
 import { useUser } from '../../context/UserContext'
 import { SUPPORTED_CURRENCIES } from '../../data/currencyData'
 
-interface ProfileProps {
-    onBack: () => void
-}
-
-function Profile({ onBack }: ProfileProps) {
+function Profile() {
     const { userProfile, updateProfile } = useUser()
 
     const [fullName, setFullName] = useState(userProfile?.full_name || '')
@@ -51,21 +47,9 @@ function Profile({ onBack }: ProfileProps) {
 
     return (
         <div className="w-full">
-            {/* Header */}
-            <div className="border border-black p-6 mb-4 bg-white">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={onBack}
-                        className="px-4 py-2 bg-gray-200 border-2 border-gray-400 text-gray-800 hover:bg-gray-300 font-medium transition-colors"
-                    >
-                        ← Back to Dashboard
-                    </button>
-                    <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
-                </div>
-            </div>
-
             {/* Profile Form */}
             <div className="border border-black p-8 bg-white">
+                <h1 className="text-3xl font-light mb-8">My Profile</h1>
                 <div className="max-w-2xl">
                     <div className="space-y-6">
                         {/* Full Name */}

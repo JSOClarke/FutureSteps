@@ -70,20 +70,31 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         if (user) {
             // Authenticated: Update Supabase
             const dbUpdates: any = { ...updates }
-            if (updates.customDeathDate) dbUpdates.custom_death_date = updates.customDeathDate
-            if (updates.dateOfBirth) dbUpdates.date_of_birth = updates.dateOfBirth
 
-            delete dbUpdates.customDeathDate
-            delete dbUpdates.dateOfBirth
+            // Map frontend field names to database column names
+            if (updates.customDeathDate !== undefined) {
+                dbUpdates.custom_death_date = updates.customDeathDate
+                delete dbUpdates.customDeathDate
+            }
+            if (updates.dateOfBirth !== undefined) {
+                dbUpdates.date_of_birth = updates.dateOfBirth
+                delete dbUpdates.dateOfBirth
+            }
 
-            const { error } = await supabase
+            console.log('Updating profile with:', dbUpdates)
+
+            const { data, error } = await supabase
                 .from('profiles')
                 .update(dbUpdates)
                 .eq('id', user.id)
+                .select()
 
             if (error) {
                 console.error('Error updating profile:', error)
+                throw new Error(`Failed to update profile: ${error.message}`)
             }
+
+            console.log('Profile updated successfully:', data)
         } else {
             // Guest: Update localStorage
             if (updatedProfile) {

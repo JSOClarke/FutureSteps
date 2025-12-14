@@ -1,9 +1,6 @@
 import { useState } from 'react'
 import { PriorityModal } from '../priorities'
 import { MilestoneDropdown, type Milestone } from '../milestones'
-import { PlanSwitcher } from '../plans'
-import { LoginButton } from './LoginButton'
-
 import { NavButton } from './NavButton'
 
 interface NavbarProps {
@@ -13,7 +10,6 @@ interface NavbarProps {
     onDeficitPriorityChange: (priority: string[]) => void
     milestones: Milestone[]
     onMilestonesChange: (milestones: Milestone[]) => void
-    onProfileClick: () => void
     onSimulationClick: () => void
 }
 
@@ -24,7 +20,6 @@ function Navbar({
     onDeficitPriorityChange,
     milestones,
     onMilestonesChange,
-    onProfileClick,
     onSimulationClick
 }: NavbarProps) {
     const [surplusModalOpen, setSurplusModalOpen] = useState(false)
@@ -59,16 +54,7 @@ function Navbar({
             >
                 {/* Desktop Navigation (hidden on mobile) */}
                 <div className="hidden lg:flex items-center gap-1.5 xl:gap-6 h-full flex-wrap max-w-full">
-                    {/* Logo */}
-                    <img
-                        src="/logo.png"
-                        alt="FutureSteps"
-                        className="h-12 xl:h-14 mix-blend-multiply contrast-125 brightness-110 flex-shrink-0"
-                    />
-
                     {/* Navigation Items */}
-                    <PlanSwitcher />
-
                     <MilestoneDropdown
                         milestones={milestones}
                         onAdd={handleAddMilestone}
@@ -94,15 +80,6 @@ function Navbar({
                     >
                         Simulation
                     </NavButton>
-                    <NavButton
-                        onClick={onProfileClick}
-                        title="Open profile"
-                    >
-                        Profile
-                    </NavButton>
-                    <div className="ml-auto flex-shrink-0">
-                        <LoginButton />
-                    </div>
                 </div>
 
                 {/* Mobile Navigation */}
@@ -131,8 +108,6 @@ function Navbar({
                     {/* Mobile Dropdown Menu */}
                     {mobileMenuOpen && (
                         <div className="mt-4 pt-4 border-t border-black space-y-2 [&>*]:w-full [&>*>button]:w-full">
-                            <PlanSwitcher />
-
                             <MilestoneDropdown
                                 milestones={milestones}
                                 onAdd={handleAddMilestone}
@@ -167,18 +142,6 @@ function Navbar({
                             >
                                 Run Simulation
                             </NavButton>
-                            <NavButton
-                                onClick={() => {
-                                    onProfileClick()
-                                    setMobileMenuOpen(false)
-                                }}
-                                className="w-full"
-                            >
-                                Profile
-                            </NavButton>
-                            <div className="pt-2 border-t border-gray-200">
-                                <LoginButton />
-                            </div>
                         </div>
                     )}
                 </div>

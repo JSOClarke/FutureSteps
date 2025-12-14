@@ -63,10 +63,10 @@ export function SnapshotHistoryTable({ snapshots, onDelete }: SnapshotHistoryTab
                     <tr className="bg-gray-50">
                         <th className="px-4 py-3 text-left text-xs font-normal uppercase tracking-wide w-8"></th>
                         <th className="px-4 py-3 text-left text-xs font-normal uppercase tracking-wide">Date</th>
-                        <th className="px-4 py-3 text-right text-xs font-normal uppercase tracking-wide">Income</th>
-                        <th className="px-4 py-3 text-right text-xs font-normal uppercase tracking-wide">Expenses</th>
-                        <th className="px-4 py-3 text-right text-xs font-normal uppercase tracking-wide">Assets</th>
-                        <th className="px-4 py-3 text-right text-xs font-normal uppercase tracking-wide">Liabilities</th>
+                        <th className="hidden md:table-cell px-4 py-3 text-right text-xs font-normal uppercase tracking-wide">Income</th>
+                        <th className="hidden md:table-cell px-4 py-3 text-right text-xs font-normal uppercase tracking-wide">Expenses</th>
+                        <th className="hidden lg:table-cell px-4 py-3 text-right text-xs font-normal uppercase tracking-wide">Assets</th>
+                        <th className="hidden lg:table-cell px-4 py-3 text-right text-xs font-normal uppercase tracking-wide">Liabilities</th>
                         <th className="px-4 py-3 text-right text-xs font-normal uppercase tracking-wide">Net Worth</th>
                         <th className="px-4 py-3 text-center text-xs font-normal uppercase tracking-wide">Actions</th>
                     </tr>
@@ -100,16 +100,16 @@ export function SnapshotHistoryTable({ snapshots, onDelete }: SnapshotHistoryTab
                                             minute: '2-digit'
                                         })}
                                     </td>
-                                    <td className="px-4 py-3 text-right text-sm font-medium text-green-600">
+                                    <td className="hidden md:table-cell px-4 py-3 text-right text-sm font-medium text-green-600">
                                         {formatCurrency(snapshot.total_income, currency)}
                                     </td>
-                                    <td className="px-4 py-3 text-right text-sm font-medium text-red-600">
+                                    <td className="hidden md:table-cell px-4 py-3 text-right text-sm font-medium text-red-600">
                                         {formatCurrency(snapshot.total_expenses, currency)}
                                     </td>
-                                    <td className="px-4 py-3 text-right text-sm font-medium">
+                                    <td className="hidden lg:table-cell px-4 py-3 text-right text-sm font-medium">
                                         {formatCurrency(snapshot.total_assets, currency)}
                                     </td>
-                                    <td className="px-4 py-3 text-right text-sm font-medium">
+                                    <td className="hidden lg:table-cell px-4 py-3 text-right text-sm font-medium">
                                         {formatCurrency(snapshot.total_liabilities, currency)}
                                     </td>
                                     <td className={`px-4 py-3 text-right text-sm font-bold ${snapshot.net_worth >= 0 ? 'text-green-700' : 'text-red-700'}`}>

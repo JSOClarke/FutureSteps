@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Home, User, Settings, FileText, LogOut, ChevronDown, FolderOpen, X, Plus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
@@ -17,9 +17,17 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     const [newPlanName, setNewPlanName] = useState('')
     const navigate = useNavigate()
 
+    // Reusable handler to close sidebar on mobile after navigation
+    const closeSidebarOnMobile = useCallback(() => {
+        if (window.innerWidth < 1024) {
+            onToggleCollapse()
+        }
+    }, [onToggleCollapse])
+
     const handlePlanClick = (planId: string) => {
         setActivePlanId(planId)
         navigate('/plans')
+        closeSidebarOnMobile()
     }
 
     const handleCreatePlan = async () => {
@@ -116,9 +124,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                                 <NavLink
                                     key={item.id}
                                     to={item.path}
-                                    onClick={() => {
-                                        if (window.innerWidth < 1024) onToggleCollapse()
-                                    }}
+                                    onClick={closeSidebarOnMobile}
                                     className={({ isActive }) => `
                                         w-full flex items-center gap-3 px-4 py-3
                                         transition-colors font-light text-sm uppercase tracking-wide
@@ -249,14 +255,16 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                 </div>
             </aside>
 
-            {/* Mobile menu button */}
+            {/* Mobile menu button - FAB style */}
             <button
                 onClick={onToggleCollapse}
                 className={`
-                    fixed top-4 left-4 z-30 p-2 bg-white border border-black
-                    hover:bg-gray-50 transition-colors lg:hidden
+                    fixed bottom-6 right-6 z-30 p-3 
+                    bg-black/90 text-white rounded-full shadow-lg
+                    hover:bg-black transition-all lg:hidden
                     ${isCollapsed ? 'block' : 'hidden'}
                 `}
+                aria-label="Open menu"
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />

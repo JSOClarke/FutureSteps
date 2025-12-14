@@ -57,10 +57,11 @@ FutureSteps is a sophisticated financial planning application that helps users v
 ## Technology Stack
 
 ### Frontend
-- **React 18** - Modern UI library with hooks
+- **React 19** - Modern UI library with hooks
 - **TypeScript** - Type-safe development
 - **Vite** - Lightning-fast build tool
-- **TailwindCSS** - Utility-first CSS framework
+- **TailwindCSS 4** - Utility-first CSS framework
+- **shadcn/ui** - High-quality, accessible UI components built on Radix UI
 - **Recharts** - Powerful charting library
 - **Lucide React** - Beautiful icon library
 
@@ -137,11 +138,12 @@ FutureSteps/
 │   │   │   ├── profile/     # User profile & settings
 │   │   │   ├── projections/ # Charts and detailed views
 │   │   │   ├── retirement/  # Monte Carlo simulation
-│   │   │   └── shared/      # Reusable components
+│   │   │   ├── shared/      # Reusable components
+│   │   │   └── ui/          # shadcn/ui components (Dialog, etc.)
 │   │   ├── context/         # React contexts
 │   │   ├── data/           # Static data & market data
 │   │   ├── hooks/          # Custom React hooks
-│   │   ├── lib/            # Supabase client
+│   │   ├── lib/            # Utility libraries (shadcn utils, Supabase)
 │   │   ├── types.ts        # TypeScript definitions
 │   │   └── utils/          # Utility functions & calculations
 │   ├── index.html

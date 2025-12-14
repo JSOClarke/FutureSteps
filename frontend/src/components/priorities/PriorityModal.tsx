@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useFinancialItems } from '../../context/FinancialItemsContext'
 import ReorderableList from '../ReorderableList'
-import { Modal } from '../shared/Modal'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogBody,
+} from '../ui/dialog'
 
 interface PriorityModalProps {
     isOpen: boolean
@@ -55,50 +61,54 @@ function PriorityModal({ isOpen, onClose, type, initialPriority, onSave }: Prior
         }))
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title={`${type === 'surplus' ? 'Surplus Allocation' : 'Deficit Coverage'} Priority`}
-            maxWidth="max-w-md"
-        >
-            <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-4 font-light">
-                    {type === 'surplus'
-                        ? 'When you have extra cash, allocate it to assets in this order:'
-                        : 'When you need cash, withdraw from assets in this order:'}
-                </p>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>
+                        {type === 'surplus' ? 'Surplus Allocation' : 'Deficit Coverage'} Priority
+                    </DialogTitle>
+                </DialogHeader>
+                <DialogBody>
+                    <div className="mb-4">
+                        <p className="text-sm text-gray-600 mb-4 font-light">
+                            {type === 'surplus'
+                                ? 'When you have extra cash, allocate it to assets in this order:'
+                                : 'When you need cash, withdraw from assets in this order:'}
+                        </p>
 
-                {listItems.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8 font-light">
-                        No assets available. Add assets to set priority.
-                    </p>
-                ) : (
-                    <ReorderableList
-                        items={listItems}
-                        onReorder={handleReorder}
-                        title="Priority Order (Top = First)"
-                    />
-                )}
-            </div>
+                        {listItems.length === 0 ? (
+                            <p className="text-gray-500 text-center py-8 font-light">
+                                No assets available. Add assets to set priority.
+                            </p>
+                        ) : (
+                            <ReorderableList
+                                items={listItems}
+                                onReorder={handleReorder}
+                                title="Priority Order (Top = First)"
+                            />
+                        )}
+                    </div>
 
-            <div className="flex gap-3 mt-6 pt-6 border-t border-gray-100">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex-1 px-4 py-2 bg-white text-black border border-black hover:bg-gray-50 text-sm font-normal uppercase tracking-wide transition-colors"
-                >
-                    Cancel
-                </button>
-                <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={listItems.length === 0}
-                    className="flex-1 px-4 py-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-normal uppercase tracking-wide transition-colors"
-                >
-                    Save Priority
-                </button>
-            </div>
-        </Modal>
+                    <div className="flex gap-3 mt-6 pt-6 border-t border-gray-100">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="flex-1 px-4 py-2 bg-white text-black border border-black hover:bg-gray-50 text-sm font-normal uppercase tracking-wide transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            disabled={listItems.length === 0}
+                            className="flex-1 px-4 py-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-normal uppercase tracking-wide transition-colors"
+                        >
+                            Save Priority
+                        </button>
+                    </div>
+                </DialogBody>
+            </DialogContent>
+        </Dialog>
     )
 }
 

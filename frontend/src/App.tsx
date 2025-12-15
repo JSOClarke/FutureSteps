@@ -7,6 +7,7 @@ import { FinancialItemsProvider } from './context/FinancialItemsContext'
 import { SnapshotsProvider } from './context/SnapshotsContext'
 import { DashboardItemsProvider } from './context/DashboardItemsContext'
 import { SettingsProvider } from './context/SettingsContext'
+import { ToastProvider } from './context/ToastContext'
 import { MainLayout } from './components/layouts/MainLayout'
 import { DashboardPage, PlansPage, ReportsPage } from './pages'
 import Profile from './components/profile/Profile'
@@ -48,7 +49,9 @@ function App() {
             <FinancialItemsProvider>
               <SnapshotsProvider>
                 <DashboardItemsProvider>
-                  <AppContent />
+                  <ToastProvider>
+                    <AppContent />
+                  </ToastProvider>
                 </DashboardItemsProvider>
               </SnapshotsProvider>
             </FinancialItemsProvider>

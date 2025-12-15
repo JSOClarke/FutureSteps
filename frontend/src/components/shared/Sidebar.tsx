@@ -4,6 +4,8 @@ import { Home, User, FileText, LogOut, ChevronDown, FolderOpen, X, Plus } from '
 import { useAuth } from '../../context/AuthContext'
 import { usePlans } from '../../context/PlansContext'
 import CreatePlanModal from '../plans/CreatePlanModal'
+import { ConfirmationDialog } from './ConfirmationDialog'
+import { useToast } from '../../context/ToastContext'
 
 interface SidebarProps {
     isCollapsed: boolean
@@ -15,6 +17,8 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     const { plans, activePlanId, setActivePlanId, deletePlan } = usePlans()
     const [plansExpanded, setPlansExpanded] = useState(true)
     const [showCreateModal, setShowCreateModal] = useState(false)
+    const [planToDelete, setPlanToDelete] = useState<{ id: string, name: string } | null>(null)
+    const { toast } = useToast()
     const navigate = useNavigate()
 
     // Reusable handler to close sidebar on mobile after navigation
@@ -42,18 +46,34 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
 
 
 
-    const handleDeletePlan = async (planId: string, planName: string, e: React.MouseEvent) => {
+    const handleDeleteClick = (planId: string, planName: string, e: React.MouseEvent) => {
         e.stopPropagation()
+        setPlanToDelete({ id: planId, name: planName })
+    }
 
-        if (!confirm(`Delete "${planName}"? This will also delete all items in this plan.`)) {
-            return
-        }
+    const confirmDeletePlan = async () => {
+        if (!planToDelete) return
 
         try {
-            await deletePlan(planId)
+            await deletePlan(planToDelete.id)
+            setPlanToDelete(null)
+            toast({
+                title: 'Plan Deleted',
+                message: `"${planToDelete.name}" has been deleted.`,
+                type: 'success'
+            })
+            // If active plan was deleted, router/context should handle redirect, 
+            // but we can force it here if needed.
+            if (activePlanId === planToDelete.id) {
+                navigate('/dashboard')
+            }
         } catch (error) {
             console.error('Failed to delete plan:', error)
-            alert('Failed to delete plan. Please try again.')
+            toast({
+                title: 'Delete Failed',
+                message: 'Failed to delete plan. Please try again.',
+                type: 'error'
+            })
         }
     }
 
@@ -173,7 +193,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                                                     {plan.name}
                                                 </button>
                                                 <button
-                                                    onClick={(e) => handleDeletePlan(plan.id, plan.name, e)}
+                                                    onClick={(e) => handleDeleteClick(plan.id, plan.name, e)}
                                                     className="p-1 text-gray-400 hover:text-red-600 transition-all"
                                                     title={`Delete ${plan.name}`}
                                                 >
@@ -285,6 +305,16 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
             <CreatePlanModal
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
+            />
+            {/* Confirmation Dialogs */}
+            <ConfirmationDialog
+                isOpen={!!planToDelete}
+                onClose={() => setPlanToDelete(null)}
+                onConfirm={confirmDeletePlan}
+                title="Delete Plan"
+                description={`Are you sure you want to delete "${planToDelete?.name}"? This will permanently delete the plan and all its associated items.`}
+                confirmLabel="Delete Plan"
+                variant="danger"
             />
         </>
     )

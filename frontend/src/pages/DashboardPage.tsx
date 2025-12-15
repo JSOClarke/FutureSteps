@@ -7,14 +7,23 @@ import { PageHeader } from '../components/shared/PageHeader'
 import { useState, useEffect } from 'react'
 import { useCurrency } from '../hooks/useCurrency'
 import { formatCurrency } from '../utils/formatters'
-import { supabase } from '../lib/supabase'
+
+import { ConfirmationDialog } from '../components/shared/ConfirmationDialog'
+import { useToast } from '../context/ToastContext'
 import type { SnapshotItem } from '../types'
 
 export function DashboardPage() {
-    const { snapshots, saveSnapshot, deleteSnapshot } = useSnapshots()
+    const { snapshots, saveSnapshot, deleteSnapshot, getSnapshotItems } = useSnapshots()
     const { items, getTotalByCategory, clearAllItems } = useDashboardItems()
+    const { toast } = useToast()
+
+    // UI State
     const [saving, setSaving] = useState(false)
     const [isCreatingSnapshot, setIsCreatingSnapshot] = useState(false)
+
+    // Dialog State
+    const [deleteSnapshotId, setDeleteSnapshotId] = useState<string | null>(null)
+    const [showCancelDialog, setShowCancelDialog] = useState(false)
     const [recentExpanded, setRecentExpanded] = useState(false)
     const [recentItems, setRecentItems] = useState<SnapshotItem[]>([])
     const [loadingRecentItems, setLoadingRecentItems] = useState(false)
@@ -28,17 +37,16 @@ export function DashboardPage() {
             if (recentExpanded && mostRecentSnapshot && recentItems.length === 0) {
                 setLoadingRecentItems(true)
 
-                const { data, error } = await supabase
-                    .from('snapshot_items')
-                    .select('*')
-                    .eq('snapshot_id', mostRecentSnapshot.id)
-                    .order('category', { ascending: true })
-
-                if (!error && data) {
-                    setRecentItems(data)
+                try {
+                    const items = await getSnapshotItems(mostRecentSnapshot.id)
+                    // Sort by category to match previous behavior
+                    const sorted = [...items].sort((a, b) => a.category.localeCompare(b.category))
+                    setRecentItems(sorted)
+                } catch (error) {
+                    console.error('Failed to load snapshot items:', error)
+                } finally {
+                    setLoadingRecentItems(false)
                 }
-
-                setLoadingRecentItems(false)
             }
         }
 
@@ -53,7 +61,11 @@ export function DashboardPage() {
 
     const handleSaveSnapshot = async () => {
         if (items.length === 0) {
-            alert('Please add at least one item before saving a snapshot')
+            toast({
+                title: 'No items to save',
+                message: 'Please add at least one item before saving a snapshot',
+                type: 'warning'
+            })
             return
         }
 
@@ -82,10 +94,18 @@ export function DashboardPage() {
             clearAllItems()
             setIsCreatingSnapshot(false)
 
-            alert('Snapshot saved successfully!')
+            toast({
+                title: 'Snapshot Saved',
+                message: 'Your financial snapshot has been saved successfully.',
+                type: 'success'
+            })
         } catch (error) {
             console.error('Failed to save snapshot:', error)
-            alert('Failed to save snapshot. Please try again.')
+            toast({
+                title: 'Save Failed',
+                message: 'Failed to save snapshot. Please try again.',
+                type: 'error'
+            })
         } finally {
             setSaving(false)
         }
@@ -289,9 +309,12 @@ export function DashboardPage() {
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => {
-                                        if (items.length > 0 && !confirm('Discard current items?')) return
-                                        clearAllItems()
-                                        setIsCreatingSnapshot(false)
+                                        if (items.length > 0) {
+                                            setShowCancelDialog(true)
+                                        } else {
+                                            clearAllItems()
+                                            setIsCreatingSnapshot(false)
+                                        }
                                     }}
                                     className="px-4 py-2 border border-black hover:bg-gray-100 transition-colors text-sm font-normal uppercase tracking-wide"
                                 >
@@ -360,9 +383,52 @@ export function DashboardPage() {
                 </p>
                 <SnapshotHistoryTable
                     snapshots={snapshots}
-                    onDelete={deleteSnapshot}
+                    onDelete={(id) => setDeleteSnapshotId(id)}
                 />
             </div>
+
+            {/* Confirmation Dialogs */}
+            <ConfirmationDialog
+                isOpen={!!deleteSnapshotId}
+                onClose={() => setDeleteSnapshotId(null)}
+                onConfirm={async () => {
+                    if (deleteSnapshotId) {
+                        try {
+                            await deleteSnapshot(deleteSnapshotId)
+                            toast({
+                                title: 'Snapshot Deleted',
+                                message: 'The snapshot has been permanently removed.',
+                                type: 'success'
+                            })
+                        } catch (error) {
+                            toast({
+                                title: 'Delete Failed',
+                                message: 'Failed to delete snapshot. Please try again.',
+                                type: 'error'
+                            })
+                        }
+                        setDeleteSnapshotId(null)
+                    }
+                }}
+                title="Delete Snapshot"
+                description="Are you sure you want to delete this snapshot? This action cannot be undone."
+                confirmLabel="Delete"
+                variant="danger"
+            />
+
+            <ConfirmationDialog
+                isOpen={showCancelDialog}
+                onClose={() => setShowCancelDialog(false)}
+                onConfirm={() => {
+                    clearAllItems()
+                    setIsCreatingSnapshot(false)
+                    setShowCancelDialog(false)
+                }}
+                title="Discard Changes"
+                description="You have unsaved items. Are you sure you want to discard them and cancel?"
+                confirmLabel="Discard"
+                variant="warning"
+            />
         </div>
     )
 }

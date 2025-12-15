@@ -3,9 +3,10 @@ import MilestoneModal from './MilestoneModal'
 import type { Milestone } from './types'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, Plus } from 'lucide-react'
 
 import { NavButton } from '../shared/NavButton'
+import { ConfirmationDialog } from '../shared/ConfirmationDialog'
 
 
 interface MilestoneDropdownProps {
@@ -20,6 +21,7 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
     const [modalOpen, setModalOpen] = useState(false)
     const currency = useCurrency()
     const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null)
+    const [milestoneToDelete, setMilestoneToDelete] = useState<string | null>(null)
 
     const handleAdd = () => {
         setEditingMilestone(null)
@@ -36,12 +38,13 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
     const handleSave = (data: Omit<Milestone, 'id'> | null) => {
         if (!data) {
             if (editingMilestone) {
-                if (confirm('Are you sure you want to delete this milestone?')) {
-                    onDelete(editingMilestone.id)
-                }
+                // Deleting via modal
+                setMilestoneToDelete(editingMilestone.id)
             }
             setModalOpen(false)
             setEditingMilestone(null)
+            // Keep isOpen for dropdown? Maybe close it.
+            // setIsOpen(false) 
             return
         }
 
@@ -55,9 +58,15 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
         setEditingMilestone(null)
     }
 
-    const handleDelete = (id: string) => {
-        if (confirm('Are you sure you want to delete this milestone?')) {
-            onDelete(id)
+    const handleDeleteClick = (id: string, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation()
+        setMilestoneToDelete(id)
+    }
+
+    const confirmDeleteMilestone = () => {
+        if (milestoneToDelete) {
+            onDelete(milestoneToDelete)
+            setMilestoneToDelete(null)
         }
     }
 
@@ -115,7 +124,7 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
                                                     <Pencil size={14} />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(milestone.id)}
+                                                    onClick={(e) => handleDeleteClick(milestone.id, e)}
                                                     className="px-2 py-1 text-black hover:text-gray-600 transition-colors"
                                                     title="Delete milestone"
                                                 >
@@ -128,12 +137,13 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
                             )}
 
                             <div className="p-3">
-                                <button
-                                    onClick={handleAdd}
-                                    className="w-full px-3 py-2 bg-black text-white hover:bg-gray-800 text-sm font-normal uppercase tracking-wide transition-colors"
+                                <NavButton
+                                    onClick={() => handleAdd()}
+                                    className="w-full justify-center border-t border-gray-100 text-gray-500 hover:text-black py-3 rounded-none"
                                 >
-                                    Add New Milestone
-                                </button>
+                                    <Plus size={16} className="mr-2" />
+                                    Add Milestone
+                                </NavButton>
                             </div>
                         </div>
                     </>
@@ -148,6 +158,16 @@ function MilestoneDropdown({ milestones, onAdd, onEdit, onDelete }: MilestoneDro
                 }}
                 initialMilestone={editingMilestone}
                 onSave={handleSave}
+            />
+
+            <ConfirmationDialog
+                isOpen={!!milestoneToDelete}
+                onClose={() => setMilestoneToDelete(null)}
+                onConfirm={confirmDeleteMilestone}
+                title="Delete Milestone"
+                description="Are you sure you want to delete this milestone?"
+                confirmLabel="Delete"
+                variant="danger"
             />
         </>
     )

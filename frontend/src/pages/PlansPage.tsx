@@ -2,6 +2,7 @@ import { useState, createContext, useContext } from 'react'
 import { usePlans } from '../context/PlansContext'
 import { GraphVisualization, ProjectionDetails } from '../components/projections'
 import { FinancialCategoryCard } from '../components/financial'
+import { PageHeader } from '../components/shared/PageHeader'
 import { Navbar } from '../components/shared'
 import RunSimulation from '../components/retirement/RunSimulation'
 
@@ -47,6 +48,15 @@ export function PlansPage() {
 
     return (
         <PriorityContext.Provider value={{ surplusPriority, deficitPriority }}>
+            <PageHeader
+                title={
+                    <span>
+                        <span className="text-gray-400">PLAN : </span>
+                        {activePlan?.name || 'Financial Plan'}
+                    </span>
+                }
+            />
+
             {/* Top bar with plan controls */}
             <Navbar
                 surplusPriority={surplusPriority}

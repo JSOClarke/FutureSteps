@@ -148,10 +148,12 @@ export function processLiabilities(
 }
 
 /**
- * Apply growth rates to assets
+ * Apply growth rates to assets using Mid-Year Convention
+ * Principal grows for full year, flows (contributions/withdrawals) grow for half year
  */
 export function applyAssetGrowth(
     assets: FinancialItem[],
+    openingBalances: Map<string, number>,
     fractionOfYear: number = 1
 ): AssetGrowthResult {
     const updatedAssets: FinancialItem[] = []
@@ -159,17 +161,31 @@ export function applyAssetGrowth(
 
     for (const asset of assets) {
         const growthRate = asset.growthRate ?? 0
-        const growthAmount = applyGrowth(asset.value, growthRate, fractionOfYear)
+        const openingBalance = openingBalances.get(asset.id) ?? 0
+        const currentBalance = asset.value
+
+        // Net flow is the difference between current balance (after contribs/withdrawals) and opening balance
+        // If this is a new asset not in opening balances, the entire value is a flow
+        const netFlow = currentBalance - openingBalance
+
+        // 1. Growth on Opening Balance (Full Period)
+        const principalGrowth = applyGrowth(openingBalance, growthRate, fractionOfYear)
+
+        // 2. Growth on Net Flow (Half Period) - Mid-Year Convention
+        // Use half the period for the flow
+        const flowGrowth = applyGrowth(netFlow, growthRate, fractionOfYear / 2)
+
+        const totalGrowth = principalGrowth + flowGrowth
 
         updatedAssets.push({
             ...asset,
-            value: asset.value + growthAmount
+            value: asset.value + totalGrowth
         })
 
-        if (growthAmount !== 0) {
+        if (totalGrowth !== 0) {
             growthHistory.push({
                 assetId: asset.id,
-                growthAmount
+                growthAmount: totalGrowth
             })
         }
     }

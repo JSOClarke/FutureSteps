@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { runRetirementSimulation, calculateInitialWithdrawal, type SimulationResult } from '../../utils/retirementSimulation'
 import { DEFAULT_PARAMS } from '../../data/marketData'
 import { formatCurrency } from '../../utils/formatters'
@@ -9,6 +9,8 @@ import { useUser } from '../../context/UserContext'
 import CurrencyInput from '../shared/CurrencyInput'
 import SuccessRateCard from './SuccessRateCard'
 import PortfolioPathsChart from './PortfolioPathsChart'
+import { SampleRunsSection } from './SampleRunsSection'
+import { selectSampleRuns } from '../../utils/simulationSampling'
 
 interface RunSimulationProps {
     onBack?: () => void  // Optional, mainly used for modal close
@@ -72,6 +74,12 @@ function RunSimulation({ lockToPlan = false }: RunSimulationProps) {
     // Simulation state
     const [isRunning, setIsRunning] = useState(false)
     const [result, setResult] = useState<SimulationResult | null>(null)
+
+    // Sample runs selection (memoized for performance)
+    const sampleRuns = useMemo(
+        () => result ? selectSampleRuns(result) : null,
+        [result]
+    )
 
     const bondAllocation = 100 - stockAllocation
     const annualWithdrawal = calculateInitialWithdrawal(initialPortfolio, withdrawalRate / 100)
@@ -403,6 +411,14 @@ function RunSimulation({ lockToPlan = false }: RunSimulationProps) {
                                         Based on {result.totalPaths.toLocaleString()} Monte Carlo simulations with {stockAllocation}% stocks, {bondAllocation}% bonds
                                     </p>
                                 </div>
+
+                                {/* Sample Runs Section */}
+                                {sampleRuns && (
+                                    <SampleRunsSection
+                                        sampleRuns={sampleRuns}
+                                        initialPortfolio={initialPortfolio}
+                                    />
+                                )}
                             </div>
                         ) : (
                             <div className="bg-white border border-black p-12 text-center">

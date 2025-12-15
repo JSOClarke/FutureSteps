@@ -61,6 +61,10 @@ export class ProjectionEngine {
         surplusPriority: string[] = [],
         deficitPriority: string[] = []
     ): YearResult {
+        // 0. Capture opening balances for Mid-Year Convention calculation
+        // This is crucial: We need to know what the balance was Jan 1 vs what was added during the year
+        const openingBalances = new Map(assets.map(a => [a.id, a.value]))
+
         // 1. Calculate income and expenses for the year
         const incomeResult = calculateYearlyIncome(incomes, year, fractionOfYear)
         const expenseResult = calculateYearlyExpenses(expenses, year, fractionOfYear)
@@ -99,8 +103,8 @@ export class ProjectionEngine {
             cashflow = -deficitResult.remainingDeficit
         }
 
-        // 5. Apply growth to assets
-        const growthResult = applyAssetGrowth(updatedAssets, fractionOfYear)
+        // 5. Apply growth to assets (using Mid-Year Convention)
+        const growthResult = applyAssetGrowth(updatedAssets, openingBalances, fractionOfYear)
 
         // 6. Apply yield to assets
         const yieldResult = applyAssetYield(growthResult.updatedAssets, fractionOfYear)

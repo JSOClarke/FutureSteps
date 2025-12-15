@@ -58,7 +58,6 @@ function RunSimulation({ lockToPlan = false }: RunSimulationProps) {
     const [stockAllocation, setStockAllocation] = useState<number>(60)
     const [withdrawalRate, setWithdrawalRate] = useState<number>(4)
     const [numberOfSimulations, setNumberOfSimulations] = useState<number>(DEFAULT_PARAMS.numberOfSimulations)
-    const [simulationTechnique, setSimulationTechnique] = useState<string>('monte-carlo')
     const [dataSource, setDataSource] = useState<'monte-carlo' | 'historical'>('monte-carlo')
 
     // Advanced options toggle

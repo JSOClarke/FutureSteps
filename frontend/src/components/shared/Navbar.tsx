@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import { PriorityModal } from '../priorities'
 import { MilestoneDropdown, type Milestone } from '../milestones'
 import { NavButton } from './NavButton'
@@ -86,11 +87,13 @@ function Navbar({
                 <div className="lg:hidden">
                     {/* Mobile Header: Logo + Hamburger */}
                     <div className="flex items-center justify-between">
-                        <img
-                            src="/logo.png"
-                            alt="FutureSteps"
-                            className="h-10 mix-blend-multiply contrast-125 brightness-110"
-                        />
+                        <NavLink to="/dashboard" className="block hover:opacity-80 transition-opacity">
+                            <img
+                                src="/logo.png"
+                                alt="FutureSteps"
+                                className="h-10 mix-blend-multiply contrast-125 brightness-110"
+                            />
+                        </NavLink>
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             className="p-2 hover:bg-gray-50 transition-colors"

@@ -210,7 +210,12 @@ function FinancialItemModal({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>
-                        {`${initialData ? 'Edit' : 'Add'} ${category === 'liabilities' ? 'Liability' : category.slice(0, -1)} Item`}
+                        {`${initialData ? 'Edit' : 'Add'} ${category === 'income' ? 'Income' :
+                                category === 'liabilities' ? 'Liability' :
+                                    category === 'expenses' ? 'Expense' :
+                                        category === 'assets' ? 'Asset' :
+                                            category
+                            } Item`}
                     </DialogTitle>
                     {(initialData ? 'Update the details of this item.' : `Add a new item to your ${category}.`) && (
                         <DialogDescription>

@@ -22,6 +22,7 @@ export const usePriority = () => useContext(PriorityContext)
 export function PlansPage() {
     const [selectedYear, setSelectedYear] = useState<number | null>(null)
     const [showSimulation, setShowSimulation] = useState(false)
+    const [isRealValues, setIsRealValues] = useState(false)
     const { activePlan, updatePlan, activePlanId } = usePlans()
 
     const surplusPriority = activePlan?.surplusPriority || []
@@ -76,10 +77,13 @@ export function PlansPage() {
                         selectedYear={selectedYear}
                         onYearSelect={setSelectedYear}
                         milestones={milestones}
+                        isRealValues={isRealValues}
                     />
                     <ProjectionDetails
                         selectedYear={selectedYear}
                         onYearChange={setSelectedYear}
+                        isRealValues={isRealValues}
+                        onToggleRealValues={setIsRealValues}
                     />
                 </div>
 

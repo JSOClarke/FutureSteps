@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Home, User, Settings, FileText, LogOut, ChevronDown, FolderOpen, X, Plus } from 'lucide-react'
+import { Home, User, FileText, LogOut, ChevronDown, FolderOpen, X, Plus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { usePlans } from '../../context/PlansContext'
 import CreatePlanModal from '../plans/CreatePlanModal'
@@ -60,7 +60,6 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     const navigation = [
         { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard' },
         { id: 'profile', label: 'Profile', icon: User, path: '/profile' },
-        { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
         { id: 'reports', label: 'Reports', icon: FileText, path: '/reports' },
     ]
 
@@ -88,14 +87,14 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                     <div className="p-6 border-b border-gray-200">
                         <div className="flex items-center justify-between">
                             {!isCollapsed && (
-                                <div className="flex items-center gap-3">
+                                <NavLink to="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                                     <img
                                         src="/logo.png"
                                         alt="FutureSteps"
                                         className="h-8 mix-blend-multiply"
                                     />
                                     <h1 className="text-xl font-light">FutureSteps</h1>
-                                </div>
+                                </NavLink>
                             )}
                             <button
                                 onClick={onToggleCollapse}

@@ -17,17 +17,20 @@ import {
 import { BarChart3, TrendingUp, Settings } from 'lucide-react'
 import { formatCurrency, getCurrencySymbol } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
+import { useSettings } from '../../context/SettingsContext'
 
 interface GraphVisualizationProps {
     selectedYear: number | null
     onYearSelect: (year: number) => void
     milestones: Milestone[]
+    isRealValues: boolean
 }
 
-function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milestones }: GraphVisualizationProps) {
+function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milestones, isRealValues }: GraphVisualizationProps) {
     const { surplusPriority, deficitPriority } = usePriority()
     const { projection } = useProjections(surplusPriority, deficitPriority)
     const currency = useCurrency()
+    const { settings } = useSettings()
 
     // Chart type state
     const [chartType, setChartType] = useState<'bar' | 'line'>('line')
@@ -83,13 +86,24 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
         )
     }
 
+    // Calculate inflation adjustment factor
+    const getAdjustmentFactor = (year: number) => {
+        if (!isRealValues) return 1
+        const currentYear = new Date().getFullYear()
+        const yearsFromNow = Math.max(0, year - currentYear)
+        return Math.pow(1 + settings.inflationRate, yearsFromNow)
+    }
+
     // Prepare data for Recharts
-    const chartData = projection.years.map(year => ({
-        year: year.year,
-        'Net Worth': year.netWorth,
-        'Income': year.totalIncome,
-        'Expenses': year.totalExpenses,
-    }))
+    const chartData = projection.years.map(year => {
+        const factor = getAdjustmentFactor(year.year)
+        return {
+            year: year.year,
+            'Net Worth': year.netWorth / factor,
+            'Income': year.totalIncome / factor,
+            'Expenses': year.totalExpenses / factor,
+        }
+    })
 
     // Find first year where each milestone is reached
     const milestoneYears = milestones.map(m => {

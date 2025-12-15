@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 export interface UserSettings {
     birthYear: number | null
     customEndYear: number | null // Override for calculated end year
+    inflationRate: number // Annual inflation rate (0-1)
 }
 
 interface SettingsContextType {
@@ -16,6 +17,7 @@ const SettingsContext = createContext<SettingsContextType | null>(null)
 
 const STORAGE_KEY = 'user_settings'
 const DEFAULT_LIFE_EXPECTANCY = 80
+const DEFAULT_INFLATION_RATE = 0.025 // 2.5%
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
     const [settings, setSettings] = useState<UserSettings>(() => {
@@ -23,7 +25,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         const stored = localStorage.getItem(STORAGE_KEY)
         if (stored) {
             try {
-                return JSON.parse(stored)
+                const parsed = JSON.parse(stored)
+                // Ensure new fields exist on stored data
+                return {
+                    birthYear: parsed.birthYear ?? null,
+                    customEndYear: parsed.customEndYear ?? null,
+                    inflationRate: parsed.inflationRate ?? DEFAULT_INFLATION_RATE
+                }
             } catch (error) {
                 console.error('Failed to parse settings:', error)
             }
@@ -32,7 +40,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         // Default settings
         return {
             birthYear: null,
-            customEndYear: null
+            customEndYear: null,
+            inflationRate: DEFAULT_INFLATION_RATE
         }
     })
 

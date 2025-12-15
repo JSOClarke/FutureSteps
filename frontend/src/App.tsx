@@ -8,7 +8,7 @@ import { SnapshotsProvider } from './context/SnapshotsContext'
 import { DashboardItemsProvider } from './context/DashboardItemsContext'
 import { SettingsProvider } from './context/SettingsContext'
 import { MainLayout } from './components/layouts/MainLayout'
-import { DashboardPage, PlansPage, SettingsPage, ReportsPage } from './pages'
+import { DashboardPage, PlansPage, ReportsPage } from './pages'
 import Profile from './components/profile/Profile'
 import './index.css'
 
@@ -32,7 +32,6 @@ function AppContent() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="plans" element={<PlansPage />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="settings" element={<SettingsPage />} />
           <Route path="reports" element={<ReportsPage />} />
         </Route>
       </Routes>

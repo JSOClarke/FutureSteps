@@ -21,12 +21,14 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
         infoItems.push(`${start} - ${end}`)
     }
 
-    // Add rate information based on category
-    if (item.growthRate !== undefined && item.growthRate !== 0) {
-        infoItems.push(`Growth: ${(item.growthRate * 100).toFixed(1)}%`)
-    }
-    if (item.yieldRate !== undefined && item.yieldRate !== 0) {
-        infoItems.push(`Yield: ${(item.yieldRate * 100).toFixed(1)}%`)
+    // Add rate information based on category (Assets only)
+    if (item.category === 'assets') {
+        if (item.growthRate !== undefined && item.growthRate !== 0) {
+            infoItems.push(`Growth: ${(item.growthRate * 100).toFixed(1)}%`)
+        }
+        if (item.yieldRate !== undefined && item.yieldRate !== 0) {
+            infoItems.push(`Yield: ${(item.yieldRate * 100).toFixed(1)}%`)
+        }
     }
     if (item.interestRate !== undefined && item.interestRate !== 0) {
         infoItems.push(`Interest: ${(item.interestRate * 100).toFixed(1)}%`)

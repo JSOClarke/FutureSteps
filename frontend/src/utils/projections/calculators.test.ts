@@ -25,7 +25,8 @@ describe('Calculators Logic', () => {
                 frequency: 'monthly',
                 category: 'income',
                 startYear: 2025,
-                endYear: 2025
+                // Exclusive end year: runs during 2025
+                endYear: 2026
             } as FinancialItem
 
             const futureIncome = {
@@ -71,6 +72,43 @@ describe('Calculators Logic', () => {
             const result = calculateYearlyIncome([salary], year, fraction)
 
             expect(result.total).toBe(50000)
+        })
+    })
+
+    describe('Year Overlap Logic (Reproduction)', () => {
+        it('should NOT double count with exclusive end years', () => {
+            const year = 2030
+
+            // Job A: Ends 2030 (Exclusive -> Last active year 2029)
+            const jobA = {
+                id: '1',
+                name: 'Job A',
+                value: 100000,
+                frequency: 'annual',
+                category: 'income',
+                startYear: 2020,
+                endYear: 2030
+            } as FinancialItem
+
+            // Job B: Starts 2030 (Inclusive)
+            const jobB = {
+                id: '2',
+                name: 'Job B',
+                value: 120000,
+                frequency: 'annual',
+                category: 'income',
+                startYear: 2030,
+                endYear: 2040
+            } as FinancialItem
+
+            const result = calculateYearlyIncome([jobA, jobB], year)
+
+            // New behavior: 
+            // Job A is finished (2030 is exclusive end)
+            // Job B is starting (2030 is inclusive start)
+            // Total: 120,000
+            expect(result.total).toBe(120000)
+            expect(result.details).toHaveLength(1)
         })
     })
 

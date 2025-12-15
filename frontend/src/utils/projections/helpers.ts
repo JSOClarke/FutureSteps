@@ -11,7 +11,7 @@ export function isActiveInYear(
 ): boolean {
     const start = item.startYear ?? -Infinity
     const end = item.endYear ?? Infinity
-    return year >= start && year <= end
+    return year >= start && year < end
 }
 
 /**

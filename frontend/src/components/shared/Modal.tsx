@@ -42,7 +42,7 @@ export function Modal({
             onClick={onClose}
         >
             <div
-                className={`bg-white w-full ${maxWidth} max-h-[90vh] overflow-y-auto border border-black shadow-xl`}
+                className={`bg-white w-full ${maxWidth} max-h-[90vh] overflow-y-auto border border-black shadow-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}
                 onClick={e => e.stopPropagation()}
             >
                 <div className="p-6 border-b border-black">

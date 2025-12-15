@@ -62,7 +62,7 @@ describe('ProjectionEngine', () => {
                 category: 'income',
                 frequency: 'annual',
                 startYear: 2025,
-                endYear: 2025
+                endYear: 2026 // Exclusive: active in 2025 only
             } as FinancialItem
 
             const items = [asset, income]

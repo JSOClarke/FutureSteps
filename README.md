@@ -18,8 +18,7 @@
 
 ## Overview
 
-FutureSteps is a sophisticated financial planning application that helps users visualize their financial future through detailed projections, milestone tracking, and retirement simulations. Built with modern web technologies, it provides an intuitive interface for managing income, expenses, assets, and liabilities while projecting net worth trajectories over time.
-
+FutureSteps is financial planning application that helps users visualize their financial future through detailed projections, milestone tracking, and retirement simulations projecting future netwoth from current finances. 
 ## Key Features
 
 ### Financial Projections
@@ -27,87 +26,19 @@ FutureSteps is a sophisticated financial planning application that helps users v
 - **Year-by-Year Analysis**: Click any year to view detailed financial breakdowns
 - **Net Worth Tracking**: Monitor projected net worth growth over your lifetime
 - **Multi-Currency Support**: 30+ currencies with automatic formatting and country-based defaults
-- **Responsive Design**: Optimized for desktop, tablet, and mobile viewing
+- **Data Sync**: Sync data and use on any device. 
 
-### Comprehensive Financial Management
-- **Income Tracking**: Salary, bonuses, investment returns, and more
-  - Configurable start/end years
-  - Annual growth rates
-  - One-time or recurring
-- **Expense Management**: Track all expenses with inflation adjustments
-  - Living expenses
-  - Discretionary spending
-  - One-time purchases
-- **Asset Portfolio**: Complete asset tracking
-  - Stocks, bonds, ETFs
-  - Real estate
-  - Retirement accounts (401k, IRA)
-  - Cash and savings
-- **Liability Management**: Monitor all debts
-  - Mortgages with amortization
-  - Auto loans
-  - Student loans
-  - Credit card debt
-
-### Milestone Planning
-- **Goal Setting**: Define financial milestones (retirement age, target net worth, etc.)
-- **Visual Markers**: See milestone achievements directly on projection charts
-- **Dual Milestone Types**:
-  - Year-based (e.g., "Retire at 65")
-  - Value-based (e.g., "$1M net worth")
-- **Quick Management**: Add, edit, and delete milestones on the fly
-
-### Monte Carlo Retirement Simulation
-- **1000+ Simulations**: Statistical analysis of retirement outcomes
-- **4% Withdrawal Rule**: Industry-standard safe withdrawal rate calculations
-- **Success Rate Analysis**: Probability-based retirement planning
-- **Portfolio Scenarios**: Test different asset allocations
-- **Visual Path Analysis**: See median, best, and worst-case scenarios
-- **Two Simulation Modes**:
-  - **Custom Simulation** (Reports page): Freeform analysis with any parameters
-  - **Plan-Specific Simulation** (Plans page): Locked to current plan data
+### Retirement Simulation
 
 ### Financial Snapshots Dashboard
-- **Point-in-Time Recording**: Save current financial state
-- **Historical Tracking**: View all past snapshots
-- **Itemized Breakdowns**: Drill down into each snapshot's details
-- **Category Summaries**: See income, expenses, assets, liabilities at a glance
-- **Net Worth History**: Track your net worth changes over time
-- **Expandable Details**: View individual items within each snapshot
 
 ### Multi-Plan Support
-- **Unlimited Plans**: Create different financial scenarios
-  - Conservative
-  - Aggressive
-  - Retirement-focused
-  - Custom scenarios
-- **Plan Duplication**: Copy existing plans to test variations
-- **Quick Switching**: Toggle between plans via sidebar
-- **Modal-Based Creation**: Streamlined plan creation workflow
-- **Auto-Navigation**: Automatically switch to new plans after creation
 
 ### Smart Priority Management
 - **Surplus Allocation**: Automatically distribute extra cash flow
-  - Retirement accounts
-  - Investment accounts
-  - Debt paydown
-  - Emergency fund
+
 - **Deficit Coverage**: Define how shortfalls are covered
-  - Liquid savings
-  - Investment liquidation
-  - Credit/loans
-
-### Modern User Experience
-- **Responsive Sidebar**: Collapsible navigation with plan management
-- **Mobile-Optimized**: FAB-style menu button, auto-collapse navigation
-- **Consistent Headers**: Reusable PageHeader component across all pages
-- **Guest Mode**: Try the app without signing up
-  - **WARNING**: Data stored locally only and will be lost
-  - Local storage persistence
-  - Easy upgrade to full account
-- **Authenticated Mode**: Full data persistence with Supabase
-- **Clean Interface**: Minimalist, professional design
-
+ 
 ### Flexible Authentication
 - **Guest Mode**: Start immediately without signup
   - Clear visibility of guest status
@@ -145,7 +76,7 @@ FutureSteps is a sophisticated financial planning application that helps users v
   - SnapshotsContext
   - SettingsContext
 
-## Getting Started
+## Getting Started 
 
 ### Prerequisites
 - Node.js 18+
@@ -232,104 +163,6 @@ Apollo2.0/
 └── README.md
 ```
 
-## Usage Guide
-
-### Quick Start
-
-1. **Welcome Screen**
-   - Sign In (existing users)
-   - Sign Up (create account)
-   - Continue as Guest (WARNING: data not saved)
-
-2. **Onboarding** (First-time users)
-   - Personal information (name, DOB, country)
-   - Auto-detected life expectancy
-   - Auto-selected currency
-   - Create your first plan
-
-3. **Dashboard - Financial Snapshots**
-   - View most recent snapshot
-   - Create new snapshot
-   - Add income, expenses, assets, liabilities
-   - Save snapshot
-   - Review historical snapshots
-
-4. **Plans Page - Projections**
-   - Add financial items
-   - View year-by-year projections
-   - Click years for detailed breakdown
-   - Set milestones
-   - Run plan-specific simulation
-
-5. **Reports Page - Custom Simulations**
-   - Custom portfolio analysis
-   - Test "what-if" scenarios
-   - Monte Carlo retirement planning
-
-### Creating Financial Projections
-
-1. **Navigate to Plans page**
-2. **Add Financial Items**:
-   - Income (salary, investments)
-   - Expenses (living costs, discretionary)
-   - Assets (house, stocks, savings)
-   - Liabilities (mortgage, loans)
-3. **Set Milestones**: Retirement age, net worth goals
-4. **Configure Priorities**: Surplus/deficit handling
-5. **View Projections**: Interactive charts update automatically
-
-### Running Retirement Simulations
-
-**Plan-Specific** (from Plans page):
-1. Click "Simulation" button in navbar
-2. Review plan-locked parameters
-3. Analyze success rate
-4. View portfolio paths
-
-**Custom** (from Reports page):
-1. Choose portfolio source (plan or custom)
-2. Set starting portfolio value
-3. Adjust retirement parameters
-4. Configure asset allocation
-5. Run 1000+ simulations
-6. Review results and success probability
-
-## Data Persistence
-
-### Guest Mode
-- Stored in browser localStorage
-- **WARNING: Lost when browser cache is cleared**
-- **WARNING: Not accessible from other devices**
-- Best for: Trying out the app, demos
-
-### Authenticated Mode
-- Stored in Supabase PostgreSQL
-- Persistent and backed up
-- Accessible from any device
-- Secure with Row-Level Security
-- Best for: Long-term planning
-
-## Calculation Methodology
-
-### Net Worth Projection
-```
-Year N Net Worth = 
-  Previous Net Worth +
-  Annual Income -
-  Annual Expenses +
-  Asset Appreciation +
-  Investment Yields -
-  Liability Payments
-```
-
-### Monte Carlo Simulation
-- **Stock Returns**: Normal distribution (μ=7%, σ=18%)
-- **Bond Returns**: Normal distribution (μ=2%, σ=5%)
-- **Inflation**: Normal distribution (μ=3%, σ=2%)
-- **Withdrawal Rate**: 4% of initial value, inflation-adjusted
-- **Success Criteria**: Portfolio > $0 at end of retirement period
-- **Simulations**: 1000 independent scenarios
-
 ## Supported Currencies
 
 USD, EUR, GBP, CAD, AUD, JPY, CHF, CNY, INR, BRL, MXN, ZAR, SEK, NOK, DKK, NZD, SGD, HKD, KRW, THB, MYR, PHP, IDR, VND, TRY, PLN, CZK, HUF, RUB, and more...
@@ -353,17 +186,14 @@ This project is proprietary software. All rights reserved.
 - Financial calculations based on the Trinity Study and William Bengen's research
 - Market data from historical S&P 500 and bond market analysis
 - Life expectancy data from WHO and national statistics
-- UI/UX inspired by modern financial planning tools
+- UI/UX inspired by modern financial planning tools.
 
 ## Contact
 
 For questions, suggestions, or support:
-- GitHub Issues: [Create an issue](https://github.com/yourusername/FutureSteps/issues)
-- Email: support@futuresteps.com
+- GitHub Issues: [Create an issue](https://github.com/JSOClarke/FutureSteps/issues)
+- Email: futurestepsfinance@gmail.com
 
 ---
 
-<div align="center">
-  <p><strong>FutureSteps</strong> - Plan Today, Prosper Tomorrow</p>
-  <p>Built for better financial futures</p>
-</div>
+

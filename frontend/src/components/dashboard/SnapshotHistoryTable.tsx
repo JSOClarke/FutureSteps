@@ -119,9 +119,7 @@ export function SnapshotHistoryTable({ snapshots, onDelete }: SnapshotHistoryTab
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                if (confirm('Are you sure you want to delete this snapshot?')) {
-                                                    onDelete(snapshot.id)
-                                                }
+                                                onDelete(snapshot.id)
                                             }}
                                             className="p-1.5 text-gray-600 hover:bg-red-100 hover:text-red-600 rounded transition-colors"
                                             title="Delete snapshot"

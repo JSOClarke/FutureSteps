@@ -1,6 +1,6 @@
 import { useProjections } from '../../hooks/useProjections'
 import { usePriority } from '../../pages/PlansPage'
-import { CollapsibleSection } from '../shared'
+import { CollapsibleSection, YearSelector } from '../shared'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 
@@ -36,7 +36,7 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
 
     if (!yearData) return null
 
-
+    const availableYears = projection.years.map(y => y.year)
 
     return (
         <div
@@ -47,15 +47,13 @@ function ProjectionDetails({ selectedYear, onYearChange }: ProjectionDetailsProp
         >
             {/* Header */}
             <div className="p-6 pb-4 border-b border-black">
-                <div className="flex items-center gap-4 mb-2">
+                <div className="flex items-center gap-2 mb-2">
                     <label className="text-sm font-normal text-gray-600 uppercase tracking-wide">Year:</label>
-                    <input
-                        type="number"
-                        value={yearData.year}
-                        onChange={(e) => onYearChange?.(parseInt(e.target.value))}
-                        min={projection.years[0]?.year || config.startYear}
-                        max={projection.years[projection.years.length - 1]?.year || config.startYear + config.numberOfYears - 1}
-                        className="flex-1 px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light text-center"
+                    <YearSelector
+                        selectedYear={yearData.year}
+                        availableYears={availableYears}
+                        onYearChange={(year) => onYearChange?.(year)}
+                        className="flex-1"
                     />
                 </div>
                 <input

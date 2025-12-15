@@ -48,17 +48,3 @@ FutureSteps is a financial planning application that helps users visualize their
 ### Backend & Storage
 - **Supabase** - Backend-as-a-Service
 - **localStorage** - Guest mode persistence
-
-## Getting Started 
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-- Supabase account (for authenticated users)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone [https://github.com/yourusername/FutureSteps.git](https://github.com/yourusername/FutureSteps.git)
-   cd FutureSteps/Apollo2.0

@@ -30,8 +30,10 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
             infoItems.push(`Yield: ${(item.yieldRate * 100).toFixed(1)}%`)
         }
     }
-    if (item.interestRate !== undefined && item.interestRate !== 0) {
-        infoItems.push(`Interest: ${(item.interestRate * 100).toFixed(1)}%`)
+    if (item.category === 'liabilities') {
+        if (item.interestRate !== undefined && item.interestRate !== 0) {
+            infoItems.push(`Interest: ${(item.interestRate * 100).toFixed(1)}%`)
+        }
     }
 
     return (

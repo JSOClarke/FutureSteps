@@ -1,10 +1,12 @@
 import { useState, createContext, useContext } from 'react'
+import { Pencil } from 'lucide-react'
 import { usePlans } from '../context/PlansContext'
 import { GraphVisualization, ProjectionDetails } from '../components/projections'
 import { FinancialCategoryCard } from '../components/financial'
 import { PageHeader } from '../components/shared/PageHeader'
 import { Navbar } from '../components/shared'
 import RunSimulation from '../components/retirement/RunSimulation'
+import RenamePlanModal from '../components/plans/RenamePlanModal'
 
 // Create context for priority orders
 interface PriorityContextType {
@@ -24,6 +26,7 @@ export function PlansPage() {
     const [showSimulation, setShowSimulation] = useState(false)
     const [isRealValues, setIsRealValues] = useState(false)
     const { activePlan, updatePlan, activePlanId } = usePlans()
+    const [renameModalOpen, setRenameModalOpen] = useState(false)
 
     const surplusPriority = activePlan?.surplusPriority || []
     const deficitPriority = activePlan?.deficitPriority || []
@@ -51,10 +54,21 @@ export function PlansPage() {
         <PriorityContext.Provider value={{ surplusPriority, deficitPriority }}>
             <PageHeader
                 title={
-                    <span>
-                        <span className="text-gray-400">PLAN : </span>
-                        {activePlan?.name || 'Financial Plan'}
-                    </span>
+                    <div className="flex items-center gap-3">
+                        <span>
+                            <span className="text-gray-400">PLAN : </span>
+                            {activePlan?.name || 'Financial Plan'}
+                        </span>
+                        {activePlan && (
+                            <button
+                                onClick={() => setRenameModalOpen(true)}
+                                className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition-colors"
+                                title="Rename Plan"
+                            >
+                                <Pencil size={18} />
+                            </button>
+                        )}
+                    </div>
                 }
             />
 
@@ -132,6 +146,16 @@ export function PlansPage() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Rename Plan Modal */}
+            {activePlan && (
+                <RenamePlanModal
+                    isOpen={renameModalOpen}
+                    onClose={() => setRenameModalOpen(false)}
+                    planId={activePlan.id}
+                    currentName={activePlan.name}
+                />
             )}
         </PriorityContext.Provider>
     )

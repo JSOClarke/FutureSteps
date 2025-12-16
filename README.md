@@ -5,7 +5,7 @@
   
   **Advanced Financial Projection & Retirement Planning Tool**
   
-  Plan your financial future with precision using interactive projections, Monte Carlo simulations, and comprehensive portfolio analysis.
+  Plan your financial future with precision using interactive projections, Monte Carlo simulations, and financial analysis.
   
   [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
   [![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)

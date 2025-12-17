@@ -4,6 +4,8 @@ import { useFinancialItems } from '../../context/FinancialItemsContext'
 import FinancialItemModal from '../FinancialItemModal'
 
 import { FinancialItemCard } from './FinancialItemCard'
+import SubCategorySelectionModal from './SubCategorySelectionModal'
+import type { FinancialSubCategory } from '../../types'
 
 interface FinancialCategoryCardProps {
     title: string
@@ -20,11 +22,25 @@ function FinancialCategoryCard({
     const items = getItemsByCategory(category)
 
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false)
     const [editingItem, setEditingItem] = useState<FinancialItem | null>(null)
+    const [selectedSubCategory, setSelectedSubCategory] = useState<FinancialSubCategory | undefined>(undefined)
 
     const handleAddNew = () => {
         setEditingItem(null)
-        setIsModalOpen(true)
+        setSelectedSubCategory(undefined)
+
+        // Always show subcategory selection first
+        setIsSubCategoryModalOpen(true)
+    }
+
+    const handleSubCategorySelect = (subCategory: FinancialSubCategory) => {
+        setIsSubCategoryModalOpen(false)
+        setSelectedSubCategory(subCategory)
+        // Small delay to ensure modal transition feels natural
+        setTimeout(() => {
+            setIsModalOpen(true)
+        }, 100)
     }
 
     const handleEdit = (item: FinancialItem) => {
@@ -42,7 +58,11 @@ function FinancialCategoryCard({
             updateItem(editingItem.id, data)
         } else {
             // Add new item
-            addItem({ ...data, category })
+            addItem({
+                ...data,
+                category,
+                subCategory: selectedSubCategory // Include selected subcategory
+            })
         }
     }
 
@@ -98,6 +118,14 @@ function FinancialCategoryCard({
                 onSave={handleSave}
                 initialData={editingItem || undefined}
                 category={category}
+                initialSubCategory={selectedSubCategory}
+            />
+
+            <SubCategorySelectionModal
+                isOpen={isSubCategoryModalOpen}
+                onClose={() => setIsSubCategoryModalOpen(false)}
+                category={category}
+                onSelect={handleSubCategorySelect}
             />
         </>
     )

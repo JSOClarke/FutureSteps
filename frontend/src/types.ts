@@ -1,11 +1,51 @@
 export type FinancialCategory = 'income' | 'expenses' | 'assets' | 'liabilities'
 export type Frequency = 'monthly' | 'annual'
 
+// Subcategory definitions
+export type ExpenseSubCategory =
+    | 'housing'        // Rent, Mortgage
+    | 'food'           // Groceries, Dining
+    | 'transportation' // Car, Gas, Public Transit
+    | 'utilities'      // Electric, Water, Internet
+    | 'healthcare'     // Insurance, Medical
+    | 'entertainment'  // Subscriptions, Hobbies
+    | 'personal'       // Clothing, Personal Care
+    | 'education'      // Tuition, Books
+    | 'debt'           // Loan payments (if not tracked as liabilities)
+    | 'savings'        // Investments (if not tracked as assets)
+    | 'other'          // Miscellaneous
+
+export type IncomeSubCategory =
+    | 'salary'
+    | 'business'
+    | 'investment'
+    | 'other'
+
+export type AssetSubCategory =
+    | 'cash'
+    | 'investment'
+    | 'property'
+    | 'retirement'
+    | 'other'
+
+export type LiabilitySubCategory =
+    | 'mortgage'
+    | 'loan'
+    | 'credit_card'
+    | 'other'
+
+export type FinancialSubCategory =
+    | ExpenseSubCategory
+    | IncomeSubCategory
+    | AssetSubCategory
+    | LiabilitySubCategory
+
 export interface FinancialItem {
     id: string
     name: string
     value: number
     category: FinancialCategory
+    subCategory?: FinancialSubCategory
 
     // Temporal fields - when is this item active?
     startYear?: number

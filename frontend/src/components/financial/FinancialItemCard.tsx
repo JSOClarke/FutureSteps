@@ -2,6 +2,7 @@ import { Trash2 } from 'lucide-react'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import type { FinancialItem } from '../../types'
+import { getSubCategoryLabel } from '../../utils/subcategoryHelpers'
 
 interface FinancialItemCardProps {
     item: FinancialItem
@@ -13,6 +14,11 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
     const currency = useCurrency()
     // Build info text for temporal and rate data
     const infoItems: string[] = []
+
+    // Add subcategory if present
+    if (item.subCategory) {
+        infoItems.push(getSubCategoryLabel(item.subCategory))
+    }
 
     // Add temporal information
     if (item.startYear || item.endYear) {

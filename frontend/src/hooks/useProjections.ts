@@ -19,13 +19,16 @@ export function useProjections(surplusPriority: string[] = [], deficitPriority: 
     const calculateNumberOfYears = () => {
         const currentYear = new Date().getFullYear()
 
-        if (userProfile?.customDeathDate) {
-            const deathYear = new Date(userProfile.customDeathDate).getFullYear()
-            const years = Math.max(1, deathYear - currentYear + 1) // At least 1 year, +1 to include death year
-            return years
+        if (userProfile?.dateOfBirth) {
+            const birthYear = new Date(userProfile.dateOfBirth).getFullYear()
+            const lifeExpectancy = userProfile.lifeExpectancy || 85
+            const deathYear = birthYear + lifeExpectancy
+
+            // Ensure we project at least 1 year into the future
+            return Math.max(1, deathYear - currentYear)
         }
 
-        return 30 // Default fallback
+        return 30 // Default fallback if no DOB set
     }
 
     const [config, setConfig] = useState<ProjectionConfig>({
@@ -39,7 +42,7 @@ export function useProjections(surplusPriority: string[] = [], deficitPriority: 
             ...prev,
             numberOfYears: calculateNumberOfYears()
         }))
-    }, [userProfile?.customDeathDate])
+    }, [userProfile?.dateOfBirth, userProfile?.lifeExpectancy])
 
     const projection: ProjectionResult | null = useMemo(() => {
         if (items.length === 0) return null

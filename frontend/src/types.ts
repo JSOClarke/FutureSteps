@@ -1,11 +1,51 @@
 export type FinancialCategory = 'income' | 'expenses' | 'assets' | 'liabilities'
 export type Frequency = 'monthly' | 'annual'
 
+// Subcategory definitions
+export type ExpenseSubCategory =
+    | 'housing'        // Rent, Mortgage
+    | 'food'           // Groceries, Dining
+    | 'transportation' // Car, Gas, Public Transit
+    | 'utilities'      // Electric, Water, Internet
+    | 'healthcare'     // Insurance, Medical
+    | 'entertainment'  // Subscriptions, Hobbies
+    | 'personal'       // Clothing, Personal Care
+    | 'education'      // Tuition, Books
+    | 'debt'           // Loan payments (if not tracked as liabilities)
+    | 'savings'        // Investments (if not tracked as assets)
+    | 'other'          // Miscellaneous
+
+export type IncomeSubCategory =
+    | 'salary'
+    | 'business'
+    | 'investment'
+    | 'other'
+
+export type AssetSubCategory =
+    | 'cash'
+    | 'investment'
+    | 'property'
+    | 'retirement'
+    | 'other'
+
+export type LiabilitySubCategory =
+    | 'mortgage'
+    | 'loan'
+    | 'credit_card'
+    | 'other'
+
+export type FinancialSubCategory =
+    | ExpenseSubCategory
+    | IncomeSubCategory
+    | AssetSubCategory
+    | LiabilitySubCategory
+
 export interface FinancialItem {
     id: string
     name: string
     value: number
     category: FinancialCategory
+    subCategory?: FinancialSubCategory
 
     // Temporal fields - when is this item active?
     startYear?: number
@@ -17,7 +57,7 @@ export interface FinancialItem {
     // Asset-specific fields
     growthRate?: number // Annual growth rate (e.g., 0.07 for 7%)
     yieldRate?: number // Annual dividend/yield rate (e.g., 0.02 for 2%)
-    monthlyContribution?: number // Regular monthly contribution
+    maxAnnualContribution?: number // Max annual contribution limit
 
     // Liability-specific fields
     interestRate?: number // Annual interest rate (e.g., 0.045 for 4.5%)
@@ -49,7 +89,7 @@ export interface UserProfile {
     full_name?: string
     dateOfBirth?: string
     country?: string
-    customDeathDate?: string
+    lifeExpectancy?: number // Target age (default 85)
     currency?: string // ISO currency code (e.g., 'USD', 'EUR', 'GBP')
 }
 
@@ -76,6 +116,7 @@ export interface SnapshotItem {
     name: string
     amount: number
     category: FinancialCategory
+    subCategory?: string
 }
 
 export interface DashboardItem {
@@ -83,4 +124,5 @@ export interface DashboardItem {
     name: string
     amount: number
     category: FinancialCategory
+    subCategory?: string
 }

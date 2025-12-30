@@ -241,8 +241,8 @@ export function applyAssetContributions(
     let remainingCashflow = availableCashflow
 
     for (const asset of assets) {
-        const monthlyContribution = asset.monthlyContribution ?? 0
-        const annualContribution = monthlyContribution * 12 * fractionOfYear
+        const maxAnnualContribution = asset.maxAnnualContribution ?? 0
+        const annualContribution = maxAnnualContribution * fractionOfYear
         const actualContribution = Math.min(annualContribution, Math.max(0, remainingCashflow))
 
         updatedAssets.push({

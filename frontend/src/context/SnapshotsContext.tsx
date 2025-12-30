@@ -87,7 +87,8 @@ export function SnapshotsProvider({ children }: { children: React.ReactNode }) {
                     created_at: now,
                     name: item.name,
                     amount: item.amount,
-                    category: item.category
+                    category: item.category,
+                    subCategory: item.subCategory
                 }))
 
                 // Update Snapshots
@@ -125,13 +126,13 @@ export function SnapshotsProvider({ children }: { children: React.ReactNode }) {
             throw new Error(`Failed to save snapshot: ${insertError?.message || 'Unknown error'}`)
         }
 
-        // Save all items with the snapshot_id
         if (items.length > 0) {
             const snapshotItems = items.map(item => ({
                 snapshot_id: snapshotData.id,
                 name: item.name,
                 amount: item.amount,
-                category: item.category
+                category: item.category,
+                sub_category: item.subCategory
             }))
 
             const { error: itemsError } = await supabase

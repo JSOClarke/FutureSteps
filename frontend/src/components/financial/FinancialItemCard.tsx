@@ -2,6 +2,7 @@ import { Trash2 } from 'lucide-react'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import type { FinancialItem } from '../../types'
+import { getSubCategoryLabel } from '../../utils/subcategoryHelpers'
 
 interface FinancialItemCardProps {
     item: FinancialItem
@@ -13,6 +14,11 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
     const currency = useCurrency()
     // Build info text for temporal and rate data
     const infoItems: string[] = []
+
+    // Add subcategory if present
+    if (item.subCategory) {
+        infoItems.push(getSubCategoryLabel(item.subCategory))
+    }
 
     // Add temporal information
     if (item.startYear || item.endYear) {
@@ -55,13 +61,13 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
                     {formatCurrency(item.value, currency)}
                 </span>
 
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-1 transition-opacity">
                     <button
                         onClick={(e) => {
                             e.stopPropagation() // Prevent card click
                             onDelete(item.id)
                         }}
-                        className="p-1.5 text-black hover:bg-red-100 hover:text-red-600 rounded-full transition-colors"
+                        className="p-1.5 text-black hover:bg-black hover:text-white rounded-full transition-colors"
                         title="Delete item"
                     >
                         <Trash2 size={14} />

@@ -5,6 +5,7 @@ import { GraphVisualization, ProjectionDetails } from '../components/projections
 import { FinancialCategoryCard } from '../components/financial'
 import { PageHeader } from '../components/shared/PageHeader'
 import { Navbar } from '../components/shared'
+import { Loader } from '../components/shared/Loader'
 import RunSimulation from '../components/retirement/RunSimulation'
 import RenamePlanModal from '../components/plans/RenamePlanModal'
 
@@ -25,8 +26,12 @@ export function PlansPage() {
     const [selectedYear, setSelectedYear] = useState<number | null>(null)
     const [showSimulation, setShowSimulation] = useState(false)
     const [isRealValues, setIsRealValues] = useState(false)
-    const { activePlan, updatePlan, activePlanId } = usePlans()
+    const { activePlan, updatePlan, activePlanId, loading } = usePlans()
     const [renameModalOpen, setRenameModalOpen] = useState(false)
+
+    if (loading) {
+        return <Loader fullScreen text="Loading Plans" />
+    }
 
     const surplusPriority = activePlan?.surplusPriority || []
     const deficitPriority = activePlan?.deficitPriority || []
@@ -54,19 +59,26 @@ export function PlansPage() {
         <PriorityContext.Provider value={{ surplusPriority, deficitPriority }}>
             <PageHeader
                 title={
-                    <div className="flex items-center gap-3">
-                        <span>
-                            <span className="text-gray-400">PLAN : </span>
-                            {activePlan?.name || 'Financial Plan'}
-                        </span>
-                        {activePlan && (
-                            <button
-                                onClick={() => setRenameModalOpen(true)}
-                                className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition-colors"
-                                title="Rename Plan"
-                            >
-                                <Pencil size={18} />
-                            </button>
+                    <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-3">
+                            <span>
+                                <span className="text-gray-400">PLAN : </span>
+                                {activePlan?.name || 'Financial Plan'}
+                            </span>
+                            {activePlan && (
+                                <button
+                                    onClick={() => setRenameModalOpen(true)}
+                                    className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition-colors"
+                                    title="Edit Plan"
+                                >
+                                    <Pencil size={18} />
+                                </button>
+                            )}
+                        </div>
+                        {activePlan?.description && (
+                            <p className="text-sm text-gray-500 font-light max-w-2xl">
+                                {activePlan.description}
+                            </p>
                         )}
                     </div>
                 }
@@ -155,6 +167,7 @@ export function PlansPage() {
                     onClose={() => setRenameModalOpen(false)}
                     planId={activePlan.id}
                     currentName={activePlan.name}
+                    currentDescription={activePlan.description}
                 />
             )}
         </PriorityContext.Provider>

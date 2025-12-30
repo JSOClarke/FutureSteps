@@ -56,3 +56,38 @@ export function calculateNetWorth(assets: FinancialItem[], liabilities: Financia
     const totalLiabilities = liabilities.reduce((sum, l) => sum + l.value, 0)
     return totalAssets - totalLiabilities
 }
+
+/**
+ * Sort financial items based on a priority list of IDs
+ */
+export function sortFinancialItemsByPriority<T extends FinancialItem>(
+    items: T[],
+    priorityList: string[]
+): T[] {
+    if (!priorityList || priorityList.length === 0) {
+        return items
+    }
+
+    return [...items].sort((a, b) => {
+        const indexA = priorityList.indexOf(a.id)
+        const indexB = priorityList.indexOf(b.id)
+
+        // Both in list: sort by index
+        if (indexA !== -1 && indexB !== -1) {
+            return indexA - indexB
+        }
+
+        // Only A in list: A comes first
+        if (indexA !== -1) {
+            return -1
+        }
+
+        // Only B in list: B comes first
+        if (indexB !== -1) {
+            return 1
+        }
+
+        // Neither in list: keep original order (roughly)
+        return 0
+    })
+}

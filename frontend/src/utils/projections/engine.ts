@@ -1,5 +1,5 @@
 import type { FinancialItem } from '../../types'
-import { filterByCategory, calculateNetWorth } from './helpers'
+import { filterByCategory, calculateNetWorth, sortFinancialItemsByPriority } from './helpers'
 import {
     calculateYearlyIncome,
     calculateYearlyExpenses,
@@ -76,9 +76,12 @@ export class ProjectionEngine {
         const liabilityResult = processLiabilities(liabilities, cashflow, fractionOfYear)
         cashflow -= liabilityResult.totalPayment
 
-        // 3. Apply asset contributions
+        // 3. Apply asset contributions (Waterfall Logic)
+        // Sort assets by priority so high-priority assets get funded first
+        const sortedAssets = sortFinancialItemsByPriority(assets, surplusPriority)
+
         const contributionResult = applyAssetContributions(
-            assets,
+            sortedAssets,
             cashflow,
             fractionOfYear
         )
@@ -91,6 +94,7 @@ export class ProjectionEngine {
 
         if (cashflow > 0) {
             // Surplus: add to assets based on priority
+            // Note: Updated assets are already sorted by priority from step 3
             const surplusResult = allocateSurplus(cashflow, updatedAssets, surplusPriority)
             updatedAssets = surplusResult.updatedAssets
             surplusHistory = surplusResult.history
@@ -156,13 +160,22 @@ export class ProjectionEngine {
         for (let i = 0; i < numberOfYears; i++) {
             const year = startYear + i
 
+            // Calculate Fraction of Year if this is the current calendar year
+            let fractionOfYear = 1
+            const currentDate = new Date()
+            if (year === currentDate.getFullYear()) {
+                const currentMonthIndex = currentDate.getMonth() // 0-11
+                const monthsRemaining = 12 - currentMonthIndex
+                fractionOfYear = Math.max(0, monthsRemaining / 12)
+            }
+
             const yearResult = this.runSingleYear(
                 incomes,
                 expenses,
                 currentAssets,
                 currentLiabilities,
                 year,
-                1,
+                fractionOfYear,
                 surplusPriority,
                 deficitPriority
             )

@@ -65,9 +65,10 @@ export function FinancialItemsProvider({ children }: { children: React.ReactNode
                     frequency: item.frequency,
                     growthRate: item.growth_rate,
                     yieldRate: item.yield_rate,
-                    monthlyContribution: item.monthly_contribution,
+                    maxAnnualContribution: item.max_annual_contribution,
                     interestRate: item.interest_rate,
-                    minimumPayment: item.minimum_payment
+                    minimumPayment: item.minimum_payment,
+                    subCategory: item.sub_category // Map from DB
                 }))
 
                 setItems(mappedItems)
@@ -113,9 +114,10 @@ export function FinancialItemsProvider({ children }: { children: React.ReactNode
                 frequency: newItemData.frequency,
                 growth_rate: newItemData.growthRate,
                 yield_rate: newItemData.yieldRate,
-                monthly_contribution: newItemData.monthlyContribution,
+                max_annual_contribution: newItemData.maxAnnualContribution,
                 interest_rate: newItemData.interestRate,
-                minimum_payment: newItemData.minimumPayment
+                minimum_payment: newItemData.minimumPayment,
+                sub_category: newItemData.subCategory // Map to DB
             }
 
             const { data, error } = await supabase
@@ -160,9 +162,10 @@ export function FinancialItemsProvider({ children }: { children: React.ReactNode
             if (updatedData.frequency !== undefined) dbUpdate.frequency = updatedData.frequency
             if (updatedData.growthRate !== undefined) dbUpdate.growth_rate = updatedData.growthRate
             if (updatedData.yieldRate !== undefined) dbUpdate.yield_rate = updatedData.yieldRate
-            if (updatedData.monthlyContribution !== undefined) dbUpdate.monthly_contribution = updatedData.monthlyContribution
+            if (updatedData.maxAnnualContribution !== undefined) dbUpdate.max_annual_contribution = updatedData.maxAnnualContribution
             if (updatedData.interestRate !== undefined) dbUpdate.interest_rate = updatedData.interestRate
             if (updatedData.minimumPayment !== undefined) dbUpdate.minimum_payment = updatedData.minimumPayment
+            if (updatedData.subCategory !== undefined) dbUpdate.sub_category = updatedData.subCategory
 
             const { error } = await supabase
                 .from('financial_items')

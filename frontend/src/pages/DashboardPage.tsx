@@ -1,8 +1,9 @@
-import { DollarSign, Save, Plus, TrendingUp, TrendingDown, Building, CreditCard, ChevronDown, ChevronUp } from 'lucide-react'
+import { DollarSign, Plus, TrendingUp, TrendingDown, Building, CreditCard, ChevronDown, ChevronUp } from 'lucide-react'
 import { useSnapshots } from '../context/SnapshotsContext'
-import { useDashboardItems } from '../context/DashboardItemsContext'
+import { usePlans } from '../context/PlansContext'
 import { SnapshotHistoryTable } from '../components/dashboard/SnapshotHistoryTable'
-import { DashboardCategoryCard } from '../components/dashboard/DashboardCategoryCard'
+import { SnapshotEditorModal } from '../components/dashboard/SnapshotEditorModal'
+import { SnapshotComparisonModal } from '../components/dashboard/SnapshotComparisonModal'
 import { PageHeader } from '../components/shared/PageHeader'
 import { useState, useEffect } from 'react'
 import { useCurrency } from '../hooks/useCurrency'
@@ -10,20 +11,20 @@ import { formatCurrency } from '../utils/formatters'
 
 import { ConfirmationDialog } from '../components/shared/ConfirmationDialog'
 import { useToast } from '../context/ToastContext'
-import type { SnapshotItem } from '../types'
+import type { SnapshotItem, FinancialSnapshot } from '../types'
 
 export function DashboardPage() {
-    const { snapshots, saveSnapshot, deleteSnapshot, getSnapshotItems } = useSnapshots()
-    const { items, getTotalByCategory, clearAllItems } = useDashboardItems()
+    const { snapshots, deleteSnapshot, getSnapshotItems } = useSnapshots()
+    const { plans } = usePlans()
     const { toast } = useToast()
 
     // UI State
-    const [saving, setSaving] = useState(false)
-    const [isCreatingSnapshot, setIsCreatingSnapshot] = useState(false)
+    const [isEditorOpen, setIsEditorOpen] = useState(false)
+    const [isComparisonOpen, setIsComparisonOpen] = useState(false)
+    const [selectedSnapshot, setSelectedSnapshot] = useState<FinancialSnapshot | null>(null)
 
     // Dialog State
     const [deleteSnapshotId, setDeleteSnapshotId] = useState<string | null>(null)
-    const [showCancelDialog, setShowCancelDialog] = useState(false)
     const [recentExpanded, setRecentExpanded] = useState(false)
     const [recentItems, setRecentItems] = useState<SnapshotItem[]>([])
     const [loadingRecentItems, setLoadingRecentItems] = useState(false)
@@ -59,71 +60,36 @@ export function DashboardPage() {
         setRecentExpanded(false)
     }, [mostRecentSnapshot?.id])
 
-    const handleSaveSnapshot = async () => {
-        if (items.length === 0) {
+    const handleCompare = (snapshot: FinancialSnapshot) => {
+        if (plans.length === 0) {
             toast({
-                title: 'No items to save',
-                message: 'Please add at least one item before saving a snapshot',
-                type: 'warning'
+                title: "No Plans Found",
+                message: "You need to create a financial plan before you can run a comparison.",
+                type: "warning"
             })
             return
         }
-
-        try {
-            setSaving(true)
-
-            const totalIncome = getTotalByCategory('income')
-            const totalExpenses = getTotalByCategory('expenses')
-            const totalAssets = getTotalByCategory('assets')
-            const totalLiabilities = getTotalByCategory('liabilities')
-            const netWorth = totalAssets - totalLiabilities
-
-            await saveSnapshot({
-                total_income: totalIncome,
-                total_expenses: totalExpenses,
-                total_assets: totalAssets,
-                total_liabilities: totalLiabilities,
-                net_worth: netWorth,
-                income_count: items.filter(i => i.category === 'income').length,
-                expense_count: items.filter(i => i.category === 'expenses').length,
-                asset_count: items.filter(i => i.category === 'assets').length,
-                liability_count: items.filter(i => i.category === 'liabilities').length
-            }, items)
-
-            // Clear current items and exit creation mode
-            clearAllItems()
-            setIsCreatingSnapshot(false)
-
-            toast({
-                title: 'Snapshot Saved',
-                message: 'Your financial snapshot has been saved successfully.',
-                type: 'success'
-            })
-        } catch (error) {
-            console.error('Failed to save snapshot:', error)
-            toast({
-                title: 'Save Failed',
-                message: 'Failed to save snapshot. Please try again.',
-                type: 'error'
-            })
-        } finally {
-            setSaving(false)
-        }
+        setSelectedSnapshot(snapshot)
+        setIsComparisonOpen(true)
     }
-
-    const totalAssets = getTotalByCategory('assets')
-    const totalLiabilities = getTotalByCategory('liabilities')
-    const netWorth = totalAssets - totalLiabilities
 
     return (
         <div className="space-y-6">
             <PageHeader
                 title="Financial Dashboard"
                 subtitle="Track your finances over time"
-            />
+            >
+                <button
+                    onClick={() => setIsEditorOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
+                >
+                    <Plus size={16} />
+                    New Snapshot
+                </button>
+            </PageHeader>
 
             {/* Most Recent Snapshot */}
-            {mostRecentSnapshot && !isCreatingSnapshot && (
+            {mostRecentSnapshot ? (
                 <div className="border-2 border-black bg-white p-6">
                     <div className="flex justify-between items-start mb-4">
                         <div>
@@ -136,13 +102,6 @@ export function DashboardPage() {
                                 })}
                             </p>
                         </div>
-                        <button
-                            onClick={() => setIsCreatingSnapshot(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
-                        >
-                            <Plus size={16} />
-                            Start New Snapshot
-                        </button>
                     </div>
 
                     {/* Summary Grid */}
@@ -280,15 +239,13 @@ export function DashboardPage() {
                         </div>
                     )}
                 </div>
-            )}
-
-            {/* Start New Snapshot - First time or when no items */}
-            {!mostRecentSnapshot && !isCreatingSnapshot && (
+            ) : (
+                /* No Snapshots State */
                 <div className="border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center">
                     <h2 className="text-xl font-normal mb-2">No Snapshots Yet</h2>
-                    <p className="text-gray-600 mb-6">Create your first financial snapshot</p>
+                    <p className="text-gray-600 mb-6">Create your first financial snapshot to start tracking.</p>
                     <button
-                        onClick={() => setIsCreatingSnapshot(true)}
+                        onClick={() => setIsEditorOpen(true)}
                         className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
                     >
                         <Plus size={20} />
@@ -297,95 +254,28 @@ export function DashboardPage() {
                 </div>
             )}
 
-            {/* New Snapshot Entry Section */}
-            {isCreatingSnapshot && (
-                <>
-                    <div className="border-2 border-black bg-white p-4">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h2 className="text-xl font-normal">New Snapshot</h2>
-                                <p className="text-sm text-gray-600">Add your current financial items</p>
-                            </div>
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => {
-                                        if (items.length > 0) {
-                                            setShowCancelDialog(true)
-                                        } else {
-                                            clearAllItems()
-                                            setIsCreatingSnapshot(false)
-                                        }
-                                    }}
-                                    className="px-4 py-2 border border-black hover:bg-gray-100 transition-colors text-sm font-normal uppercase tracking-wide"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSaveSnapshot}
-                                    disabled={saving || items.length === 0}
-                                    className="flex items-center gap-2 px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-sm font-normal uppercase tracking-wide"
-                                >
-                                    <Save size={16} />
-                                    {saving ? 'Saving...' : 'Save Snapshot'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Category Cards */}
-                    <div>
-                        <h3 className="text-lg font-normal mb-3">Enter Items</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <DashboardCategoryCard
-                                title="Income"
-                                category="income"
-                                backgroundColor="#f0fdf4"
-                            />
-                            <DashboardCategoryCard
-                                title="Expenses"
-                                category="expenses"
-                                backgroundColor="#fef2f2"
-                            />
-                            <DashboardCategoryCard
-                                title="Assets"
-                                category="assets"
-                                backgroundColor="#eff6ff"
-                            />
-                            <DashboardCategoryCard
-                                title="Liabilities"
-                                category="liabilities"
-                                backgroundColor="#fff7ed"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Current Net Worth */}
-                    <div className="border-2 border-black bg-white p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <span className="text-sm font-normal text-gray-600 uppercase tracking-wide">Current Net Worth</span>
-                                <p className="text-xs text-gray-500 mt-1">Assets - Liabilities</p>
-                            </div>
-                            <DollarSign size={32} className={netWorth >= 0 ? 'text-green-700' : 'text-red-700'} />
-                        </div>
-                        <div className={`text-4xl font-bold mt-2 ${netWorth >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                            {formatCurrency(netWorth, currency)}
-                        </div>
-                    </div>
-                </>
-            )}
-
             {/* Snapshot History */}
             <div>
                 <h2 className="text-xl font-normal mb-3">Financial History</h2>
-                <p className="text-sm text-gray-600 mb-4">
-                    All your saved snapshots
-                </p>
                 <SnapshotHistoryTable
                     snapshots={snapshots}
                     onDelete={(id) => setDeleteSnapshotId(id)}
+                    onCompare={handleCompare}
                 />
             </div>
+
+            {/* Modals */}
+            <SnapshotEditorModal
+                isOpen={isEditorOpen}
+                onClose={() => setIsEditorOpen(false)}
+            />
+
+            <SnapshotComparisonModal
+                isOpen={isComparisonOpen}
+                onClose={() => setIsComparisonOpen(false)}
+                snapshot={selectedSnapshot}
+                plans={plans}
+            />
 
             {/* Confirmation Dialogs */}
             <ConfirmationDialog
@@ -415,20 +305,7 @@ export function DashboardPage() {
                 confirmLabel="Delete"
                 variant="danger"
             />
-
-            <ConfirmationDialog
-                isOpen={showCancelDialog}
-                onClose={() => setShowCancelDialog(false)}
-                onConfirm={() => {
-                    clearAllItems()
-                    setIsCreatingSnapshot(false)
-                    setShowCancelDialog(false)
-                }}
-                title="Discard Changes"
-                description="You have unsaved items. Are you sure you want to discard them and cancel?"
-                confirmLabel="Discard"
-                variant="warning"
-            />
         </div>
     )
 }
+

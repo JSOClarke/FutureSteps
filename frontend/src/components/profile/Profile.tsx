@@ -9,7 +9,7 @@ function Profile() {
     const [fullName, setFullName] = useState(userProfile?.full_name || '')
     const [dateOfBirth, setDateOfBirth] = useState(userProfile?.dateOfBirth || '')
     const [country, setCountry] = useState(userProfile?.country || '')
-    const [customDeathDate, setCustomDeathDate] = useState(userProfile?.customDeathDate || '')
+    const [lifeExpectancy, setLifeExpectancy] = useState<number>(userProfile?.lifeExpectancy || 85)
     const [currency, setCurrency] = useState(userProfile?.currency || 'USD')
 
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -20,7 +20,7 @@ function Profile() {
             setFullName(userProfile.full_name || '')
             setDateOfBirth(userProfile.dateOfBirth || '')
             setCountry(userProfile.country || '')
-            setCustomDeathDate(userProfile.customDeathDate || '')
+            setLifeExpectancy(userProfile.lifeExpectancy || 85)
             setCurrency(userProfile.currency || 'USD')
         }
     }, [userProfile])
@@ -34,7 +34,7 @@ function Profile() {
                 full_name: fullName,
                 dateOfBirth: dateOfBirth,
                 country: country,
-                customDeathDate: customDeathDate || undefined,
+                lifeExpectancy: lifeExpectancy,
                 currency: currency
             })
             setMessage({ type: 'success', text: 'Profile updated successfully!' })
@@ -101,20 +101,22 @@ function Profile() {
                             />
                         </div>
 
-                        {/* Custom Death Date */}
+                        {/* Life Expectancy */}
                         <div>
-                            <label htmlFor="deathDate" className="block text-sm font-medium text-gray-700 mb-2">
-                                Custom Death Date (Optional)
+                            <label htmlFor="lifeExpectancy" className="block text-sm font-medium text-gray-700 mb-2">
+                                Life Expectancy (Years)
                             </label>
                             <input
-                                type="date"
-                                id="deathDate"
-                                value={customDeathDate}
-                                onChange={(e) => setCustomDeathDate(e.target.value)}
+                                type="number"
+                                id="lifeExpectancy"
+                                value={lifeExpectancy}
+                                onChange={(e) => setLifeExpectancy(parseInt(e.target.value) || 0)}
                                 className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                min="0"
+                                max="150"
                             />
                             <p className="text-gray-500 text-sm mt-1">
-                                Leave empty to use the default life expectancy calculation.
+                                The age until which financial projections will be calculated. Default is 85.
                             </p>
                         </div>
 

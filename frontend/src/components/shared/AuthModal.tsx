@@ -43,24 +43,30 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         >
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <label htmlFor="auth-email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input
+                        id="auth-email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
                         required
+                        data-testid="auth-email-input"
+                        aria-label="Email Address"
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <label htmlFor="auth-password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <input
+                        id="auth-password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
                         required
                         minLength={6}
+                        data-testid="auth-password-input"
+                        aria-label="Password"
                     />
                 </div>
 
@@ -74,6 +80,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     type="submit"
                     disabled={loading}
                     className="w-full py-3 bg-black text-white font-normal uppercase tracking-wide hover:bg-gray-800 transition-colors disabled:opacity-50"
+                    data-testid="auth-submit-button"
                 >
                     {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
                 </button>

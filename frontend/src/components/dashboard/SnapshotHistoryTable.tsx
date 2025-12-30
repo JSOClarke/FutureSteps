@@ -2,6 +2,7 @@ import { Trash2, ChevronDown, ChevronRight } from 'lucide-react'
 import { useState, Fragment } from 'react'
 import type { FinancialSnapshot, SnapshotItem } from '../../types'
 import { formatCurrency } from '../../utils/formatters'
+import { getSubCategoryIcon } from '../../utils/subcategoryHelpers'
 import { useCurrency } from '../../hooks/useCurrency'
 import { supabase } from '../../lib/supabase'
 
@@ -154,12 +155,18 @@ export function SnapshotHistoryTable({ snapshots, onDelete, onCompare }: Snapsho
                                                         <div>
                                                             <h4 className="text-xs font-normal uppercase tracking-wide text-gray-600 mb-2">Income</h4>
                                                             <div className="space-y-1">
-                                                                {items.filter(i => i.category === 'income').map(item => (
-                                                                    <div key={item.id} className="flex justify-between text-sm bg-white border border-gray-200 px-2 py-1">
-                                                                        <span className="text-gray-700">{item.name}</span>
-                                                                        <span className="font-medium text-green-600">{formatCurrency(item.amount, currency)}</span>
-                                                                    </div>
-                                                                ))}
+                                                                {items.filter(i => i.category === 'income').map(item => {
+                                                                    const Icon = getSubCategoryIcon(item.subCategory as any)
+                                                                    return (
+                                                                        <div key={item.id} className="flex justify-between items-center text-sm bg-white border border-gray-200 px-2 py-1">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Icon size={14} className="text-green-700 opacity-70" />
+                                                                                <span className="text-gray-700">{item.name}</span>
+                                                                            </div>
+                                                                            <span className="font-medium text-green-600">{formatCurrency(item.amount, currency)}</span>
+                                                                        </div>
+                                                                    )
+                                                                })}
                                                             </div>
                                                         </div>
                                                     )}
@@ -169,12 +176,18 @@ export function SnapshotHistoryTable({ snapshots, onDelete, onCompare }: Snapsho
                                                         <div>
                                                             <h4 className="text-xs font-normal uppercase tracking-wide text-gray-600 mb-2">Expenses</h4>
                                                             <div className="space-y-1">
-                                                                {items.filter(i => i.category === 'expenses').map(item => (
-                                                                    <div key={item.id} className="flex justify-between text-sm bg-white border border-gray-200 px-2 py-1">
-                                                                        <span className="text-gray-700">{item.name}</span>
-                                                                        <span className="font-medium text-red-600">{formatCurrency(item.amount, currency)}</span>
-                                                                    </div>
-                                                                ))}
+                                                                {items.filter(i => i.category === 'expenses').map(item => {
+                                                                    const Icon = getSubCategoryIcon(item.subCategory as any)
+                                                                    return (
+                                                                        <div key={item.id} className="flex justify-between items-center text-sm bg-white border border-gray-200 px-2 py-1">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Icon size={14} className="text-red-700 opacity-70" />
+                                                                                <span className="text-gray-700">{item.name}</span>
+                                                                            </div>
+                                                                            <span className="font-medium text-red-600">{formatCurrency(item.amount, currency)}</span>
+                                                                        </div>
+                                                                    )
+                                                                })}
                                                             </div>
                                                         </div>
                                                     )}
@@ -184,12 +197,18 @@ export function SnapshotHistoryTable({ snapshots, onDelete, onCompare }: Snapsho
                                                         <div>
                                                             <h4 className="text-xs font-normal uppercase tracking-wide text-gray-600 mb-2">Assets</h4>
                                                             <div className="space-y-1">
-                                                                {items.filter(i => i.category === 'assets').map(item => (
-                                                                    <div key={item.id} className="flex justify-between text-sm bg-white border border-gray-200 px-2 py-1">
-                                                                        <span className="text-gray-700">{item.name}</span>
-                                                                        <span className="font-medium text-blue-600">{formatCurrency(item.amount, currency)}</span>
-                                                                    </div>
-                                                                ))}
+                                                                {items.filter(i => i.category === 'assets').map(item => {
+                                                                    const Icon = getSubCategoryIcon(item.subCategory as any)
+                                                                    return (
+                                                                        <div key={item.id} className="flex justify-between items-center text-sm bg-white border border-gray-200 px-2 py-1">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Icon size={14} className="text-blue-700 opacity-70" />
+                                                                                <span className="text-gray-700">{item.name}</span>
+                                                                            </div>
+                                                                            <span className="font-medium text-blue-600">{formatCurrency(item.amount, currency)}</span>
+                                                                        </div>
+                                                                    )
+                                                                })}
                                                             </div>
                                                         </div>
                                                     )}
@@ -199,12 +218,18 @@ export function SnapshotHistoryTable({ snapshots, onDelete, onCompare }: Snapsho
                                                         <div>
                                                             <h4 className="text-xs font-normal uppercase tracking-wide text-gray-600 mb-2">Liabilities</h4>
                                                             <div className="space-y-1">
-                                                                {items.filter(i => i.category === 'liabilities').map(item => (
-                                                                    <div key={item.id} className="flex justify-between text-sm bg-white border border-gray-200 px-2 py-1">
-                                                                        <span className="text-gray-700">{item.name}</span>
-                                                                        <span className="font-medium text-orange-600">{formatCurrency(item.amount, currency)}</span>
-                                                                    </div>
-                                                                ))}
+                                                                {items.filter(i => i.category === 'liabilities').map(item => {
+                                                                    const Icon = getSubCategoryIcon(item.subCategory as any)
+                                                                    return (
+                                                                        <div key={item.id} className="flex justify-between items-center text-sm bg-white border border-gray-200 px-2 py-1">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Icon size={14} className="text-orange-700 opacity-70" />
+                                                                                <span className="text-gray-700">{item.name}</span>
+                                                                            </div>
+                                                                            <span className="font-medium text-orange-600">{formatCurrency(item.amount, currency)}</span>
+                                                                        </div>
+                                                                    )
+                                                                })}
                                                             </div>
                                                         </div>
                                                     )}

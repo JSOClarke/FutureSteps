@@ -12,6 +12,7 @@ interface YearSelectProps {
     maxYear?: number
     placeholder?: string
     error?: string
+    'data-testid'?: string
 }
 
 function YearSelect({
@@ -24,7 +25,8 @@ function YearSelect({
     minYear = new Date().getFullYear(),
     maxYear = new Date().getFullYear() + 50,
     placeholder,
-    error
+    error,
+    'data-testid': testId
 }: YearSelectProps) {
     const years = useMemo(() => {
         const result = []
@@ -67,6 +69,7 @@ function YearSelect({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 className="w-full px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black bg-white font-light"
+                data-testid={testId}
             >
                 <option value="">{placeholder || 'Select year...'}</option>
 

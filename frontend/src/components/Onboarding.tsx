@@ -136,12 +136,14 @@ function Onboarding() {
                         <button
                             onClick={() => setIsSignInModalOpen(true)}
                             className="w-full px-8 py-4 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors"
+                            data-testid="welcome-signin-button"
                         >
                             Sign In
                         </button>
                         <button
                             onClick={() => setMode('signup')}
                             className="w-full px-8 py-4 bg-white border border-black text-black hover:bg-gray-50 font-normal uppercase tracking-wide text-sm transition-colors"
+                            data-testid="welcome-signup-button"
                         >
                             Sign Up
                         </button>
@@ -183,29 +185,35 @@ function Onboarding() {
 
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                            <label htmlFor="signup-email" className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                 Email *
                             </label>
                             <input
+                                id="signup-email"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="your@email.com"
                                 className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                                data-testid="signup-email-input"
+                                aria-label="Signup Email"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                            <label htmlFor="signup-password" className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                 Password *
                             </label>
                             <input
+                                id="signup-password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Min. 6 characters"
                                 minLength={6}
                                 className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                                data-testid="signup-password-input"
+                                aria-label="Signup Password"
                             />
                         </div>
 
@@ -220,6 +228,7 @@ function Onboarding() {
                                 onClick={handleSignUp}
                                 disabled={loading}
                                 className="w-full px-6 py-4 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                data-testid="signup-create-account-button"
                             >
                                 {loading ? 'Creating Account...' : 'Create Account'}
                             </button>
@@ -262,39 +271,45 @@ function Onboarding() {
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                                    <label htmlFor="onboarding-name" className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                         Full Name *
                                     </label>
                                     <input
+                                        id="onboarding-name"
                                         type="text"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         placeholder="Enter your name"
                                         className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                                        data-testid="onboarding-name-input"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                                    <label htmlFor="onboarding-dob" className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                         Date of Birth *
                                     </label>
                                     <input
+                                        id="onboarding-dob"
                                         type="date"
                                         value={dateOfBirth}
                                         onChange={(e) => setDateOfBirth(e.target.value)}
                                         max={new Date().toISOString().split('T')[0]}
                                         className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                                        data-testid="onboarding-dob-input"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                                    <label htmlFor="onboarding-country" className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                         Country *
                                     </label>
                                     <select
+                                        id="onboarding-country"
                                         value={country}
                                         onChange={(e) => setCountry(e.target.value)}
                                         className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                                        data-testid="onboarding-country-select"
                                     >
                                         <option value="">Select your country</option>
                                         {COUNTRIES.map((c) => (
@@ -317,6 +332,7 @@ function Onboarding() {
                                     onClick={handleNext}
                                     disabled={!canProceed()}
                                     className="flex-1 px-6 py-3 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    data-testid="onboarding-next-button"
                                 >
                                     Next
                                 </button>
@@ -335,15 +351,17 @@ function Onboarding() {
                             </p>
 
                             <div>
-                                <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                                <label htmlFor="onboarding-plan-name" className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                     Plan Name *
                                 </label>
                                 <input
+                                    id="onboarding-plan-name"
                                     type="text"
                                     value={planName}
                                     onChange={(e) => setPlanName(e.target.value)}
                                     placeholder="e.g., Early Retirement, Dream Home"
                                     className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                                    data-testid="onboarding-plan-name-input"
                                 />
                             </div>
 
@@ -358,6 +376,7 @@ function Onboarding() {
                                     onClick={handleNext}
                                     disabled={!canProceed()}
                                     className="flex-1 px-6 py-3 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    data-testid="onboarding-plan-next-button"
                                 >
                                     Next
                                 </button>
@@ -387,16 +406,18 @@ function Onboarding() {
                             </div>
 
                             <div className="mb-6">
-                                <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
+                                <label htmlFor="onboarding-life-expectancy" className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
                                     Adjust Life Expectancy
                                 </label>
                                 <input
+                                    id="onboarding-life-expectancy"
                                     type="number"
                                     value={lifeExpectancy}
                                     onChange={(e) => setLifeExpectancy(parseInt(e.target.value) || 85)}
                                     min="60"
                                     max="120"
                                     className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
+                                    data-testid="onboarding-life-expectancy-input"
                                 />
                                 <p className="text-xs text-gray-500 mt-2 font-light">
                                     You can change this later in settings
@@ -408,6 +429,7 @@ function Onboarding() {
                                     onClick={handleCompleteOnboarding}
                                     disabled={loading}
                                     className="w-full px-6 py-4 bg-black text-white hover:bg-gray-800 font-normal uppercase tracking-wide text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    data-testid="onboarding-complete-button"
                                 >
                                     {loading ? 'Saving...' : 'Get Started'}
                                 </button>

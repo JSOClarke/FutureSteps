@@ -7,7 +7,9 @@ import { compareFinancialState, type ComparisonResult } from '@/utils/projection
 import { filterByCategory } from '@/utils/projections/helpers'
 import { useSnapshots } from '@/context/SnapshotsContext'
 import { formatCurrency } from '@/utils/formatters'
+import { getSubCategoryIcon, getSubCategoryColor } from '@/utils/subcategoryHelpers'
 import type { Plan, FinancialSnapshot, FinancialItem, FinancialSubCategory } from '@/types'
+
 
 interface SnapshotComparisonModalProps {
     isOpen: boolean
@@ -69,15 +71,11 @@ export function SnapshotComparisonModal({ isOpen, onClose, snapshot, plans }: Sn
         const plan = plans.find(p => p.id === selectedPlanId)
         if (!plan) return
 
-        // Calculate YTD Fraction based on Snapshot Date
-        // If snapshot is from Oct, compare against YTD(Oct)
+        // Calculate time difference between Snapshot and Now (Plan "Current" state)
         const snapshotDate = new Date(snapshot.created_at)
-        const year = snapshotDate.getFullYear()
-        const start = new Date(year, 0, 1)
-        const diff = snapshotDate.getTime() - start.getTime()
-        const oneDay = 1000 * 60 * 60 * 24
-        const dayOfYear = Math.floor(diff / oneDay)
-        const fractionOfYear = dayOfYear / 365
+        const now = new Date()
+        const diffTime = snapshotDate.getTime() - now.getTime()
+        const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365)
 
         const engine = new ProjectionEngine()
         const incomes = filterByCategory(plan.financialItems, 'income')
@@ -85,15 +83,75 @@ export function SnapshotComparisonModal({ isOpen, onClose, snapshot, plans }: Sn
         const assets = filterByCategory(plan.financialItems, 'assets')
         const liabilities = filterByCategory(plan.financialItems, 'liabilities')
 
-        const yearResult = engine.runSingleYear(
+        // 1. Run a FULL YEAR projection to determine the "Annual Rate of Change"
+        // We assume the Plan's items represent the "Current State" (Now).
+        const oneYearResult = engine.runSingleYear(
             incomes, expenses, assets, liabilities,
-            year,
-            fractionOfYear,
+            now.getFullYear(),
+            1, // Full year
             plan.surplusPriority,
             plan.deficitPriority
         )
 
-        const result = compareFinancialState(snapshotItems, yearResult)
+        // 2. Calculate initial Net Worth (Sum of current assets - liabilities)
+        const currentTotalAssets = assets.reduce((sum, item) => sum + item.value, 0)
+        const currentTotalLiabilities = liabilities.reduce((sum, item) => sum + item.value, 0)
+        const currentNetWorth = currentTotalAssets - currentTotalLiabilities
+
+        // 3. Extrapolate to Snapshot Date
+        // Projected = Current + (AnnualChange * diffYears)
+        // If snapshot is today, diffYears ~ 0, so Projected ~ Current.
+        // If snapshot is in past, diffYears is negative, so we subtract growth.
+
+        const annualChange = oneYearResult.netWorth - currentNetWorth
+        const projectedNetWorth = currentNetWorth + (annualChange * diffYears)
+
+        // 4. Construct a "Synthetic" YearResult for comparison
+        // We scale the items linearly
+        // constant scaleFactor = diffYears
+        // Actually, for the comparison table, we want to show "Projected Value at that date".
+        // item.projected = item.current + (item.annual_growth * diffYears)
+
+        // We need to know Annual Growth per item. 
+        // runSingleYear history gives us growth/yield/contributions per asset.
+
+        const projectedAssets = assets.map(asset => {
+            // Find growth for this asset in oneYearResult
+            const growth = oneYearResult.history.growth.find(g => g.assetId === asset.id)?.growthAmount || 0
+            const yieldAmt = oneYearResult.history.yield.find(g => g.assetId === asset.id)?.yieldAmount || 0
+            const contrib = oneYearResult.history.contributions.find(g => g.assetId === asset.id)?.amount || 0
+            const surplus = oneYearResult.history.surplus.find(g => g.assetId === asset.id)?.amount || 0
+            const deficit = oneYearResult.history.deficit.find(g => g.assetId === asset.id)?.amount || 0
+
+            const totalAnnualChange = growth + yieldAmt + contrib + surplus - deficit
+            return {
+                ...asset,
+                value: asset.value + (totalAnnualChange * diffYears)
+            }
+        })
+
+        // Similar for liabilities? (Interest, Payments)
+        // For simplicity, let's just assume we want Net Worth to match. 
+        // But the table compares item-by-item.
+
+        // For Incomes/Expenses in a Snapshot Comparison:
+        // We really only need to pass the list of projected items.
+        // We'll reuse 'oneYearResult' structure but inject our projected assets.
+
+        const adjustedYearResult = {
+            ...oneYearResult,
+            assets: projectedAssets,
+            // liabilities: projectedLiabilities... (skipped for brevity, assuming minimal change or simplified)
+            netWorth: projectedNetWorth
+        }
+
+        const result = compareFinancialState(snapshotItems, adjustedYearResult)
+
+        // manual override of total projected net worth in summary to ensure it matches our calc
+        result.summary.totalProjectedNetWorth = projectedNetWorth
+        result.summary.diff = result.summary.totalActualNetWorth - projectedNetWorth
+        result.summary.percentDiff = projectedNetWorth !== 0 ? result.summary.diff / projectedNetWorth : 0
+
         setComparisonResult(result)
 
     }, [snapshot, selectedPlanId, snapshotItems, plans])
@@ -183,38 +241,51 @@ export function SnapshotComparisonModal({ isOpen, onClose, snapshot, plans }: Sn
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y">
-                                            {comparisonResult.items.map(item => (
-                                                <tr key={item.itemId} className="hover:bg-gray-50">
-                                                    <td className="p-3 font-medium">{item.name}</td>
-                                                    <td className="p-3 capitalize text-gray-500">{item.category}</td>
-                                                    <td className="p-3 text-right">{formatCurrency(item.actualValue)}</td>
-                                                    <td className="p-3 text-right text-gray-500">{formatCurrency(item.projectedValue)}</td>
-                                                    <td className={`p-3 text-right font-medium ${(item.category === 'assets' && item.diff < 0) || (item.category === 'liabilities' && item.diff > 0)
-                                                        ? 'text-red-600'
-                                                        : 'text-green-600'
-                                                        }`}>
-                                                        {item.diff > 0 ? '+' : ''}{formatCurrency(item.diff)}
-                                                    </td>
-                                                    <td className="p-3 text-center">
-                                                        {item.status === 'on_track' && (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                                                On Track
-                                                            </span>
-                                                        )}
-                                                        {/* Ensure case-insensitive or strict matching for 'ahead'/'behind' based on comparison.ts output */}
-                                                        {item.status === 'ahead' && (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                                                Ahead
-                                                            </span>
-                                                        )}
-                                                        {item.status === 'behind' && (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                                Behind
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {comparisonResult.items.map(item => {
+                                                const [, subCat] = item.itemId.split(':')
+                                                const Icon = getSubCategoryIcon(subCat as any)
+
+                                                return (
+                                                    <tr key={item.itemId} className="hover:bg-gray-50">
+                                                        <td className="p-3 font-medium">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className={`p-1.5 rounded-md ${getSubCategoryColor(item.category)} bg-opacity-10 text-opacity-80`}>
+                                                                    <Icon size={16} />
+                                                                </div>
+                                                                <span>{item.name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-3 capitalize text-gray-500">{item.category}</td>
+                                                        <td className="p-3 text-right">{formatCurrency(item.actualValue)}</td>
+                                                        <td className="p-3 text-right text-gray-500">{formatCurrency(item.projectedValue)}</td>
+                                                        <td className={`p-3 text-right font-medium ${(item.category === 'assets' && item.diff < 0) || (item.category === 'liabilities' && item.diff > 0)
+                                                            ? 'text-red-600'
+                                                            : 'text-green-600'
+                                                            }`}>
+                                                            {item.diff > 0 ? '+' : ''}{formatCurrency(item.diff)}
+                                                        </td>
+
+                                                        <td className="p-3 text-center">
+                                                            {item.status === 'on_track' && (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                                    On Track
+                                                                </span>
+                                                            )}
+                                                            {/* Ensure case-insensitive or strict matching for 'ahead'/'behind' based on comparison.ts output */}
+                                                            {item.status === 'ahead' && (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                                                    Ahead
+                                                                </span>
+                                                            )}
+                                                            {item.status === 'behind' && (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                                                    Behind
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>

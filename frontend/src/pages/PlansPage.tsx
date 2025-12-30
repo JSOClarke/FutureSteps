@@ -1,5 +1,5 @@
 import { useState, createContext, useContext } from 'react'
-import { Pencil } from 'lucide-react'
+import { Pencil, TrendingUp, Plus } from 'lucide-react'
 import { usePlans } from '../context/PlansContext'
 import { GraphVisualization, ProjectionDetails } from '../components/projections'
 import { FinancialCategoryCard } from '../components/financial'
@@ -8,6 +8,7 @@ import { Navbar } from '../components/shared'
 import { Loader } from '../components/shared/Loader'
 import RunSimulation from '../components/retirement/RunSimulation'
 import RenamePlanModal from '../components/plans/RenamePlanModal'
+import CreatePlanModal from '../components/plans/CreatePlanModal'
 
 // Create context for priority orders
 interface PriorityContextType {
@@ -26,11 +27,45 @@ export function PlansPage() {
     const [selectedYear, setSelectedYear] = useState<number | null>(null)
     const [showSimulation, setShowSimulation] = useState(false)
     const [isRealValues, setIsRealValues] = useState(false)
-    const { activePlan, updatePlan, activePlanId, loading } = usePlans()
+    const [createModalOpen, setCreateModalOpen] = useState(false)
+    const { plans, activePlan, updatePlan, activePlanId, loading } = usePlans()
     const [renameModalOpen, setRenameModalOpen] = useState(false)
 
     if (loading) {
         return <Loader fullScreen text="Loading Plans" />
+    }
+
+    // Empty State
+    if (plans.length === 0) {
+        return (
+            <>
+                <PageHeader
+                    title="Financial Plans"
+                    subtitle="Create your first plan to get started"
+                />
+                <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-300 bg-gray-50 min-h-[50vh]">
+                    <div className="bg-white p-4 rounded-full border-2 border-black mb-6">
+                        <TrendingUp size={32} className="text-black" />
+                    </div>
+                    <h2 className="text-2xl font-normal mb-2">No Financial Plans Yet</h2>
+                    <p className="text-gray-600 mb-8 max-w-md text-center">
+                        Create multiple financial scenarios to compare different paths for your future.
+                        Simulate retirement, major purchases, or career changes.
+                    </p>
+                    <button
+                        onClick={() => setCreateModalOpen(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
+                    >
+                        <Plus size={20} />
+                        Create Your First Plan
+                    </button>
+                    <CreatePlanModal
+                        isOpen={createModalOpen}
+                        onClose={() => setCreateModalOpen(false)}
+                    />
+                </div>
+            </>
+        )
     }
 
     const surplusPriority = activePlan?.surplusPriority || []
@@ -170,6 +205,16 @@ export function PlansPage() {
                     currentDescription={activePlan.description}
                 />
             )}
+
+            {/* Create Plan Modal needs to be available even if plans exist, technically, 
+                but usually Sidebar creates plans. 
+                However, handling it here for consistency if we wanted an 'Add Plan' button 
+                in the header later. For now only used in Empty State.
+            */}
+            <CreatePlanModal
+                isOpen={createModalOpen}
+                onClose={() => setCreateModalOpen(false)}
+            />
         </PriorityContext.Provider>
     )
 }

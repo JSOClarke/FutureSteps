@@ -28,7 +28,10 @@ function AppContent() {
 
   }
 
-  if (!userProfile) {
+  const { user } = useAuth()
+
+  // Show Onboarding if not logged in AND no guest profile
+  if (!user && !userProfile) {
     return <Onboarding />
   }
 
@@ -41,6 +44,7 @@ function AppContent() {
           <Route path="plans" element={<PlansPage />} />
           <Route path="profile" element={<Profile />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>

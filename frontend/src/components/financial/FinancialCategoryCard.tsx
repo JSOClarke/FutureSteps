@@ -112,6 +112,7 @@ function FinancialCategoryCard({
                     <button
                         onClick={handleAddNew}
                         className="px-3 py-1.5 bg-black text-white hover:bg-gray-800 transition-colors text-xs font-normaluppercase tracking-wide"
+                        data-testid={`add-new-${category}-button`}
                     >
                         Add New
                     </button>

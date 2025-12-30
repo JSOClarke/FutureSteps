@@ -9,7 +9,7 @@ interface CreatePlanModalProps {
 }
 
 function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProps) {
-    const { createPlan, activePlanId } = usePlans()
+    const { createPlan } = usePlans()
     const { userProfile, updateProfile } = useUser()
     const navigate = useNavigate()
 

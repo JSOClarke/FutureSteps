@@ -1,4 +1,3 @@
-```typescript
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { SnapshotsProvider, useSnapshots } from '../SnapshotsContext'
@@ -38,7 +37,7 @@ describe('SnapshotsContext Integration', () => {
         // Wiring
         builder.select.mockReturnValue(builder)
         builder.eq.mockReturnValue(builder)
-        
+
         mockFrom.mockReturnValue(builder)
 
         // Mock Insert Strategy

@@ -19,7 +19,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const loadProfile = async () => {
-            setLoading(true)
+            // Only set loading if we don't have a profile or if the user changed
+            const shouldSetLoading = !userProfile || (user && user.id !== userProfile.id)
+            if (shouldSetLoading) {
+                setLoading(true)
+            }
+
             if (user) {
                 // Authenticated user: fetch from Supabase
                 const { data, error } = await supabase

@@ -160,13 +160,22 @@ export class ProjectionEngine {
         for (let i = 0; i < numberOfYears; i++) {
             const year = startYear + i
 
+            // Calculate Fraction of Year if this is the current calendar year
+            let fractionOfYear = 1
+            const currentDate = new Date()
+            if (year === currentDate.getFullYear()) {
+                const currentMonthIndex = currentDate.getMonth() // 0-11
+                const monthsRemaining = 12 - currentMonthIndex
+                fractionOfYear = Math.max(0, monthsRemaining / 12)
+            }
+
             const yearResult = this.runSingleYear(
                 incomes,
                 expenses,
                 currentAssets,
                 currentLiabilities,
                 year,
-                1,
+                fractionOfYear,
                 surplusPriority,
                 deficitPriority
             )

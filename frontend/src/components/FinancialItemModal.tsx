@@ -23,7 +23,7 @@ interface FormState {
     frequency: Frequency
     growthRate?: string
     yieldRate?: string
-    monthlyContribution?: string
+    maxAnnualContribution?: string
     interestRate?: string
     minimumPayment?: string
 }
@@ -35,6 +35,7 @@ interface FinancialItemModalProps {
     initialData?: FinancialItem
     initialSubCategory?: FinancialSubCategory
     category: FinancialCategory
+    simpleMode?: boolean
 }
 
 function FinancialItemModal({
@@ -44,6 +45,7 @@ function FinancialItemModal({
     initialData,
     initialSubCategory,
     category,
+    simpleMode,
 }: FinancialItemModalProps) {
     const currentYear = new Date().getFullYear()
     const { defaultEndYear } = useSettings()
@@ -59,7 +61,7 @@ function FinancialItemModal({
         frequency: initialData?.frequency || 'annual' as Frequency,
         growthRate: initialData?.growthRate ? (Math.round(initialData.growthRate * 10000) / 100).toString() : '',
         yieldRate: initialData?.yieldRate ? (Math.round(initialData.yieldRate * 10000) / 100).toString() : '',
-        monthlyContribution: initialData?.monthlyContribution?.toString() || '',
+        maxAnnualContribution: initialData?.maxAnnualContribution?.toString() || '',
         interestRate: initialData?.interestRate ? (Math.round(initialData.interestRate * 10000) / 100).toString() : '',
         minimumPayment: initialData?.minimumPayment?.toString() || '',
         subCategory: initialData?.subCategory || initialSubCategory
@@ -76,7 +78,7 @@ function FinancialItemModal({
             frequency: initial.frequency === 'annual' || initial.frequency === 'monthly' ? initial.frequency : 'annual',
             growthRate: initial.growthRate,
             yieldRate: initial.yieldRate,
-            monthlyContribution: initial.monthlyContribution,
+            maxAnnualContribution: initial.maxAnnualContribution,
             interestRate: initial.interestRate,
             minimumPayment: initial.minimumPayment,
         }
@@ -100,7 +102,7 @@ function FinancialItemModal({
                 frequency: values.frequency === 'annual' || values.frequency === 'monthly' ? values.frequency : 'annual',
                 growthRate: values.growthRate,
                 yieldRate: values.yieldRate,
-                monthlyContribution: values.monthlyContribution,
+                maxAnnualContribution: values.maxAnnualContribution,
                 interestRate: values.interestRate,
                 minimumPayment: values.minimumPayment,
             })
@@ -136,7 +138,7 @@ function FinancialItemModal({
         }
 
         // Validate temporal fields for income/expenses
-        if (category === 'income' || category === 'expenses') {
+        if (!simpleMode && (category === 'income' || category === 'expenses')) {
             if (formData.startYear && isNaN(Number(formData.startYear))) {
                 newErrors.startYear = 'Must be a valid year'
             }
@@ -149,20 +151,20 @@ function FinancialItemModal({
         }
 
         // Validate asset fields
-        if (category === 'assets') {
+        if (!simpleMode && category === 'assets') {
             if (formData.growthRate && (isNaN(Number(formData.growthRate)) || Number(formData.growthRate) < 0)) {
                 newErrors.growthRate = 'Must be a positive percentage'
             }
             if (formData.yieldRate && (isNaN(Number(formData.yieldRate)) || Number(formData.yieldRate) < 0)) {
                 newErrors.yieldRate = 'Must be a positive percentage'
             }
-            if (formData.monthlyContribution && (isNaN(Number(formData.monthlyContribution)) || Number(formData.monthlyContribution) < 0)) {
-                newErrors.monthlyContribution = 'Must be a positive number'
+            if (formData.maxAnnualContribution && (isNaN(Number(formData.maxAnnualContribution)) || Number(formData.maxAnnualContribution) < 0)) {
+                newErrors.maxAnnualContribution = 'Must be a positive number'
             }
         }
 
         // Validate liability fields
-        if (category === 'liabilities') {
+        if (!simpleMode && category === 'liabilities') {
             if (formData.interestRate && (isNaN(Number(formData.interestRate)) || Number(formData.interestRate) < 0)) {
                 newErrors.interestRate = 'Must be a positive percentage'
             }
@@ -193,7 +195,7 @@ function FinancialItemModal({
 
             if (formData.growthRate) data.growthRate = Math.round(Number(formData.growthRate) * 100) / 10000
             if (formData.yieldRate) data.yieldRate = Math.round(Number(formData.yieldRate) * 100) / 10000
-            if (formData.monthlyContribution) data.monthlyContribution = Number(formData.monthlyContribution)
+            if (formData.maxAnnualContribution) data.maxAnnualContribution = Number(formData.maxAnnualContribution)
 
             if (formData.interestRate) data.interestRate = Math.round(Number(formData.interestRate) * 100) / 10000
             if (formData.minimumPayment) data.minimumPayment = Number(formData.minimumPayment)
@@ -214,7 +216,7 @@ function FinancialItemModal({
             frequency: 'annual',
             growthRate: '',
             yieldRate: '',
-            monthlyContribution: '',
+            maxAnnualContribution: '',
             interestRate: '',
             minimumPayment: '',
         })
@@ -261,6 +263,7 @@ function FinancialItemModal({
                             data={formData as any}
                             onChange={handleFieldChange}
                             errors={errors}
+                            simpleMode={simpleMode}
                         />
 
                         <DialogFooter className="mt-6">

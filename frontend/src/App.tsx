@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Onboarding from './components/Onboarding'
 import { UserProvider, useUser } from './context/UserContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -29,7 +30,7 @@ function AppContent() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<Navigate to="/plans" replace />} />
+          <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="plans" element={<PlansPage />} />
           <Route path="profile" element={<Profile />} />
@@ -40,25 +41,35 @@ function AppContent() {
   )
 }
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+})
+
 function App() {
   return (
-    <AuthProvider>
-      <UserProvider>
-        <SettingsProvider>
-          <PlansProvider>
-            <FinancialItemsProvider>
-              <SnapshotsProvider>
-                <DashboardItemsProvider>
-                  <ToastProvider>
-                    <AppContent />
-                  </ToastProvider>
-                </DashboardItemsProvider>
-              </SnapshotsProvider>
-            </FinancialItemsProvider>
-          </PlansProvider>
-        </SettingsProvider>
-      </UserProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <UserProvider>
+          <SettingsProvider>
+            <PlansProvider>
+              <FinancialItemsProvider>
+                <SnapshotsProvider>
+                  <DashboardItemsProvider>
+                    <ToastProvider>
+                      <AppContent />
+                    </ToastProvider>
+                  </DashboardItemsProvider>
+                </SnapshotsProvider>
+              </FinancialItemsProvider>
+            </PlansProvider>
+          </SettingsProvider>
+        </UserProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }
 

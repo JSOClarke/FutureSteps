@@ -1,6 +1,10 @@
 import { useState, useCallback } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Home, User, FileText, LogOut, ChevronDown, FolderOpen, X, Plus } from 'lucide-react'
+
+// ... lines 4-79 ...
+
+
 import { useAuth } from '../../context/AuthContext'
 import { usePlans } from '../../context/PlansContext'
 import CreatePlanModal from '../plans/CreatePlanModal'
@@ -79,8 +83,8 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
 
     const navigation = [
         { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard' },
-        { id: 'profile', label: 'Profile', icon: User, path: '/profile' },
         { id: 'reports', label: 'Reports', icon: FileText, path: '/reports' },
+        { id: 'profile', label: 'Profile', icon: User, path: '/profile' },
     ]
 
     return (

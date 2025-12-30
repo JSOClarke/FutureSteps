@@ -102,4 +102,52 @@ describe('ProjectionEngine', () => {
             expect(result.years[1].netWorth).toBeCloseTo(12100, 2)
         })
     })
+    describe('Deficit Priority Integration', () => {
+        it('should withdraw from assets in priority order when in deficit', () => {
+            const engine = new ProjectionEngine()
+
+            // Scenario:
+            // Income: 0. Expenses: 20,000.
+            // Deficit: 20,000.
+            // Assets:
+            // 1. Cash: 10,000 (Priority 1)
+            // 2. Stocks: 50,000 (Priority 2)
+
+            // Expected:
+            // Cash wiped out (10,000 -> 0)
+            // Stocks reduced by remaining 10,000 (50,000 -> 40,000)
+
+            const cash = { id: 'cash', value: 10000, category: 'assets' } as FinancialItem
+            const stocks = { id: 'stocks', value: 50000, category: 'assets' } as FinancialItem
+            const expense = { id: 'exp', value: 20000, category: 'expenses', frequency: 'annual', startYear: 2025, endYear: 2026 } as FinancialItem
+
+            const items = [cash, stocks, expense]
+            const deficitPriority = ['cash', 'stocks']
+
+            const result = engine.runMultiYearProjection(items, 2025, 1, [], deficitPriority)
+
+            const updatedCash = result.years[0].assets.find(a => a.id === 'cash')
+            const updatedStocks = result.years[0].assets.find(a => a.id === 'stocks')
+
+            expect(updatedCash?.value).toBe(0)
+            expect(updatedStocks?.value).toBe(40000)
+            expect(result.years[0].netCashflow).toBe(-20000)
+        })
+
+        it('should report remaining cashflow as negative if assets are insufficient', () => {
+            const engine = new ProjectionEngine()
+
+            // Deficit: 10,000
+            // Asset: 2,000
+            // Expected: Asset -> 0. Remaining Cashflow -> -8,000.
+
+            const cash = { id: 'cash', value: 2000, category: 'assets' } as FinancialItem
+            const expense = { id: 'exp', value: 10000, category: 'expenses', frequency: 'annual', startYear: 2025, endYear: 2026 } as FinancialItem
+
+            const result = engine.runMultiYearProjection([cash, expense], 2025, 1, [], ['cash'])
+
+            expect(result.years[0].remainingCashflow).toBe(-8000)
+            expect(result.years[0].assets[0].value).toBe(0)
+        })
+    })
 })

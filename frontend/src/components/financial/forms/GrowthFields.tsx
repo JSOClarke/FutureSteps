@@ -32,12 +32,12 @@ export const GrowthFields = ({ data, onChange }: FormFieldProps) => {
                 />
             </div>
 
-            {/* Monthly Contribution */}
+            {/* Max Annual Contribution */}
             <div className="col-span-2">
-                <Label htmlFor="monthlyContribution">Max Monthly Contribution</Label>
+                <Label htmlFor="maxAnnualContribution">Max Annual Contribution</Label>
                 <CurrencyInput
-                    value={data.monthlyContribution?.toString() || ''}
-                    onChange={(val) => onChange('monthlyContribution', val)}
+                    value={data.maxAnnualContribution?.toString() || ''}
+                    onChange={(val) => onChange('maxAnnualContribution', val)}
                     placeholder="0.00"
                 />
             </div>

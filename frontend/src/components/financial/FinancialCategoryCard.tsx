@@ -11,15 +11,34 @@ interface FinancialCategoryCardProps {
     title: string
     category: FinancialCategory
     backgroundColor: string
+    // Optional props for custom data source (e.g. Health Check)
+    items?: FinancialItem[]
+    onAdd?: (item: Omit<FinancialItem, 'id'>) => void
+    onUpdate?: (id: string, item: Partial<FinancialItem>) => void
+    onDelete?: (id: string) => void
+    simpleMode?: boolean
 }
 
 function FinancialCategoryCard({
     title,
     category,
     backgroundColor,
+    items: customItems,
+    onAdd,
+    onUpdate,
+    onDelete,
+    simpleMode
 }: FinancialCategoryCardProps) {
-    const { getItemsByCategory, addItem, updateItem, deleteItem } = useFinancialItems()
-    const items = getItemsByCategory(category)
+    // If custom items are provided, use them. Otherwise use context.
+    const context = useFinancialItems()
+
+    // Determine which mode we are in
+    const isCustomMode = !!customItems
+
+    // Get items
+    const items = isCustomMode
+        ? (customItems || []).filter(i => i.category === category)
+        : context.getItemsByCategory(category)
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false)
@@ -29,24 +48,17 @@ function FinancialCategoryCard({
     const handleAddNew = () => {
         setEditingItem(null)
         setSelectedSubCategory(undefined)
-
-        // Always show subcategory selection first
         setIsSubCategoryModalOpen(true)
     }
 
     const handleSubCategorySelect = (subCategory: FinancialSubCategory) => {
         setIsSubCategoryModalOpen(false)
         setSelectedSubCategory(subCategory)
-        // Small delay to ensure modal transition feels natural
-        setTimeout(() => {
-            setIsModalOpen(true)
-        }, 100)
+        setIsModalOpen(true)
     }
 
     const handleEdit = (item: FinancialItem) => {
-        // Set the item first
         setEditingItem(item)
-        // Defer opening modal by one tick to ensure state is fully updated
         setTimeout(() => {
             setIsModalOpen(true)
         }, 0)
@@ -54,21 +66,34 @@ function FinancialCategoryCard({
 
     const handleSave = (data: Omit<FinancialItem, 'id' | 'category'>) => {
         if (editingItem) {
-            // Update existing item
-            updateItem(editingItem.id, data)
+            // Update
+            if (isCustomMode && onUpdate) {
+                onUpdate(editingItem.id, data)
+            } else if (!isCustomMode) {
+                context.updateItem(editingItem.id, data)
+            }
         } else {
-            // Add new item
-            addItem({
+            // Add
+            const newItem = {
                 ...data,
                 category,
-                subCategory: selectedSubCategory // Include selected subcategory
-            })
+                subCategory: selectedSubCategory
+            }
+            if (isCustomMode && onAdd) {
+                onAdd(newItem)
+            } else if (!isCustomMode) {
+                context.addItem(newItem)
+            }
         }
     }
 
-    const handleDelete = (id: string) => {
+    const handleDeleteClick = (id: string) => {
         if (confirm('Are you sure you want to delete this item?')) {
-            deleteItem(id)
+            if (isCustomMode && onDelete) {
+                onDelete(id)
+            } else if (!isCustomMode) {
+                context.deleteItem(id)
+            }
         }
     }
 
@@ -104,7 +129,7 @@ function FinancialCategoryCard({
                                 key={item.id}
                                 item={item}
                                 onEdit={() => handleEdit(item)}
-                                onDelete={handleDelete}
+                                onDelete={handleDeleteClick}
                             />
                         ))
                     )}
@@ -119,6 +144,7 @@ function FinancialCategoryCard({
                 initialData={editingItem || undefined}
                 category={category}
                 initialSubCategory={selectedSubCategory}
+                simpleMode={simpleMode}
             />
 
             <SubCategorySelectionModal

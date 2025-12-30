@@ -7,13 +7,18 @@ interface FormRendererProps extends FormFieldProps {
     subCategory?: FinancialSubCategory
 }
 
-export const FormRenderer = ({ category, subCategory, ...formProps }: FormRendererProps) => {
-    const Fields = getFormFields(category, subCategory)
+export const FormRenderer = ({ category, subCategory, simpleMode, ...formProps }: FormRendererProps) => {
+    let Fields = getFormFields(category, subCategory)
+
+    if (simpleMode) {
+        // In simple mode, only show BaseFields (Name and Value)
+        Fields = [Fields[0]]
+    }
 
     return (
         <div className="grid grid-cols-2 gap-4">
             {Fields.map((FieldComponent, index) => (
-                <FieldComponent key={index} {...formProps} />
+                <FieldComponent key={index} {...formProps} simpleMode={simpleMode} />
             ))}
         </div>
     )

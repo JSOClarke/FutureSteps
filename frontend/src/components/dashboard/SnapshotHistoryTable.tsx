@@ -8,9 +8,10 @@ import { supabase } from '../../lib/supabase'
 interface SnapshotHistoryTableProps {
     snapshots: FinancialSnapshot[]
     onDelete: (id: string) => void
+    onCompare: (snapshot: FinancialSnapshot) => void
 }
 
-export function SnapshotHistoryTable({ snapshots, onDelete }: SnapshotHistoryTableProps) {
+export function SnapshotHistoryTable({ snapshots, onDelete, onCompare }: SnapshotHistoryTableProps) {
     const currency = useCurrency()
     const [expandedSnapshots, setExpandedSnapshots] = useState<Set<string>>(new Set())
     const [snapshotItems, setSnapshotItems] = useState<Record<string, SnapshotItem[]>>({})
@@ -115,7 +116,16 @@ export function SnapshotHistoryTable({ snapshots, onDelete }: SnapshotHistoryTab
                                     <td className={`px-4 py-3 text-right text-sm font-bold ${snapshot.net_worth >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                                         {formatCurrency(snapshot.net_worth, currency)}
                                     </td>
-                                    <td className="px-4 py-3 text-center">
+                                    <td className="px-4 py-3 text-center flex justify-center gap-2">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                onCompare(snapshot)
+                                            }}
+                                            className="px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors border border-blue-200"
+                                        >
+                                            Compare
+                                        </button>
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation()

@@ -1,9 +1,12 @@
 import { Label } from '../../ui/label'
 import YearSelect from '../../shared/YearSelect'
+import { usePlans } from '../../../context/PlansContext'
 import type { FormFieldProps } from './types'
 
 export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
     const currentYear = new Date().getFullYear()
+    const { activePlan } = usePlans()
+    const milestones = activePlan?.milestones || []
 
     return (
         <>
@@ -18,7 +21,7 @@ export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
                     minYear={currentYear}
                     maxYear={currentYear + 60}
                     placeholder="Start Year"
-                    milestones={[]}
+                    milestones={milestones}
                 />
             </div>
 
@@ -33,7 +36,7 @@ export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
                     minYear={currentYear}
                     maxYear={currentYear + 60}
                     placeholder="End Year"
-                    milestones={[]}
+                    milestones={milestones}
                 />
             </div>
 

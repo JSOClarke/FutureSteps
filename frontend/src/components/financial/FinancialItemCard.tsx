@@ -61,13 +61,13 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
                     {formatCurrency(item.value, currency)}
                 </span>
 
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-1 transition-opacity">
                     <button
                         onClick={(e) => {
                             e.stopPropagation() // Prevent card click
                             onDelete(item.id)
                         }}
-                        className="p-1.5 text-black hover:bg-red-100 hover:text-red-600 rounded-full transition-colors"
+                        className="p-1.5 text-black hover:bg-black hover:text-white rounded-full transition-colors"
                         title="Delete item"
                     >
                         <Trash2 size={14} />

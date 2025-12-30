@@ -57,7 +57,7 @@ export interface FinancialItem {
     // Asset-specific fields
     growthRate?: number // Annual growth rate (e.g., 0.07 for 7%)
     yieldRate?: number // Annual dividend/yield rate (e.g., 0.02 for 2%)
-    monthlyContribution?: number // Regular monthly contribution
+    maxAnnualContribution?: number // Max annual contribution limit
 
     // Liability-specific fields
     interestRate?: number // Annual interest rate (e.g., 0.045 for 4.5%)
@@ -116,6 +116,7 @@ export interface SnapshotItem {
     name: string
     amount: number
     category: FinancialCategory
+    subCategory?: string
 }
 
 export interface DashboardItem {
@@ -123,4 +124,5 @@ export interface DashboardItem {
     name: string
     amount: number
     category: FinancialCategory
+    subCategory?: string
 }

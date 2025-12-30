@@ -15,7 +15,7 @@ export async function syncGuestData(userId: string) {
                 full_name: profile.full_name,
                 date_of_birth: profile.dateOfBirth,
                 country: profile.country,
-                custom_death_date: profile.customDeathDate
+                life_expectancy: profile.lifeExpectancy
             })
         } catch (e) {
             console.error('Error syncing guest profile:', e)

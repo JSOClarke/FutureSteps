@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useUser } from '../context/UserContext'
 import { useAuth } from '../context/AuthContext'
 import { usePlans } from '../context/PlansContext'
-import { COUNTRIES, calculateDeathDate } from '../data/lifeExpectancyData'
+import { COUNTRIES } from '../data/lifeExpectancyData'
 import { getDefaultCurrency } from '../data/currencyData'
 import AuthModal from './shared/AuthModal'
 
@@ -28,12 +28,8 @@ function Onboarding() {
     const [name, setName] = useState('')
     const [dateOfBirth, setDateOfBirth] = useState('')
     const [country, setCountry] = useState('')
-    const [customDeathDate, setCustomDeathDate] = useState('')
+    const [lifeExpectancy, setLifeExpectancy] = useState(85)
     const [planName, setPlanName] = useState('My First Plan')
-
-    const calculatedDeathDate = dateOfBirth && country
-        ? calculateDeathDate(dateOfBirth, country)
-        : ''
 
     const handleNext = () => {
         if (currentSlide < 2) {
@@ -93,7 +89,7 @@ function Onboarding() {
                 full_name: name,
                 dateOfBirth,
                 country,
-                customDeathDate: customDeathDate || calculatedDeathDate,
+                lifeExpectancy: lifeExpectancy,
                 currency: getDefaultCurrency(country)
             })
 
@@ -382,27 +378,24 @@ function Onboarding() {
                             <div className="bg-gray-50 border border-black p-6 mb-6">
                                 <div className="text-center">
                                     <p className="text-sm font-normal text-black uppercase tracking-wide mb-2">
-                                        Estimated End Date
+                                        Estimated Life Expectancy
                                     </p>
                                     <p className="text-3xl font-light text-black">
-                                        {new Date(calculatedDeathDate).toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        })}
+                                        {lifeExpectancy} Years
                                     </p>
                                 </div>
                             </div>
 
                             <div className="mb-6">
                                 <label className="block text-sm font-normal text-black mb-2 uppercase tracking-wide">
-                                    Customize End Date (Optional)
+                                    Adjust Life Expectancy
                                 </label>
                                 <input
-                                    type="date"
-                                    value={customDeathDate}
-                                    onChange={(e) => setCustomDeathDate(e.target.value)}
-                                    min={dateOfBirth}
+                                    type="number"
+                                    value={lifeExpectancy}
+                                    onChange={(e) => setLifeExpectancy(parseInt(e.target.value) || 85)}
+                                    min="60"
+                                    max="120"
                                     className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light"
                                 />
                                 <p className="text-xs text-gray-500 mt-2 font-light">

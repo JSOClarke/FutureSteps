@@ -89,7 +89,7 @@ export interface UserProfile {
     full_name?: string
     dateOfBirth?: string
     country?: string
-    customDeathDate?: string
+    lifeExpectancy?: number // Target age (default 85)
     currency?: string // ISO currency code (e.g., 'USD', 'EUR', 'GBP')
 }
 

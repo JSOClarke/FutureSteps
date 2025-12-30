@@ -43,7 +43,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                         full_name: data.full_name,
                         dateOfBirth: data.date_of_birth,
                         country: data.country,
-                        customDeathDate: data.custom_death_date,
+                        lifeExpectancy: data.life_expectancy,
                         currency: data.currency
                     })
                 }
@@ -77,9 +77,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             const dbUpdates: any = { ...updates }
 
             // Map frontend field names to database column names
-            if (updates.customDeathDate !== undefined) {
-                dbUpdates.custom_death_date = updates.customDeathDate
-                delete dbUpdates.customDeathDate
+            if (updates.lifeExpectancy !== undefined) {
+                dbUpdates.life_expectancy = updates.lifeExpectancy
+                delete dbUpdates.lifeExpectancy
             }
             if (updates.dateOfBirth !== undefined) {
                 dbUpdates.date_of_birth = updates.dateOfBirth
@@ -125,7 +125,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 full_name: profileData.full_name,
                 date_of_birth: profileData.dateOfBirth,
                 country: profileData.country,
-                custom_death_date: profileData.customDeathDate,
+                life_expectancy: profileData.lifeExpectancy,
                 currency: profileData.currency
             }
 

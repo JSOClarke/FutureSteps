@@ -220,7 +220,10 @@ export function SnapshotsProvider({ children }: { children: React.ReactNode }) {
             throw new Error(`Failed to fetch items: ${error.message}`)
         }
 
-        return data || []
+        return (data || []).map(item => ({
+            ...item,
+            subCategory: item.sub_category
+        }))
     }
 
     return (

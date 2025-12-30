@@ -80,22 +80,26 @@ function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProps) {
                             <h3 className="text-sm font-semibold uppercase tracking-wide mb-3 text-gray-800">Step 1: About You</h3>
                             <div className="space-y-3">
                                 <div>
-                                    <label className="block text-sm font-normal mb-1">Full Name</label>
+                                    <label htmlFor="create-profile-name" className="block text-sm font-normal mb-1">Full Name</label>
                                     <input
+                                        id="create-profile-name"
                                         type="text"
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
                                         className="w-full px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black text-sm"
                                         placeholder="Your Name"
+                                        data-testid="create-profile-name-input"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-normal mb-1">Date of Birth</label>
+                                    <label htmlFor="create-profile-dob" className="block text-sm font-normal mb-1">Date of Birth</label>
                                     <input
+                                        id="create-profile-dob"
                                         type="date"
                                         value={dateOfBirth}
                                         onChange={(e) => setDateOfBirth(e.target.value)}
                                         className="w-full px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black text-sm"
+                                        data-testid="create-profile-dob-input"
                                     />
                                 </div>
                             </div>
@@ -118,6 +122,7 @@ function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProps) {
                             onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                             autoFocus
                             disabled={creating}
+                            data-testid="create-plan-name-input"
                         />
                     </div>
 
@@ -139,6 +144,7 @@ function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProps) {
                             placeholder="Briefly describe the goal of this plan..."
                             className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black resize-none text-sm"
                             disabled={creating}
+                            data-testid="create-plan-description-input"
                         />
                     </div>
 
@@ -147,6 +153,7 @@ function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProps) {
                             onClick={() => handleCreate()}
                             disabled={creating || !newPlanName.trim() || description.length > 144 || (needsProfile && (!fullName.trim() || !dateOfBirth))}
                             className="w-full px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed font-normal text-sm uppercase tracking-wide transition-colors"
+                            data-testid="create-plan-submit-button"
                         >
                             {creating ? 'Creating...' : 'Create Plan'}
                         </button>

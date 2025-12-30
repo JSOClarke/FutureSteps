@@ -217,7 +217,7 @@ export function SnapshotEditorModal({ isOpen, onClose }: SnapshotEditorModalProp
                                 <Button variant="outline" onClick={onClose} disabled={saving}>
                                     Cancel
                                 </Button>
-                                <Button onClick={handleSave} disabled={saving} className="bg-black hover:bg-gray-800 text-white gap-2">
+                                <Button onClick={handleSave} disabled={saving} className="bg-black hover:bg-gray-800 text-white gap-2" data-testid="save-snapshot-button">
                                     {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                                     Save Snapshot
                                 </Button>

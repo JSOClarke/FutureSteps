@@ -4,7 +4,7 @@ test('shows loading spinner when fetching plans', async ({ page }) => {
     // 1. Intercept the network request to fetch plans and delay it
     await page.route('**/rest/v1/plans*', async route => {
         // Delay for 1 second to ensure loader is visible
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 4000));
         await route.continue();
     });
 

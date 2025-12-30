@@ -15,6 +15,7 @@ export const BaseFields = ({ data, onChange, errors }: FormFieldProps) => {
                     onChange={(e) => onChange('name', e.target.value)}
                     placeholder="e.g. Salary, Rent, Investment"
                     className={errors.name ? 'border-red-500' : ''}
+                    data-testid="item-name-input"
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
@@ -27,6 +28,7 @@ export const BaseFields = ({ data, onChange, errors }: FormFieldProps) => {
                     onChange={(val) => onChange('value', val)}
                     placeholder="0.00"
                     error={errors.value}
+                    data-testid="item-amount-input"
                 />
                 {errors.value && <p className="text-red-500 text-xs mt-1">{errors.value}</p>}
             </div>

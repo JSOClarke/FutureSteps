@@ -13,6 +13,8 @@ import {
 } from './ui/dialog'
 import { FormRenderer } from './financial/forms/FormRenderer'
 import { useSettings } from '../context/SettingsContext'
+import SubCategorySelectionModal from './financial/SubCategorySelectionModal'
+import { Edit2 } from 'lucide-react'
 
 
 interface FormState {
@@ -87,6 +89,8 @@ function FinancialItemModal({
     const [subCategory, setSubCategory] = useState<FinancialSubCategory | undefined>(() =>
         initialData?.subCategory || initialSubCategory
     )
+
+    const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false)
 
     const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -225,6 +229,11 @@ function FinancialItemModal({
         onClose()
     }
 
+    const handleSubCategoryChange = (newSubCategory: FinancialSubCategory) => {
+        setSubCategory(newSubCategory)
+        setIsSubCategoryModalOpen(false)
+    }
+
     if (!isOpen) return null
 
     return (
@@ -234,10 +243,10 @@ function FinancialItemModal({
                     <DialogTitle>
                         {`${initialData ? 'Edit' : 'Add'} ${category === 'income' ? 'Income' :
                             category === 'liabilities' ? 'Liability' :
-                                category === 'expenses' ? 'Expense' :
-                                    category === 'assets' ? 'Asset' :
-                                        category
-                            } Item`}
+                                'Expense' // Defaults/Fallbacks
+                            } Item`.replace('Expense Item', category === 'expenses' ? 'Expense Item' :
+                                category === 'assets' ? 'Asset Item' : `${category} Item`)
+                        }
                     </DialogTitle>
                     <DialogDescription>
                         {initialData ? 'Update the details of this item.' : `Add a new item to your ${category}.`}
@@ -245,14 +254,26 @@ function FinancialItemModal({
                 </DialogHeader>
                 <DialogBody>
                     {subCategory && (
-                        <div className={`mb-6 p-3 rounded-lg flex items-center gap-3 ${getSubCategoryColor(category)} bg-opacity-10 border border-opacity-20`}>
-                            {(() => {
-                                const Icon = getSubCategoryIcon(subCategory)
-                                return <Icon size={20} />
-                            })()}
-                            <span className="font-medium text-sm">
-                                {getSubCategoryLabel(subCategory)}
-                            </span>
+                        <div className={`mb-6 p-3 rounded-lg flex items-center justify-between ${getSubCategoryColor(category)} bg-opacity-10 border border-opacity-20`}>
+                            <div className="flex items-center gap-3">
+                                {(() => {
+                                    const Icon = getSubCategoryIcon(subCategory)
+                                    return <Icon size={20} />
+                                })()}
+                                <span className="font-medium text-sm">
+                                    {getSubCategoryLabel(subCategory)}
+                                </span>
+                            </div>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setIsSubCategoryModalOpen(true)}
+                                className="h-8 px-2 text-xs hover:bg-black/5"
+                            >
+                                <Edit2 size={14} className="mr-1" />
+                                Change
+                            </Button>
                         </div>
                     )}
 
@@ -270,13 +291,20 @@ function FinancialItemModal({
                             <Button type="button" variant="outline" onClick={handleClose}>
                                 Cancel
                             </Button>
-                            <Button type="submit">
+                            <Button type="submit" data-testid="financial-item-submit-button">
                                 {initialData ? 'Save Changes' : 'Add Item'}
                             </Button>
                         </DialogFooter>
                     </form>
                 </DialogBody>
             </DialogContent>
+
+            <SubCategorySelectionModal
+                isOpen={isSubCategoryModalOpen}
+                onClose={() => setIsSubCategoryModalOpen(false)}
+                category={category}
+                onSelect={handleSubCategoryChange}
+            />
         </Dialog>
     )
 }

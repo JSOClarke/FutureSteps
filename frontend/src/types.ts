@@ -5,6 +5,7 @@ export type Frequency = 'monthly' | 'annual'
 export type ExpenseSubCategory =
     | 'housing'        // Rent, Mortgage
     | 'food'           // Groceries, Dining
+    | 'living_expenses' // General living costs
     | 'transportation' // Car, Gas, Public Transit
     | 'utilities'      // Electric, Water, Internet
     | 'healthcare'     // Insurance, Medical
@@ -62,6 +63,9 @@ export interface FinancialItem {
     // Liability-specific fields
     interestRate?: number // Annual interest rate (e.g., 0.045 for 4.5%)
     minimumPayment?: number // Annual minimum payment
+
+    // Inflation adjustment
+    isAdjustedForInflation?: boolean
 }
 
 export interface Milestone {

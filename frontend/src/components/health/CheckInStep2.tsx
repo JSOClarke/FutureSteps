@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CheckCircle } from 'lucide-react'
+import { Success as CheckCircle } from '../../icons'
 
 import { ProjectionEngine } from '@/utils/projections/engine'
 import { compareFinancialState, type ComparisonResult } from '@/utils/projections/comparison'
@@ -158,8 +158,8 @@ export function CheckInStep2({
                                         <td className="p-3 text-right">{formatCurrency(item.actualValue)}</td>
                                         <td className="p-3 text-right text-gray-500">{formatCurrency(item.projectedValue)}</td>
                                         <td className={`p-3 text-right font-medium ${(item.category === 'assets' && item.diff < 0) || (item.category === 'liabilities' && item.diff > 0)
-                                                ? 'text-red-600'
-                                                : 'text-green-600'
+                                            ? 'text-red-600'
+                                            : 'text-green-600'
                                             }`}>
                                             {item.diff > 0 ? '+' : ''}{formatCurrency(item.diff)}
                                         </td>

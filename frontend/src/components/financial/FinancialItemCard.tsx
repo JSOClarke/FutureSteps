@@ -1,4 +1,4 @@
-import { Trash2 } from 'lucide-react'
+import { Delete as Trash2 } from '../../icons'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import type { FinancialItem } from '../../types'

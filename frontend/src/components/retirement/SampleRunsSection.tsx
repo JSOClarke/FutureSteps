@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight } from '../../icons'
 import { SimulationDetailsTable } from './SimulationDetailsTable'
 import { getSampleRunLabel, getSampleRunColor, type SampleRunSelection } from '../../utils/simulationSampling'
 

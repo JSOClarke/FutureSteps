@@ -3,7 +3,7 @@ import MilestoneModal from './MilestoneModal'
 import type { Milestone } from './types'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
-import { Pencil, Trash2, Plus } from 'lucide-react'
+import { Edit as Pencil, Delete as Trash2, Add as Plus } from '../../icons'
 
 import { NavButton } from '../shared/NavButton'
 import { ConfirmationDialog } from '../shared/ConfirmationDialog'

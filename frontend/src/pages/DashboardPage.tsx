@@ -1,4 +1,4 @@
-import { DollarSign, Plus, TrendingUp, TrendingDown, Building, CreditCard, ChevronDown, ChevronUp } from 'lucide-react'
+import { Income as DollarSign, Add as Plus, TrendingUp, TrendingDown, Building, Card as CreditCard, ChevronDown, ChevronUp } from '../icons'
 import { useSnapshots } from '../context/SnapshotsContext'
 import { usePlans } from '../context/PlansContext'
 import { SnapshotHistoryTable } from '../components/dashboard/SnapshotHistoryTable'

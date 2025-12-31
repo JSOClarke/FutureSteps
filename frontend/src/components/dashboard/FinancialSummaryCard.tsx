@@ -1,11 +1,11 @@
-import type { LucideIcon } from 'lucide-react'
+import type { IconProps } from '../../icons'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 
 interface FinancialSummaryCardProps {
     title: string
     amount: number
-    icon: LucideIcon
+    icon: React.ComponentType<IconProps>
     color?: string
 }
 

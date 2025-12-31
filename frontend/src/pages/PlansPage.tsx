@@ -1,5 +1,5 @@
 import { useState, createContext, useContext } from 'react'
-import { Pencil, TrendingUp, Plus } from 'lucide-react'
+import { Edit as Pencil, TrendingUp, Add as Plus } from '../icons'
 import { usePlans } from '../context/PlansContext'
 import { GraphVisualization, ProjectionDetails } from '../components/projections'
 import { FinancialCategoryCard } from '../components/financial'

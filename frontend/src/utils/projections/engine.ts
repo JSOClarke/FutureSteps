@@ -14,6 +14,8 @@ export interface YearResult {
     year: number
     totalIncome: number
     totalExpenses: number
+    fractionOfYear: number // Store the multiplier used for this year
+    inflationFactor: number // Cumulative inflation factor for this year's end
     netCashflow: number
     remainingCashflow: number
     assets: FinancialItem[]
@@ -58,14 +60,16 @@ export class ProjectionEngine {
         year: number,
         fractionOfYear: number = 1,
         surplusPriority: string[] = [],
-        deficitPriority: string[] = []
+        deficitPriority: string[] = [],
+        inflationRate: number = 0,
+        inflationFactor: number = 1
     ): YearResult {
         // 0. Capture opening balances for Mid-Year Convention calculation
         const openingBalances = new Map(assets.map(a => [a.id, a.value]))
 
         // 1. Calculate income and expenses for the year
-        const incomeResult = calculateYearlyIncome(incomes, year, fractionOfYear)
-        const expenseResult = calculateYearlyExpenses(expenses, year, fractionOfYear)
+        const incomeResult = calculateYearlyIncome(incomes, year, fractionOfYear, inflationRate)
+        const expenseResult = calculateYearlyExpenses(expenses, year, fractionOfYear, inflationRate)
 
         let cashflow = incomeResult.total - expenseResult.total
         const netCashflow = cashflow
@@ -118,6 +122,8 @@ export class ProjectionEngine {
             year,
             totalIncome: incomeResult.total,
             totalExpenses: expenseResult.total,
+            fractionOfYear,
+            inflationFactor,
             netCashflow,
             remainingCashflow: cashflow,
             assets: yieldResult.updatedAssets,
@@ -144,13 +150,15 @@ export class ProjectionEngine {
         startYear: number,
         numberOfYears: number,
         surplusPriority: string[] = [],
-        deficitPriority: string[] = []
+        deficitPriority: string[] = [],
+        inflationRate: number = 0
     ): ProjectionResult {
         // Separate items by category
         const incomes = filterByCategory(items, 'income')
         const expenses = filterByCategory(items, 'expenses')
         let currentAssets = filterByCategory(items, 'assets')
         let currentLiabilities = filterByCategory(items, 'liabilities')
+        let cumulativeInflationFactor = 1
 
         const years: YearResult[] = []
 
@@ -167,6 +175,9 @@ export class ProjectionEngine {
                 fractionOfYear = Math.max(0, monthsRemaining / 12)
             }
 
+            // Update cumulative inflation factor for the period
+            cumulativeInflationFactor *= (1 + (inflationRate * fractionOfYear))
+
             const yearResult = this.runSingleYear(
                 incomes,
                 expenses,
@@ -175,7 +186,9 @@ export class ProjectionEngine {
                 year,
                 fractionOfYear,
                 surplusPriority,
-                deficitPriority
+                deficitPriority,
+                inflationRate,
+                cumulativeInflationFactor
             )
 
             years.push(yearResult)

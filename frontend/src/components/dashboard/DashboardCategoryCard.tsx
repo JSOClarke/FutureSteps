@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Delete as Trash2 } from '../../icons'
 import type { DashboardItem, FinancialCategory } from '../../types'
 import { useDashboardItems } from '../../context/DashboardItemsContext'
 import { DashboardItemModal } from './DashboardItemModal'

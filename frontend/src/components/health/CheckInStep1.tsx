@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import FinancialCategoryCard from '@/components/financial/FinancialCategoryCard'
-import { ArrowRight, Loader2 } from 'lucide-react'
+import { ArrowRightIcon as ArrowRight, Loader2 } from '../../icons'
 import { useSnapshots } from '@/context/SnapshotsContext'
 import { useFinancialItems } from '@/context/FinancialItemsContext'
 import type { FinancialItem, FinancialSubCategory } from '@/types'

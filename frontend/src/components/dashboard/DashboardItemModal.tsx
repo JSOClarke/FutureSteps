@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { Close as X } from '../../icons'
 import { useState, useEffect } from 'react'
 import type { DashboardItem, FinancialCategory } from '../../types'
 import CurrencyInput from '../shared/CurrencyInput'

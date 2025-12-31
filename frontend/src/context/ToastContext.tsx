@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react'
-import { X, Check, AlertCircle, Info } from 'lucide-react'
+import { Close as X, CheckMark as Check, ErrorIcon as AlertCircle, InfoIcon as Info } from '../icons'
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning'
 

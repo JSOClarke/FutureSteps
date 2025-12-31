@@ -2,7 +2,6 @@ import { useMemo, useState, useEffect } from 'react'
 import { useFinancialItems } from '../context/FinancialItemsContext'
 import { useUser } from '../context/UserContext'
 import { ProjectionEngine } from '../utils/projections'
-import type { ProjectionResult } from '../utils/projections'
 import { useSettings } from '../context/SettingsContext'
 import { transformToRealValues } from '../utils/projections/transformer'
 

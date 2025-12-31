@@ -211,6 +211,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                                             <button
                                                 onClick={() => setShowCreateModal(true)}
                                                 className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
+                                                data-testid="sidebar-add-plan-button"
                                             >
                                                 <Plus size={16} />
                                                 Add Plan

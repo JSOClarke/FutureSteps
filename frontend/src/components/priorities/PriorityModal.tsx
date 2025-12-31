@@ -76,6 +76,16 @@ function PriorityModal({ isOpen, onClose, type, initialPriority, onSave }: Prior
                                 : 'When you need cash, withdraw from assets in this order:'}
                         </p>
 
+                        {/* Show banner if no priority is set */}
+                        {initialPriority.length === 0 && (
+                            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded">
+                                <p className="text-xs font-semibold text-amber-800 mb-1">⚠️ Priority Not Set</p>
+                                <p className="text-xs text-amber-700 font-light">
+                                    Assets are shown in default order. Click "Save Priority" below to confirm this order and enable priority-based allocation.
+                                </p>
+                            </div>
+                        )}
+
                         {listItems.length === 0 ? (
                             <p className="text-gray-500 text-center py-8 font-light">
                                 No assets available. Add assets to set priority.

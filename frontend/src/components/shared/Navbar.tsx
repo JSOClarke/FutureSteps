@@ -125,7 +125,14 @@ function Navbar({
                                 }}
                                 className="w-full"
                             >
-                                Surplus Priority
+                                <span className="flex items-center justify-center gap-2">
+                                    Surplus Priority
+                                    {surplusPriority.length === 0 && (
+                                        <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">
+                                            Not Set
+                                        </span>
+                                    )}
+                                </span>
                             </NavButton>
                             <NavButton
                                 onClick={() => {
@@ -134,7 +141,14 @@ function Navbar({
                                 }}
                                 className="w-full"
                             >
-                                Deficit Priority
+                                <span className="flex items-center justify-center gap-2">
+                                    Deficit Priority
+                                    {deficitPriority.length === 0 && (
+                                        <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">
+                                            Not Set
+                                        </span>
+                                    )}
+                                </span>
                             </NavButton>
                             <NavButton
                                 onClick={() => {

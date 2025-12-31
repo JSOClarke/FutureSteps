@@ -39,6 +39,7 @@ export const GrowthFields = ({ data, onChange }: FormFieldProps) => {
                     value={data.maxAnnualContribution?.toString() || ''}
                     onChange={(val) => onChange('maxAnnualContribution', val)}
                     placeholder="0.00"
+                    data-testid="item-contribution-input"
                 />
             </div>
         </>

@@ -15,7 +15,7 @@ import Profile from './components/profile/Profile'
 import './index.css'
 
 function AppContent() {
-  const { loading: authLoading } = useAuth()
+  const { loading: authLoading, user } = useAuth()
   const { userProfile, loading: profileLoading } = useUser()
 
   if (authLoading || profileLoading) {
@@ -27,8 +27,6 @@ function AppContent() {
     </div>
 
   }
-
-  const { user } = useAuth()
 
   // Show Onboarding if not logged in AND no guest profile
   if (!user && !userProfile) {

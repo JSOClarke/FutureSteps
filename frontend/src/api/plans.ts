@@ -82,8 +82,8 @@ export async function fetchPlans(user: User | null): Promise<Plan[]> {
                 type: m.type as 'net_worth' | 'year',
                 color: m.color
             })),
-        surplusPriority: [],
-        deficitPriority: []
+        surplusPriority: p.surplus_priority || [],
+        deficitPriority: p.deficit_priority || []
     }))
 }
 
@@ -133,13 +133,17 @@ export async function updatePlan(user: User | null, id: string, updates: Partial
     }
 
     // Authenticated
-    if (updates.name || updates.description) {
+    if (updates.name || updates.description || updates.surplusPriority !== undefined || updates.deficitPriority !== undefined) {
+        const updateData: any = {}
+
+        if (updates.name !== undefined) updateData.name = updates.name
+        if (updates.description !== undefined) updateData.description = updates.description
+        if (updates.surplusPriority !== undefined) updateData.surplus_priority = updates.surplusPriority
+        if (updates.deficitPriority !== undefined) updateData.deficit_priority = updates.deficitPriority
+
         const { error } = await supabase
             .from('plans')
-            .update({
-                name: updates.name,
-                description: updates.description
-            })
+            .update(updateData)
             .eq('id', id)
 
         if (error) throw new Error(error.message)

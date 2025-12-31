@@ -16,6 +16,7 @@ interface ProjectionDetailsProps {
 
 function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleRealValues: setIsRealValues }: ProjectionDetailsProps) {
     const { surplusPriority, deficitPriority } = usePriority()
+
     const { projection, config } = useProjections(surplusPriority, deficitPriority)
     const currency = useCurrency()
     const { settings, updateSettings } = useSettings()
@@ -257,13 +258,29 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                     }
                 >
                     <div className="space-y-1">
-                        {yearData.history.surplus.length === 0 && yearData.history.deficit.length === 0 ? (
-                            <p className="font-light text-gray-400">No surplus or deficit this year</p>
+                        {yearData.history.surplus.length === 0 && yearData.history.deficit.length === 0 && yearData.history.contributions.length === 0 ? (
+                            <p className="font-light text-gray-400">No contributions or allocations this year</p>
                         ) : (
                             <>
+                                {/* Standard Contributions */}
+                                {yearData.history.contributions.length > 0 && (
+                                    <div>
+                                        <p className="text-xs font-semibold text-gray-600 mb-0.5">Scheduled Contributions</p>
+                                        {yearData.history.contributions.map(item => {
+                                            const asset = yearData.assets.find(a => a.id === item.assetId)
+                                            return (
+                                                <div key={item.assetId} className="flex justify-between text-sm py-0.5">
+                                                    <span className="font-light">{asset?.name || 'Unknown'}</span>
+                                                    <span className="font-medium text-blue-600">+{formatAdjusted(item.amount, yearData.year)}</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+
                                 {/* Surplus Allocations */}
                                 {yearData.history.surplus.length > 0 && (
-                                    <div>
+                                    <div className={yearData.history.contributions.length > 0 ? "pt-1 border-t" : ""}>
                                         <p className="text-xs font-semibold text-gray-600 mb-0.5">Surplus Added To:</p>
                                         {yearData.history.surplus.map(item => {
                                             const asset = yearData.assets.find(a => a.id === item.assetId)
@@ -321,12 +338,45 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                             <p className="font-light text-gray-400">No assets</p>
                         ) : (
                             <>
-                                {yearData.assets.map(asset => (
-                                    <div key={asset.id} className="flex justify-between py-0.5">
-                                        <span className="font-light truncate mr-2">{asset.name}</span>
-                                        <span className="font-medium whitespace-nowrap">{formatAdjusted(asset.value, yearData.year)}</span>
-                                    </div>
-                                ))}
+                                {yearData.assets.map(asset => {
+                                    // Find all changes for this asset
+                                    const growth = yearData.history.growth.find(g => g.assetId === asset.id)
+                                    const contribution = yearData.history.contributions.find(c => c.assetId === asset.id)
+                                    const surplus = yearData.history.surplus.find(s => s.assetId === asset.id)
+                                    const totalChange = (growth?.growthAmount || 0) + (contribution?.amount || 0) + (surplus?.amount || 0)
+
+                                    return (
+                                        <div key={asset.id} className="mb-2">
+                                            <div className="flex justify-between py-0.5">
+                                                <span className="font-light truncate mr-2">{asset.name}</span>
+                                                <span className="font-medium whitespace-nowrap">{formatAdjusted(asset.value, yearData.year)}</span>
+                                            </div>
+                                            {/* Show breakdown if there were any changes */}
+                                            {totalChange > 0 && (
+                                                <div className="ml-4 space-y-0.5 text-xs text-gray-500">
+                                                    {growth && growth.growthAmount > 0 && (
+                                                        <div className="flex justify-between">
+                                                            <span className="font-light">↳ Growth:</span>
+                                                            <span>+{formatAdjusted(growth.growthAmount, yearData.year)}</span>
+                                                        </div>
+                                                    )}
+                                                    {contribution && contribution.amount > 0 && (
+                                                        <div className="flex justify-between">
+                                                            <span className="font-light">↳ Contributions:</span>
+                                                            <span>+{formatAdjusted(contribution.amount, yearData.year)}</span>
+                                                        </div>
+                                                    )}
+                                                    {surplus && surplus.amount > 0 && (
+                                                        <div className="flex justify-between">
+                                                            <span className="font-light">↳ Surplus:</span>
+                                                            <span>+{formatAdjusted(surplus.amount, yearData.year)}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                })}
                                 <div className="flex justify-between pt-1 border-t font-semibold">
                                     <span>Total Assets:</span>
                                     <span>{formatAdjusted(yearData.assets.reduce((sum, a) => sum + a.value, 0), yearData.year)}</span>
@@ -402,21 +452,7 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                                     </div>
                                 )}
 
-                                {/* Contributions (Still useful to show here for context on why it grew, even if not strict appreciation) */}
-                                {yearData.history.contributions.length > 0 && (
-                                    <div className="pt-1 border-t">
-                                        <p className="text-xs font-semibold text-gray-600 mb-0.5">New Capital Added</p>
-                                        {yearData.history.contributions.map(item => {
-                                            const asset = yearData.assets.find(a => a.id === item.assetId)
-                                            return (
-                                                <div key={item.assetId} className="flex justify-between text-sm py-0.5">
-                                                    <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-blue-600">+{formatAdjusted(item.amount, yearData.year)}</span>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                )}
+
 
                                 {/* Total Growth Summary */}
                                 <div className="pt-1 border-t font-semibold">

@@ -12,7 +12,6 @@ export function transformToRealValues(projection: ProjectionResult): ProjectionR
     let prevFactor = 1
 
     // We also need the very first opening balance for the summary
-    const firstYear = projection.years[0]
     // The engine's inflationFactor is at the END of the year.
     // For the very first year, the opening factor is 1 (Today).
 
@@ -48,8 +47,11 @@ export function transformToRealValues(projection: ProjectionResult): ProjectionR
                 const finalVal = finalAsset?.value ?? 0
                 const openingVal = finalVal - item.yieldAmount
 
+                // Real Return = (Closing Value * multiplier) - (Opening Value * prevMultiplier)
                 const realYieldAmount = (finalVal * multiplier) - (openingVal * prevMultiplier)
-                return { ...item, yieldAmount: realYieldAmount }
+
+                // Clamp to zero so we don't show negative income in the UI
+                return { ...item, yieldAmount: Math.max(0, realYieldAmount) }
             }),
 
             liabilityPayments: year.history.liabilityPayments.map(item => ({

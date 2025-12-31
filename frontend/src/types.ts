@@ -63,6 +63,9 @@ export interface FinancialItem {
     // Liability-specific fields
     interestRate?: number // Annual interest rate (e.g., 0.045 for 4.5%)
     minimumPayment?: number // Annual minimum payment
+
+    // Inflation adjustment
+    isAdjustedForInflation?: boolean
 }
 
 export interface Milestone {

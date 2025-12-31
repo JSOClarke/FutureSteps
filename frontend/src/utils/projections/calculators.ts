@@ -52,13 +52,24 @@ export interface LiabilityResult {
 export function calculateYearlyIncome(
     incomes: FinancialItem[],
     year: number,
-    fractionOfYear: number = 1
+    fractionOfYear: number = 1,
+    inflationRate: number = 0
 ): IncomeResult {
     const activeIncomes = incomes.filter(i => isActiveInYear(i, year))
     const details: IncomeResult['details'] = []
 
     const total = activeIncomes.reduce((sum, income) => {
-        const annual = annualizeAmount(income.value, income.frequency)
+        let annual = annualizeAmount(income.value, income.frequency)
+
+        // Apply inflation adjustment if enabled
+        if (income.isAdjustedForInflation && inflationRate !== 0) {
+            const startYear = income.startYear ?? new Date().getFullYear()
+            const yearsDifference = Math.max(0, year - startYear)
+            if (yearsDifference > 0) {
+                annual = annual * Math.pow(1 + inflationRate, yearsDifference)
+            }
+        }
+
         const prorated = applyProportional(annual, fractionOfYear)
 
         details.push({
@@ -79,13 +90,24 @@ export function calculateYearlyIncome(
 export function calculateYearlyExpenses(
     expenses: FinancialItem[],
     year: number,
-    fractionOfYear: number = 1
+    fractionOfYear: number = 1,
+    inflationRate: number = 0
 ): ExpenseResult {
     const activeExpenses = expenses.filter(e => isActiveInYear(e, year))
     const details: ExpenseResult['details'] = []
 
     const total = activeExpenses.reduce((sum, expense) => {
-        const annual = annualizeAmount(expense.value, expense.frequency)
+        let annual = annualizeAmount(expense.value, expense.frequency)
+
+        // Apply inflation adjustment if enabled
+        if (expense.isAdjustedForInflation && inflationRate !== 0) {
+            const startYear = expense.startYear ?? new Date().getFullYear()
+            const yearsDifference = Math.max(0, year - startYear)
+            if (yearsDifference > 0) {
+                annual = annual * Math.pow(1 + inflationRate, yearsDifference)
+            }
+        }
+
         const prorated = applyProportional(annual, fractionOfYear)
 
         details.push({

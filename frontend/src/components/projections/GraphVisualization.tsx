@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useProjections } from '../../hooks/useProjections'
 import { usePriority } from '../../pages/PlansPage'
 import type { Milestone } from '../milestones/types'
@@ -18,7 +18,6 @@ import {
 import { BarChart3, TrendingUp, Settings, SankeyIcon } from '../../icons'
 import { formatCurrency, getCurrencySymbol } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
-import { useSettings } from '../../context/SettingsContext'
 
 interface GraphVisualizationProps {
     selectedYear: number | null
@@ -29,9 +28,8 @@ interface GraphVisualizationProps {
 
 function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValues }: GraphVisualizationProps) {
     const { surplusPriority, deficitPriority } = usePriority()
-    const { projection } = useProjections(surplusPriority, deficitPriority)
+    const { projection, realProjection } = useProjections(surplusPriority, deficitPriority)
     const currency = useCurrency()
-    const { settings } = useSettings()
 
     // Chart type state
     const [chartType, setChartType] = useState<'bar' | 'line' | 'sankey'>('line')
@@ -65,20 +63,21 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
 
     const handleChartTypeChange = (type: 'bar' | 'line' | 'sankey') => {
         setChartType(type)
-        setIsToggleExpanded(true) // Reset timer when user interacts
+        setIsToggleExpanded(true)
     }
 
     const handleToggleExpand = () => {
         setIsToggleExpanded(true)
     }
 
-    if (!projection || projection.years.length === 0) {
+    // Select the current projection source
+    const currentProjection = isRealValues ? realProjection : projection
+
+    if (!currentProjection || currentProjection.years.length === 0) {
         return (
             <div
                 className="w-full lg:w-[70%] border border-black flex items-center justify-center bg-white"
-                style={{
-                    minHeight: '70vh'
-                }}
+                style={{ minHeight: '70vh' }}
             >
                 <p className="text-2xl font-light text-gray-600 text-center">
                     Add financial items to see projections
@@ -87,61 +86,37 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
         )
     }
 
-    // Calculate inflation adjustment factor
-    const getAdjustmentFactor = (year: number) => {
-        if (!isRealValues) return 1
-        const currentYear = new Date().getFullYear()
-        const yearsFromNow = Math.max(0, year - currentYear)
-        return Math.pow(1 + settings.inflationRate, yearsFromNow)
-    }
-
     // Prepare data for Recharts
-    const chartData = projection.years.map(year => {
-        const factor = getAdjustmentFactor(year.year)
-        return {
-            year: year.year,
-            'Net Worth': year.netWorth / factor,
-            'Income': year.totalIncome / factor,
-            'Expenses': year.totalExpenses / factor,
-        }
-    })
+    const chartData = currentProjection.years.map(year => ({
+        year: year.year,
+        'Net Worth': year.netWorth,
+        'Income': year.totalIncome,
+        'Expenses': year.totalExpenses,
+    }))
 
     // Find first year where each milestone is reached
     const milestoneYears = milestones.map(m => {
         if (m.type === 'year') {
-            return {
-                milestone: m,
-                year: m.value
-            }
+            return { milestone: m, year: m.value }
         }
-        // Default to net_worth
         return {
             milestone: m,
-            year: projection.years.find(y => y.netWorth >= m.value)?.year
+            year: currentProjection.years.find(y => y.netWorth >= m.value)?.year
         }
     }).filter(m => m.year !== undefined)
 
-    // Format currency for tooltip
-
-
-    // Handle bar click - Recharts Bar onClick passes data payload
     const handleBarClick = (data: any, index: number) => {
-        // Try to get year from the data object
         if (data && data.year) {
             onYearSelect(data.year)
         } else if (index !== undefined && chartData[index]) {
-            // Fallback: use index to get year from chartData
             onYearSelect(chartData[index].year)
         }
     }
 
-    // Custom Tooltip Component
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
-            const year = label
-            const yearMilestones = milestoneYears.filter(m => m.year === year)
-
-            // Filter out duplicate entries (Area and Line both have "Net Worth")
+            const yearData = label
+            const yearMilestones = milestoneYears.filter(m => m.year === yearData)
             const uniquePayload = payload.reduce((acc: any[], entry: any) => {
                 if (!acc.find(item => item.dataKey === entry.dataKey)) {
                     acc.push(entry)
@@ -151,7 +126,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
 
             return (
                 <div className="bg-white border border-gray-200 p-3 rounded shadow-lg outline-none">
-                    <p className="font-semibold mb-2">{year}</p>
+                    <p className="font-semibold mb-2">{yearData}</p>
                     {uniquePayload.map((entry: any) => (
                         <p key={entry.name} style={{ color: entry.color }} className="text-sm">
                             {entry.name}: {formatCurrency(entry.value, currency)}
@@ -181,134 +156,102 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
         return null
     }
 
-
-    // Prepare Sankey Data
-    const getSankeyData = () => {
+    const sankeyData = useMemo(() => {
         if (!selectedYear) return { nodes: [], links: [] }
-
-        const yearData = projection.years.find(y => y.year === selectedYear) || projection.years[0]
-        const adjustmentFactor = getAdjustmentFactor(yearData.year) // Use year-specific factor
-
+        const yearData = currentProjection.years.find(y => y.year === selectedYear) || currentProjection.years[0]
         const nodes: { name: string, category?: string, fill?: string }[] = []
         const links: { source: number, target: number, value: number, gradientStart?: string, gradientEnd?: string }[] = []
 
-        // 0. Central Node
         nodes.push({ name: 'Available Cash', category: 'total', fill: '#4B5563' }) // Index 0
-
-        // 1. Incomes (Sources) -> Available Cash
         let incomeIndex = 1
 
-        // Active Income
         yearData.history.income.forEach(item => {
             nodes.push({ name: item.name, category: 'income' })
             links.push({
                 source: incomeIndex,
-                target: 0, // To Available Cash
-                value: item.amount / adjustmentFactor,
-                gradientStart: '#10B981', // Green
-                gradientEnd: '#4B5563'   // Gray
+                target: 0,
+                value: item.amount,
+                gradientStart: '#10B981',
+                gradientEnd: '#4B5563'
             })
             incomeIndex++
         })
 
-        // Passive Income (Yields)
         const totalPassive = yearData.history.yield.reduce((sum, y) => sum + y.yieldAmount, 0)
         if (totalPassive > 0) {
             nodes.push({ name: 'Passive Income', category: 'income' })
             links.push({
                 source: incomeIndex,
                 target: 0,
-                value: totalPassive / adjustmentFactor,
-                gradientStart: '#34D399', // Green
-                gradientEnd: '#4B5563'   // Gray
+                value: totalPassive,
+                gradientStart: '#34D399',
+                gradientEnd: '#4B5563'
             })
             incomeIndex++
         }
 
-        // Available Cash -> Expenses / Savings / Debt
         let targetIndex = incomeIndex
-
-        // Expenses
         yearData.history.expenses.forEach(item => {
             nodes.push({ name: item.name, category: 'expense' })
             links.push({
-                source: 0, // From Available Cash
+                source: 0,
                 target: targetIndex,
-                value: item.amount / adjustmentFactor,
-                gradientStart: '#4B5563', // Gray
-                gradientEnd: '#EF4444'   // Red
+                value: item.amount,
+                gradientStart: '#4B5563',
+                gradientEnd: '#EF4444'
             })
             targetIndex++
         })
 
-        // Contributions (Savings)
         yearData.history.contributions.forEach(item => {
             const asset = yearData.assets.find(a => a.id === item.assetId)
-            const name = asset ? `To ${asset.name}` : 'Investment'
-            nodes.push({ name: name, category: 'saving', fill: '#3B82F6' })
+            nodes.push({ name: asset ? `To ${asset.name}` : 'Investment', category: 'saving', fill: '#3B82F6' })
             links.push({
                 source: 0,
                 target: targetIndex,
-                value: item.amount / adjustmentFactor,
-                gradientStart: '#4B5563', // Gray
-                gradientEnd: '#3B82F6'   // Blue
+                value: item.amount,
+                gradientStart: '#4B5563',
+                gradientEnd: '#3B82F6'
             })
             targetIndex++
         })
 
-        // Surplus (Savings)
         yearData.history.surplus.forEach(item => {
             const asset = yearData.assets.find(a => a.id === item.assetId)
-            const name = asset ? `Surplus to ${asset.name}` : 'Surplus'
-            nodes.push({ name: name, category: 'saving', fill: '#60A5FA' })
+            nodes.push({ name: asset ? `Surplus to ${asset.name}` : 'Surplus', category: 'saving', fill: '#60A5FA' })
             links.push({
                 source: 0,
                 target: targetIndex,
-                value: item.amount / adjustmentFactor,
-                gradientStart: '#4B5563', // Gray
-                gradientEnd: '#60A5FA'   // Light Blue
+                value: item.amount,
+                gradientStart: '#4B5563',
+                gradientEnd: '#60A5FA'
             })
             targetIndex++
         })
 
-        // Deficit (From Assets - actually reverse flow, but complex to visualize mixed flows) 
-        // For simple Sankey, we usually ignore deficit withdrawals as "Income" or handle them separately.
-        // Let's treat Deficit Withdrawals as a source -> Available Cash for simplicity
         yearData.history.deficit.forEach(item => {
             const asset = yearData.assets.find(a => a.id === item.assetId)
-            const name = asset ? `From ${asset.name}` : 'Withdrawal'
-
-            // Add as SOURCE node
-            nodes.splice(1, 0, { name: name, category: 'withdrawal' }) // Insert at index 1 to keep incomes together
-            // Shift all existing source targets by 1
+            nodes.splice(1, 0, { name: asset ? `From ${asset.name}` : 'Withdrawal', category: 'withdrawal' })
             links.forEach(l => {
                 if (l.target === 0 && l.source >= 1) l.source += 1
                 if (l.source === 0) l.target += 1
             })
-            // Update our tracking indices
-            incomeIndex++
-            targetIndex++
-
             links.push({
-                source: 1, // The new inserted node
+                source: 1,
                 target: 0,
-                value: item.amount / adjustmentFactor,
-                gradientStart: '#F59E0B', // Amber
-                gradientEnd: '#4B5563'   // Gray
+                value: item.amount,
+                gradientStart: '#F59E0B',
+                gradientEnd: '#4B5563'
             })
         })
 
         return { nodes, links }
-    }
+    }, [selectedYear, currentProjection])
 
-    const sankeyData = getSankeyData()
-
-    // Custom Tooltip for Sankey
     const SankeyTooltip = ({ active, payload }: any) => {
         if (active && payload && payload.length) {
             const data = payload[0].payload
             const isLink = data.source && data.target
-
             return (
                 <div className="bg-white border border-gray-200 p-3 rounded shadow-lg outline-none">
                     {isLink ? (
@@ -337,52 +280,16 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
     return (
         <div
             className="w-full lg:w-[70%] border border-black bg-white p-1 sm:p-2 outline-none focus:outline-none [&_*]:outline-none [&_*:focus]:outline-none relative"
-            style={{
-                height: '70vh'
-            }}
+            style={{ height: '70vh' }}
         >
-            {/* Chart Type Toggle - Collapsible */}
             {isToggleExpanded ? (
                 <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex gap-1 sm:gap-2 z-10 bg-white border border-black p-1">
-                    <button
-                        onClick={() => handleChartTypeChange('sankey')}
-                        className={`p-1.5 sm:p-2 transition-colors ${chartType === 'sankey'
-                            ? 'bg-black text-white'
-                            : 'bg-white text-black hover:bg-gray-100'
-                            }`}
-                        title="Cashflow Diagram"
-                    >
-                        <SankeyIcon size={16} className="sm:w-5 sm:h-5" />
-                    </button>
-                    <button
-                        onClick={() => handleChartTypeChange('bar')}
-                        className={`p-1.5 sm:p-2 transition-colors ${chartType === 'bar'
-                            ? 'bg-black text-white'
-                            : 'bg-white text-black hover:bg-gray-100'
-                            }`}
-                        title="Bar Chart"
-                    >
-                        <BarChart3 size={16} className="sm:w-5 sm:h-5" />
-                    </button>
-                    <button
-                        onClick={() => handleChartTypeChange('line')}
-                        className={`p-1.5 sm:p-2 transition-colors ${chartType === 'line'
-                            ? 'bg-black text-white'
-                            : 'bg-white text-black hover:bg-gray-100'
-                            }`}
-                        title="Line Chart"
-                    >
-                        <TrendingUp size={16} className="sm:w-5 sm:h-5" />
-                    </button>
+                    <button onClick={() => handleChartTypeChange('sankey')} className={`p-1.5 sm:p-2 transition-colors ${chartType === 'sankey' ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-100'}`} title="Cashflow Diagram"><SankeyIcon size={16} className="sm:w-5 sm:h-5" /></button>
+                    <button onClick={() => handleChartTypeChange('bar')} className={`p-1.5 sm:p-2 transition-colors ${chartType === 'bar' ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-100'}`} title="Bar Chart"><BarChart3 size={16} className="sm:w-5 sm:h-5" /></button>
+                    <button onClick={() => handleChartTypeChange('line')} className={`p-1.5 sm:p-2 transition-colors ${chartType === 'line' ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-100'}`} title="Line Chart"><TrendingUp size={16} className="sm:w-5 sm:h-5" /></button>
                 </div>
             ) : (
-                <button
-                    onClick={handleToggleExpand}
-                    className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 p-1 sm:p-1.5 bg-white border border-black text-black hover:bg-gray-100 transition-colors"
-                    title="Chart Options"
-                >
-                    <Settings size={14} className="sm:w-4 sm:h-4" />
-                </button>
+                <button onClick={handleToggleExpand} className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 p-1 sm:p-1.5 bg-white border border-black text-black hover:bg-gray-100 transition-colors" title="Chart Options"><Settings size={14} className="sm:w-4 sm:h-4" /></button>
             )}
             <ResponsiveContainer width="100%" height="100%">
                 {chartType === 'sankey' ? (
@@ -390,25 +297,21 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                         data={sankeyData}
                         margin={{ top: 20, right: 125, bottom: 20, left: 125 }}
                         node={({ x, y, width, height, payload }: any) => {
-                            // Determine color based on category if fill is missing
                             let fillColor = payload.fill
                             if (!fillColor) {
                                 switch (payload.category) {
-                                    case 'income': fillColor = '#10B981'; break; // Green
-                                    case 'expense': fillColor = '#EF4444'; break; // Red
-                                    case 'saving': fillColor = '#3B82F6'; break; // Blue
-                                    case 'withdrawal': fillColor = '#F59E0B'; break; // Amber
-                                    case 'total': fillColor = '#4B5563'; break; // Gray
-                                    default: fillColor = '#8B5CF6'; // Violet (fallback to debug)
+                                    case 'income': fillColor = '#10B981'; break;
+                                    case 'expense': fillColor = '#EF4444'; break;
+                                    case 'saving': fillColor = '#3B82F6'; break;
+                                    case 'withdrawal': fillColor = '#F59E0B'; break;
+                                    case 'total': fillColor = '#4B5563'; break;
+                                    default: fillColor = '#8B5CF6';
                                 }
                             }
-
-                            const isSmall = height < 30 // Increased threshold for 2 lines
+                            const isSmall = height < 30
                             const label = payload.name.toUpperCase()
-
-                            // Map category to display label
                             let subLabel = ''
-                            let subColor = '#6B7280' // Default gray
+                            let subColor = '#6B7280'
                             switch (payload.category) {
                                 case 'income': subLabel = 'INCOME'; subColor = '#10B981'; break;
                                 case 'expense': subLabel = 'EXPENSE'; subColor = '#EF4444'; break;
@@ -416,77 +319,21 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                                 case 'withdrawal': subLabel = 'WITHDRAWAL'; subColor = '#F59E0B'; break;
                                 case 'total': subLabel = 'BALANCE'; subColor = '#6B7280'; break;
                             }
-
-                            // Format value
                             const formattedValue = formatCurrency(payload.value, currency)
-
-                            // Dynamic width based on whichever is wider
                             const labelWidth = (label.length * 7)
                             const subLabelWidth = (subLabel.length * 6)
                             const valueWidth = (formattedValue.length * 6)
                             const boxWidth = Math.max(labelWidth, subLabelWidth, valueWidth) + 16
-                            const boxHeight = 46 // Taller for 3 lines
-
+                            const boxHeight = 46
                             return (
                                 <g>
-                                    <rect
-                                        x={x}
-                                        y={y}
-                                        width={width}
-                                        height={height}
-                                        fill={fillColor}
-                                        fillOpacity={1}
-                                    />
+                                    <rect x={x} y={y} width={width} height={height} fill={fillColor} fillOpacity={1} />
                                     {!isSmall && (
                                         <>
-                                            <rect
-                                                x={x + width / 2 - boxWidth / 2}
-                                                y={y + height / 2 - boxHeight / 2}
-                                                width={boxWidth}
-                                                height={boxHeight}
-                                                fill="#FFFFFF"
-                                                stroke="#E5E7EB"
-                                                strokeWidth={1}
-                                            />
-                                            {/* Main Label */}
-                                            <text
-                                                x={x + width / 2}
-                                                y={y + height / 2 - 12}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fill="#000000"
-                                                fontSize={11}
-                                                fontWeight="400"
-                                                style={{ pointerEvents: 'none', letterSpacing: '0.5px' }}
-                                            >
-                                                {label}
-                                            </text>
-                                            {/* Sub Label */}
-                                            <text
-                                                x={x + width / 2}
-                                                y={y + height / 2}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fill={subColor}
-                                                fontSize={9}
-                                                fontWeight="700"
-                                                style={{ pointerEvents: 'none', letterSpacing: '0.5px' }}
-                                            >
-                                                {subLabel}
-                                            </text>
-                                            {/* Value Label */}
-                                            <text
-                                                x={x + width / 2}
-                                                y={y + height / 2 + 12}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fill="#4B5563" // Gray 600
-                                                fontSize={9}
-                                                fontWeight="500"
-                                                style={{ pointerEvents: 'none' }}
-                                            >
-                                                {formattedValue}
-                                            </text>
+                                            <rect x={x + width / 2 - boxWidth / 2} y={y + height / 2 - boxHeight / 2} width={boxWidth} height={boxHeight} fill="#FFFFFF" stroke="#E5E7EB" strokeWidth={1} />
+                                            <text x={x + width / 2} y={y + height / 2 - 12} textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize={11} fontWeight="400" style={{ pointerEvents: 'none', letterSpacing: '0.5px' }}>{label}</text>
+                                            <text x={x + width / 2} y={y + height / 2} textAnchor="middle" dominantBaseline="middle" fill={subColor} fontSize={9} fontWeight="700" style={{ pointerEvents: 'none', letterSpacing: '0.5px' }}>{subLabel}</text>
+                                            <text x={x + width / 2} y={y + height / 2 + 12} textAnchor="middle" dominantBaseline="middle" fill="#4B5563" fontSize={9} fontWeight="500" style={{ pointerEvents: 'none' }}>{formattedValue}</text>
                                         </>
                                     )}
                                 </g>
@@ -494,292 +341,56 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                         }}
                         link={(props: any) => {
                             const { sourceX, sourceY, targetX, targetY, linkWidth, payload, index } = props
-                            const path = `
-                                M${sourceX},${sourceY + linkWidth / 2}
-                                C${sourceX + 100},${sourceY + linkWidth / 2}
-                                ${targetX - 100},${targetY + linkWidth / 2}
-                                ${targetX},${targetY + linkWidth / 2}
-                                L${targetX},${targetY - linkWidth / 2}
-                                C${targetX - 100},${targetY - linkWidth / 2}
-                                ${sourceX + 100},${sourceY - linkWidth / 2}
-                                ${sourceX},${sourceY - linkWidth / 2}
-                                Z
-                            `
-
-                            // Create a unique ID for the gradient
+                            const path = `M${sourceX},${sourceY + linkWidth / 2} C${sourceX + 100},${sourceY + linkWidth / 2} ${targetX - 100},${targetY + linkWidth / 2} ${targetX},${targetY + linkWidth / 2} L${targetX},${targetY - linkWidth / 2} C${targetX - 100},${targetY - linkWidth / 2} ${sourceX + 100},${sourceY - linkWidth / 2} ${sourceX},${sourceY - linkWidth / 2} Z`
                             const gradientId = `linkGradient-${index}`
                             const sourceColor = payload.gradientStart || '#9CA3AF'
                             const targetColor = payload.gradientEnd || '#9CA3AF'
-
                             return (
                                 <g>
-                                    <defs>
-                                        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" stopColor={sourceColor} stopOpacity={0.4} />
-                                            <stop offset="100%" stopColor={targetColor} stopOpacity={0.4} />
-                                        </linearGradient>
-                                    </defs>
-                                    <path
-                                        d={path}
-                                        fill={`url(#${gradientId})`}
-                                        stroke="none"
-                                        fillOpacity={1} // Control opacity in gradient stops instead
-                                    />
+                                    <defs><linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor={sourceColor} stopOpacity={0.4} /><stop offset="100%" stopColor={targetColor} stopOpacity={0.4} /></linearGradient></defs>
+                                    <path d={path} fill={`url(#${gradientId})`} stroke="none" fillOpacity={1} />
                                 </g>
                             )
                         }}
-                    >
-                        <Tooltip content={<SankeyTooltip />} />
-                    </Sankey>
+                    ><Tooltip content={<SankeyTooltip />} /></Sankey>
                 ) : chartType === 'bar' ? (
-                    <BarChart
-                        data={chartData}
-                        margin={{ top: 5, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}
-                    >
-                        <XAxis
-                            dataKey="year"
-                            hide={true}
-                        />
-                        <YAxis
-                            width={isMobile ? 20 : 60}
-                            tickFormatter={(value) => {
-                                const currencySymbol = getCurrencySymbol(currency)
-                                const absValue = Math.abs(value)
-                                if (absValue >= 1000000) {
-                                    return `${currencySymbol}${(value / 1000000).toFixed(1)}M`
-                                } else if (absValue >= 1000) {
-                                    return `${currencySymbol}${(value / 1000).toFixed(0)}k`
-                                }
-                                return `${currencySymbol}${value}`
-                            }}
-                            tick={(props) => {
-                                const { x, y, payload } = props
-                                const value = payload.value
-                                const currencySymbol = getCurrencySymbol(currency)
-                                const absValue = Math.abs(value)
-                                let displayValue
-                                if (absValue >= 1000000) {
-                                    displayValue = `${currencySymbol}${(value / 1000000).toFixed(1)}M`
-                                } else if (absValue >= 1000) {
-                                    displayValue = `${currencySymbol}${(value / 1000).toFixed(0)}k`
-                                } else {
-                                    displayValue = `${currencySymbol}${value}`
-                                }
-
-                                return (
-                                    <g transform={`translate(${x},${y})`}>
-                                        <text
-                                            x={0}
-                                            y={0}
-                                            dy={4}
-                                            textAnchor="end"
-                                            fill="#6B7280"
-                                            fontSize={12}
-                                            transform={isMobile ? 'rotate(-90)' : ''}
-                                        >
-                                            {displayValue}
-                                        </text>
-                                    </g>
-                                )
-                            }}
-                            stroke="#6B7280"
-                        />
+                    <BarChart data={chartData} margin={{ top: 5, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}>
+                        <XAxis dataKey="year" hide={true} />
+                        <YAxis width={isMobile ? 20 : 60} tickFormatter={(value) => { const currencySymbol = getCurrencySymbol(currency); const absValue = Math.abs(value); if (absValue >= 1000000) return `${currencySymbol}${(value / 1000000).toFixed(1)}M`; if (absValue >= 1000) return `${currencySymbol}${(value / 1000).toFixed(0)}k`; return `${currencySymbol}${value}`; }} stroke="#6B7280" />
                         <Tooltip content={<CustomTooltip />} />
-
                         <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
-                        <Bar
-                            dataKey="Net Worth"
-                            fill="#3B82F6"
-                            cursor="pointer"
-                            onClick={handleBarClick}
-                            shape={(props: any) => {
-                                const { x, y, width, height, payload } = props
-                                // Check if this year has any milestones
-                                const yearMilestones = milestoneYears.filter(m => m.year === payload.year)
-
-                                return (
-                                    <>
-                                        {/* Regular bar */}
-                                        <rect
-                                            x={x}
-                                            y={y}
-                                            width={width}
-                                            height={height}
-                                            fill="#3B82F6"
-                                        />
-                                        {/* Milestone markers - green squares above bar, stacked if multiple */}
-                                        {yearMilestones.map((m, index) => (
-                                            <g key={m.milestone.id}>
-                                                <rect
-                                                    x={x + width / 2 - 6}
-                                                    y={y - 25 - (index * 18)}
-                                                    width={12}
-                                                    height={12}
-                                                    fill={m.milestone.color || "#22C55E"}
-                                                    stroke={m.milestone.color ? undefined : "#16A34A"}
-                                                    strokeWidth={1}
-                                                />
-                                                <title>
-                                                    {m.milestone.name}: {m.milestone.type === 'year'
-                                                        ? m.milestone.value
-                                                        : formatCurrency(m.milestone.value, currency)}
-                                                </title>
-                                            </g>
-                                        ))}
-                                    </>
-                                )
-                            }}
-                        />
-                        {selectedYear && (
-                            <ReferenceLine
-                                x={selectedYear}
-                                stroke="#6B7280"
-                                strokeDasharray="3 3"
-                            />
-                        )}
+                        <Bar dataKey="Net Worth" fill="#3B82F6" cursor="pointer" onClick={handleBarClick} shape={(props: any) => {
+                            const { x, y, width, height, payload } = props
+                            const yearMilestones = milestoneYears.filter(m => m.year === payload.year)
+                            return (
+                                <>{/* Regular bar */}<rect x={x} y={y} width={width} height={height} fill="#3B82F6" />
+                                    {yearMilestones.map((m, index) => (
+                                        <g key={m.milestone.id}><rect x={x + width / 2 - 6} y={y - 25 - (index * 18)} width={12} height={12} fill={m.milestone.color || "#22C55E"} stroke={m.milestone.color ? undefined : "#16A34A"} strokeWidth={1} /><title>{m.milestone.name}: {m.milestone.type === 'year' ? m.milestone.value : formatCurrency(m.milestone.value, currency)}</title></g>
+                                    ))}</>
+                            )
+                        }} />
+                        {selectedYear && <ReferenceLine x={selectedYear} stroke="#6B7280" strokeDasharray="3 3" />}
                     </BarChart>
                 ) : (
-                    <ComposedChart
-                        data={chartData}
-                        margin={{ top: 10, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}
-                        onClick={(data) => {
-                            if (data && data.activeLabel) {
-                                onYearSelect(Number(data.activeLabel))
-                            }
-                        }}
-                    >
-                        <defs>
-                            <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.5} />
-                                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
-                            </linearGradient>
-                        </defs>
-                        <XAxis
-                            dataKey="year"
-                            hide={true}
-                        />
-                        <YAxis
-                            width={isMobile ? 20 : 60}
-                            tickFormatter={(value) => {
-                                const currencySymbol = getCurrencySymbol(currency)
-                                const absValue = Math.abs(value)
-                                if (absValue >= 1000000) {
-                                    return `${currencySymbol}${(value / 1000000).toFixed(1)}M`
-                                } else if (absValue >= 1000) {
-                                    return `${currencySymbol}${(value / 1000).toFixed(0)}k`
-                                }
-                                return `${currencySymbol}${value}`
-                            }}
-                            tick={(props) => {
-                                const { x, y, payload } = props
-                                const value = payload.value
-                                const currencySymbol = getCurrencySymbol(currency)
-                                const absValue = Math.abs(value)
-                                let displayValue
-                                if (absValue >= 1000000) {
-                                    displayValue = `${currencySymbol}${(value / 1000000).toFixed(1)}M`
-                                } else if (absValue >= 1000) {
-                                    displayValue = `${currencySymbol}${(value / 1000).toFixed(0)}k`
-                                } else {
-                                    displayValue = `${currencySymbol}${value}`
-                                }
-
-                                return (
-                                    <g transform={`translate(${x},${y})`}>
-                                        <text
-                                            x={0}
-                                            y={0}
-                                            dy={4}
-                                            textAnchor="end"
-                                            fill="#6B7280"
-                                            fontSize={12}
-                                            transform={isMobile ? 'rotate(-90)' : ''}
-                                        >
-                                            {displayValue}
-                                        </text>
-                                    </g>
-                                )
-                            }}
-                            stroke="#6B7280"
-                        />
+                    <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: isMobile ? 0 : 5, bottom: 5 }} onClick={(data) => { if (data && data.activeLabel) onYearSelect(Number(data.activeLabel)) }}>
+                        <defs><linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3B82F6" stopOpacity={0.5} /><stop offset="95%" stopColor="#3B82F6" stopOpacity={0} /></linearGradient></defs>
+                        <XAxis dataKey="year" hide={true} />
+                        <YAxis width={isMobile ? 20 : 60} tickFormatter={(value) => { const currencySymbol = getCurrencySymbol(currency); const absValue = Math.abs(value); if (absValue >= 1000000) return `${currencySymbol}${(value / 1000000).toFixed(1)}M`; if (absValue >= 1000) return `${currencySymbol}${(value / 1000).toFixed(0)}k`; return `${currencySymbol}${value}`; }} stroke="#6B7280" />
                         <Tooltip content={<CustomTooltip />} />
-
                         <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
-                        {/* Solid color Area below the line */}
-                        <Area
-                            type="monotone"
-                            dataKey="Net Worth"
-                            stroke="none"
-                            fill="#3B82F6"
-                            fillOpacity={0.2}
-                        />
-
-                        <Line
-                            type="monotone"
-                            dataKey="Net Worth"
-                            stroke="#3B82F6"
-                            strokeWidth={2}
-                            dot={(props: any) => {
-                                const { cx, cy, payload } = props
-                                const yearMilestones = milestoneYears.filter(m => m.year === payload.year)
-
-                                // Regular dot
-                                if (yearMilestones.length === 0) {
-                                    return (
-                                        <circle
-                                            cx={cx}
-                                            cy={cy}
-                                            r={3}
-                                            fill="#3B82F6"
-                                            stroke="#fff"
-                                            strokeWidth={1}
-                                            style={{ cursor: 'pointer' }}
-                                        />
-                                    )
-                                }
-
-                                // Dot with milestone markers
-                                return (
-                                    <g>
-                                        <circle
-                                            cx={cx}
-                                            cy={cy}
-                                            r={3}
-                                            fill="#3B82F6"
-                                            stroke="#fff"
-                                            strokeWidth={1}
-                                            style={{ cursor: 'pointer' }}
-                                        />
-                                        {yearMilestones.map((m, index) => (
-                                            <g key={m.milestone.id}>
-                                                <rect
-                                                    x={cx - 6}
-                                                    y={cy - 25 - (index * 18)}
-                                                    width={12}
-                                                    height={12}
-                                                    fill={m.milestone.color || "#22C55E"}
-                                                    stroke={m.milestone.color ? undefined : "#16A34A"}
-                                                    strokeWidth={1}
-                                                />
-                                                <title>
-                                                    {m.milestone.name}: {m.milestone.type === 'year'
-                                                        ? m.milestone.value
-                                                        : formatCurrency(m.milestone.value, currency)}
-                                                </title>
-                                            </g>
-                                        ))}
-                                    </g>
-                                )
-                            }}
-                            activeDot={{ r: 5, cursor: 'pointer' }}
-                        />
-                        {selectedYear && (
-                            <ReferenceLine
-                                x={selectedYear}
-                                stroke="#6B7280"
-                                strokeDasharray="3 3"
-                            />
-                        )}
+                        <Area type="monotone" dataKey="Net Worth" stroke="none" fill="#3B82F6" fillOpacity={0.2} />
+                        <Line type="monotone" dataKey="Net Worth" stroke="#3B82F6" strokeWidth={2} dot={(props: any) => {
+                            const { cx, cy, payload } = props
+                            const yearMilestones = milestoneYears.filter(m => m.year === payload.year)
+                            if (yearMilestones.length === 0) return <circle cx={cx} cy={cy} r={3} fill="#3B82F6" stroke="#fff" strokeWidth={1} style={{ cursor: 'pointer' }} />
+                            return (
+                                <g><circle cx={cx} cy={cy} r={3} fill="#3B82F6" stroke="#fff" strokeWidth={1} style={{ cursor: 'pointer' }} />
+                                    {yearMilestones.map((m, index) => (
+                                        <g key={m.milestone.id}><rect x={cx - 6} y={cy - 25 - (index * 18)} width={12} height={12} fill={m.milestone.color || "#22C55E"} stroke={m.milestone.color ? undefined : "#16A34A"} strokeWidth={1} /><title>{m.milestone.name}: {m.milestone.type === 'year' ? m.milestone.value : formatCurrency(m.milestone.value, currency)}</title></g>
+                                    ))}</g>
+                            )
+                        }} activeDot={{ r: 5, cursor: 'pointer' }} />
+                        {selectedYear && <ReferenceLine x={selectedYear} stroke="#6B7280" strokeDasharray="3 3" />}
                     </ComposedChart>
                 )}
             </ResponsiveContainer>

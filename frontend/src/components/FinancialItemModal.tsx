@@ -28,6 +28,7 @@ interface FormState {
     maxAnnualContribution?: string
     interestRate?: string
     minimumPayment?: string
+    isAdjustedForInflation: boolean
 }
 
 interface FinancialItemModalProps {
@@ -66,7 +67,8 @@ function FinancialItemModal({
         maxAnnualContribution: initialData?.maxAnnualContribution?.toString() || '',
         interestRate: initialData?.interestRate ? (Math.round(initialData.interestRate * 10000) / 100).toString() : '',
         minimumPayment: initialData?.minimumPayment?.toString() || '',
-        subCategory: initialData?.subCategory || initialSubCategory
+        subCategory: initialData?.subCategory || initialSubCategory,
+        isAdjustedForInflation: initialData?.isAdjustedForInflation || false
     })
 
     // Unified Form State
@@ -83,6 +85,7 @@ function FinancialItemModal({
             maxAnnualContribution: initial.maxAnnualContribution,
             interestRate: initial.interestRate,
             minimumPayment: initial.minimumPayment,
+            isAdjustedForInflation: initial.isAdjustedForInflation
         }
     })
 
@@ -109,6 +112,7 @@ function FinancialItemModal({
                 maxAnnualContribution: values.maxAnnualContribution,
                 interestRate: values.interestRate,
                 minimumPayment: values.minimumPayment,
+                isAdjustedForInflation: values.isAdjustedForInflation
             })
             setSubCategory(initialData?.subCategory || initialSubCategory)
             setErrors({})
@@ -204,6 +208,11 @@ function FinancialItemModal({
             if (formData.interestRate) data.interestRate = Math.round(Number(formData.interestRate) * 100) / 10000
             if (formData.minimumPayment) data.minimumPayment = Number(formData.minimumPayment)
 
+            // Only applicable for income/expenses
+            if (category === 'income' || category === 'expenses') {
+                data.isAdjustedForInflation = formData.isAdjustedForInflation
+            }
+
             onSave(data)
             handleClose()
         }
@@ -223,6 +232,7 @@ function FinancialItemModal({
             maxAnnualContribution: '',
             interestRate: '',
             minimumPayment: '',
+            isAdjustedForInflation: false
         })
         setSubCategory(undefined)
         setErrors({})

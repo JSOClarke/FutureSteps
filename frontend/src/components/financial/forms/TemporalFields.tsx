@@ -56,6 +56,21 @@ export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
                     <option value="annual">Annual</option>
                 </select>
             </div>
+
+            {/* Inflation Adjustment Toggle */}
+            <div className="col-span-2 flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 mt-2">
+                <div className="flex flex-col">
+                    <Label htmlFor="isAdjustedForInflation" className="text-sm font-medium text-gray-700">Adjust for Inflation</Label>
+                    <p className="text-[10px] text-gray-500 font-light">Increase amount annually based on global inflation</p>
+                </div>
+                <input
+                    id="isAdjustedForInflation"
+                    type="checkbox"
+                    checked={data.isAdjustedForInflation || false}
+                    onChange={(e) => onChange('isAdjustedForInflation', e.target.checked)}
+                    className="w-4 h-4 accent-black cursor-pointer"
+                />
+            </div>
         </>
     )
 }

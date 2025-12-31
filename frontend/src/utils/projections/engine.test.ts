@@ -1,8 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ProjectionEngine } from './engine'
 import type { FinancialItem } from '../../types'
 
 describe('ProjectionEngine', () => {
+    beforeEach(() => {
+        // Set date to Jan 1st, 2025 00:00:00
+        vi.useFakeTimers()
+        vi.setSystemTime(new Date('2025-01-01T00:00:00'))
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+    })
+
     describe('runMultiYearProjection (Mid-Year Convention Integration)', () => {
         it('should correctly project a single asset over 1 year using mid-year convention', () => {
             const engine = new ProjectionEngine()

@@ -3,6 +3,8 @@ import { useFinancialItems } from '../context/FinancialItemsContext'
 import { useUser } from '../context/UserContext'
 import { ProjectionEngine } from '../utils/projections'
 import type { ProjectionResult } from '../utils/projections'
+import { useSettings } from '../context/SettingsContext'
+import { transformToRealValues } from '../utils/projections/transformer'
 
 export interface ProjectionConfig {
     startYear: number
@@ -14,6 +16,7 @@ export interface ProjectionConfig {
 export function useProjections(surplusPriority: string[] = [], deficitPriority: string[] = []) {
     const { items } = useFinancialItems()
     const { userProfile } = useUser()
+    const { settings } = useSettings()
 
     // Calculate number of years from current year to user's death year
     const calculateNumberOfYears = () => {
@@ -44,21 +47,28 @@ export function useProjections(surplusPriority: string[] = [], deficitPriority: 
         }))
     }, [userProfile?.dateOfBirth, userProfile?.lifeExpectancy])
 
-    const projection: ProjectionResult | null = useMemo(() => {
-        if (items.length === 0) return null
+    const { projection, realProjection } = useMemo(() => {
+        if (items.length === 0) return { projection: null, realProjection: null }
 
         const engine = new ProjectionEngine()
-        return engine.runMultiYearProjection(
+        const nominal = engine.runMultiYearProjection(
             items,
             config.startYear,
             config.numberOfYears,
             surplusPriority,
-            deficitPriority
+            deficitPriority,
+            settings.inflationRate
         )
-    }, [items, config.startYear, config.numberOfYears, surplusPriority, deficitPriority])
+
+        return {
+            projection: nominal,
+            realProjection: transformToRealValues(nominal)
+        }
+    }, [items, config.startYear, config.numberOfYears, surplusPriority, deficitPriority, settings.inflationRate])
 
     return {
         projection,
+        realProjection,
         config,
         setConfig
     }

@@ -11,6 +11,7 @@ interface CurrencyInputProps {
     required?: boolean
     prefix?: string
     allowDecimals?: boolean
+    'data-testid'?: string
 }
 
 function CurrencyInput({
@@ -24,6 +25,7 @@ function CurrencyInput({
     required = false,
     prefix = '$',
     allowDecimals = true,
+    'data-testid': testId,
 }: CurrencyInputProps) {
     const [displayValue, setDisplayValue] = useState('')
 
@@ -112,6 +114,7 @@ function CurrencyInput({
                     className={`w-full ${prefix ? 'pl-7' : 'pl-3'} pr-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-light ${className}`}
                     placeholder={placeholder}
                     inputMode="decimal"
+                    data-testid={testId}
                 />
             </div>
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}

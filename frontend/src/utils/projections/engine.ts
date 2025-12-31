@@ -6,7 +6,6 @@ import {
     processLiabilities,
     applyAssetGrowth,
     applyAssetYield,
-    applyAssetContributions,
     allocateSurplus,
     coverDeficit
 } from './calculators'
@@ -62,7 +61,6 @@ export class ProjectionEngine {
         deficitPriority: string[] = []
     ): YearResult {
         // 0. Capture opening balances for Mid-Year Convention calculation
-        // This is crucial: We need to know what the balance was Jan 1 vs what was added during the year
         const openingBalances = new Map(assets.map(a => [a.id, a.value]))
 
         // 1. Calculate income and expenses for the year
@@ -76,29 +74,29 @@ export class ProjectionEngine {
         const liabilityResult = processLiabilities(liabilities, cashflow, fractionOfYear)
         cashflow -= liabilityResult.totalPayment
 
-        // 3. Apply asset contributions (Waterfall Logic)
-        // Sort assets by priority so high-priority assets get funded first
+        // 3. Allocate cashflow to assets using waterfall logic
         const sortedAssets = sortFinancialItemsByPriority(assets, surplusPriority)
 
-        const contributionResult = applyAssetContributions(
-            sortedAssets,
-            cashflow,
-            fractionOfYear
-        )
-        cashflow -= contributionResult.totalContributions
-
-        // 4. Handle surplus or deficit
-        let updatedAssets = contributionResult.updatedAssets
-        let surplusHistory: Array<{ assetId: string; amount: number }> = []
+        // 4. Handle cashflow allocation or deficit
+        let updatedAssets = sortedAssets
+        let contributionHistory: Array<{ assetId: string; amount: number }> = []
         let deficitHistory: Array<{ assetId: string; amount: number }> = []
 
         if (cashflow > 0) {
-            // Surplus: add to assets based on priority
-            // Note: Updated assets are already sorted by priority from step 3
-            const surplusResult = allocateSurplus(cashflow, updatedAssets, surplusPriority)
-            updatedAssets = surplusResult.updatedAssets
-            surplusHistory = surplusResult.history
-            cashflow = 0
+            // Allocate all available cashflow using waterfall logic
+            const allocationResult = allocateSurplus(
+                cashflow,
+                updatedAssets,
+                surplusPriority,
+                new Map(), // Empty history since this is the first allocation
+                fractionOfYear
+            )
+            updatedAssets = allocationResult.updatedAssets
+            contributionHistory = allocationResult.history
+
+            // Calculate allocated amount to deduct from cashflow
+            const totalAllocated = allocationResult.history.reduce((sum, h) => sum + h.amount, 0)
+            cashflow -= totalAllocated
         } else if (cashflow < 0) {
             // Deficit: withdraw from assets based on priority
             const deficitResult = coverDeficit(Math.abs(cashflow), updatedAssets, deficitPriority)
@@ -130,8 +128,8 @@ export class ProjectionEngine {
                 expenses: expenseResult.details,
                 growth: growthResult.growthHistory,
                 yield: yieldResult.yieldHistory,
-                contributions: contributionResult.history,
-                surplus: surplusHistory,
+                contributions: contributionHistory,
+                surplus: [],
                 deficit: deficitHistory,
                 liabilityPayments: liabilityResult.history,
             }

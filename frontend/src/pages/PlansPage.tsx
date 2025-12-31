@@ -72,9 +72,9 @@ export function PlansPage() {
     const deficitPriority = activePlan?.deficitPriority || []
     const milestones = activePlan?.milestones || []
 
-    const handleSurplusPriorityChange = (priority: string[]) => {
+    const handleSurplusPriorityChange = async (priority: string[]) => {
         if (activePlanId && activePlan) {
-            updatePlan(activePlanId, { surplusPriority: priority })
+            await updatePlan(activePlanId, { surplusPriority: priority })
         }
     }
 

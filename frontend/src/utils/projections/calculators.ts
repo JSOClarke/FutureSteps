@@ -265,11 +265,14 @@ export function applyAssetContributions(
 
 /**
  * Allocate surplus cashflow to assets based on priority order
+ * WATERFALL LOGIC: Goes through priority list, respecting maxAnnualContribution limits
  */
 export function allocateSurplus(
     surplus: number,
     assets: FinancialItem[],
-    surplusPriority: string[] = []
+    surplusPriority: string[] = [],
+    contributionHistory: Map<string, number> = new Map(),
+    fractionOfYear: number = 1
 ): {
     updatedAssets: FinancialItem[]
     history: Array<{ assetId: string; amount: number }>
@@ -278,30 +281,89 @@ export function allocateSurplus(
     const history: Array<{ assetId: string; amount: number }> = []
 
     if (surplus > 0 && updatedAssets.length > 0) {
-        // If priority is specified, use it; otherwise use first asset
-        let targetAssetIndex = 0
+        let remainingSurplus = surplus
+        const assetsMap = new Map(updatedAssets.map((a, i) => [a.id, { asset: a, index: i }]))
 
+        // Waterfall through priority list
         if (surplusPriority.length > 0) {
-            // Find the first asset in the priority list that exists
             for (const assetId of surplusPriority) {
-                const index = updatedAssets.findIndex(a => a.id === assetId)
-                if (index !== -1) {
-                    targetAssetIndex = index
-                    break
+                if (remainingSurplus <= 0.01) break // Stop if depleted
+
+                const entry = assetsMap.get(assetId)
+
+                if (entry) {
+                    const { asset, index } = entry
+
+                    // Determine allocation based on maxAnnualContribution:
+                    // - undefined = unlimited (takes all remaining surplus)
+                    // - number > 0 = limited (respects the cap)
+                    // - 0 = no contribution allowed
+
+                    let allocation = 0
+                    const maxVal = asset.maxAnnualContribution
+
+                    if (maxVal == null) {  // Checks both null and undefined
+                        // Unlimited account - take all remaining surplus
+                        allocation = remainingSurplus
+                    } else if (maxVal > 0) {
+                        // Limited account - check remaining room
+                        const limit = maxVal * fractionOfYear
+                        const used = contributionHistory.get(assetId) ?? 0
+                        const room = Math.max(0, limit - used)
+                        allocation = Math.min(remainingSurplus, room)
+                    }
+                    // If maxVal === 0, allocation stays 0 (no contribution allowed)
+
+                    if (allocation > 0) {
+                        updatedAssets[index] = {
+                            ...updatedAssets[index],
+                            value: updatedAssets[index].value + allocation
+                        }
+
+                        history.push({
+                            assetId: asset.id,
+                            amount: allocation
+                        })
+
+                        remainingSurplus -= allocation
+                        contributionHistory.set(assetId, (contributionHistory.get(assetId) ?? 0) + allocation)
+                    }
                 }
             }
         }
 
-        // Allocate to target asset
-        updatedAssets[targetAssetIndex] = {
-            ...updatedAssets[targetAssetIndex],
-            value: updatedAssets[targetAssetIndex].value + surplus
-        }
+        // Fallback: If no priority list provided, iterate through assets in order respecting limits
+        if (remainingSurplus > 0 && surplusPriority.length === 0) {
+            for (let i = 0; i < updatedAssets.length; i++) {
+                if (remainingSurplus <= 0.01) break
 
-        history.push({
-            assetId: updatedAssets[targetAssetIndex].id,
-            amount: surplus
-        })
+                const asset = updatedAssets[i]
+                const maxVal = asset.maxAnnualContribution
+                let allocation = 0
+
+                if (maxVal === undefined) {
+                    allocation = remainingSurplus
+                } else if (maxVal > 0) {
+                    const limit = maxVal * fractionOfYear
+                    const used = contributionHistory.get(asset.id) ?? 0
+                    const room = Math.max(0, limit - used)
+                    allocation = Math.min(remainingSurplus, room)
+                }
+
+                if (allocation > 0) {
+                    updatedAssets[i] = {
+                        ...updatedAssets[i],
+                        value: updatedAssets[i].value + allocation
+                    }
+                    history.push({
+                        assetId: asset.id,
+                        amount: allocation
+                    })
+                    remainingSurplus -= allocation
+                    contributionHistory.set(asset.id, (contributionHistory.get(asset.id) ?? 0) + allocation)
+                }
+            }
+        }
     }
 
     return { updatedAssets, history }

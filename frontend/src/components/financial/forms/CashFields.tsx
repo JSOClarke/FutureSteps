@@ -30,6 +30,7 @@ export const CashFields = ({ data, onChange }: FormFieldProps) => {
                     onChange={(val) => onChange('maxAnnualContribution', val)}
                     placeholder="0.00"
                     error={undefined}
+                    data-testid="item-contribution-input"
                 />
             </div>
         </>

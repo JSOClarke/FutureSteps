@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useProjections } from '../../hooks/useProjections'
 import { usePriority } from '../../pages/PlansPage'
-import { CollapsibleSection, YearSelector } from '../shared'
+import { YearSelector } from '../shared'
+import { ProjectionDetailSection } from './ProjectionDetailSection'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import { useSettings } from '../../context/SettingsContext'
@@ -12,6 +13,16 @@ interface ProjectionDetailsProps {
     onYearChange?: (year: number) => void
     isRealValues: boolean
     onToggleRealValues: (isReal: boolean) => void
+}
+
+const SIDEBAR_COLORS = {
+    income: '#FBCFE8',
+    passiveIncome: '#BBF7D0',
+    expenses: '#FECACA',
+    allocation: '#FED7AA',
+    assets: '#BFDBFE',
+    liabilities: '#E9D5FF',
+    growth: '#FEF08A'
 }
 
 function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleRealValues: setIsRealValues }: ProjectionDetailsProps) {
@@ -172,268 +183,156 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
             {/* Collapsible Sections */}
             <div>
                 {/* 1. Income Details (Active Only) */}
-                <CollapsibleSection
+                <ProjectionDetailSection
                     title="Income Details"
-                    rightContent={<span className="text-green-600 font-light">{formatAdjusted(yearData.totalIncome, yearData.year)}</span>}
-                >
-                    <div className="space-y-1">
-
-                        {yearData.totalIncome === 0 ? (
-                            <p className="font-light text-gray-400">No active income this year</p>
-                        ) : (
-                            <>
-                                {yearData.history.income.map(item => (
-                                    <div key={item.id} className="flex justify-between hover:bg-gray-50 transition-colors px-2 py-0.5 -mx-2">
-                                        <span className="font-light truncate mr-2">{item.name}</span>
-                                        <span className="font-medium whitespace-nowrap text-green-600">{formatAdjusted(item.amount, yearData.year)}</span>
-                                    </div>
-                                ))}
-                            </>
-                        )}
-                    </div>
-                </CollapsibleSection>
+                    headerValue={<span className="text-green-600 font-light">{formatAdjusted(yearData.totalIncome, yearData.year)}</span>}
+                    emptyMessage="No active income this year"
+                    accentColor={SIDEBAR_COLORS.income}
+                    items={yearData.history.income.map(item => ({
+                        label: item.name,
+                        value: formatAdjusted(item.amount, yearData.year),
+                        colorClass: 'text-green-600'
+                    }))}
+                />
 
                 {/* 2. Passive Income (Yield/Dividends) */}
-                <CollapsibleSection
+                <ProjectionDetailSection
                     title="Passive Income"
-                    rightContent={
+                    headerValue={
                         <span className="text-green-600 font-light">
                             {formatAdjusted(yearData.history.yield.reduce((sum, y) => sum + y.yieldAmount, 0), yearData.year)}
                         </span>
                     }
-                >
-                    <div className="space-y-1">
-                        {yearData.history.yield.length === 0 ? (
-                            <p className="font-light text-gray-400">No passive income this year</p>
-                        ) : (
-                            <>
-                                {yearData.history.yield.map(item => {
-                                    const asset = yearData.assets.find(a => a.id === item.assetId)
-                                    return (
-                                        <div key={item.assetId} className="flex justify-between text-sm py-0.5">
-                                            <span className="font-light">{asset?.name || 'Unknown'} (Yield)</span>
-                                            <span className="font-medium text-green-600">+{formatAdjusted(item.yieldAmount, yearData.year)}</span>
-                                        </div>
-                                    )
-                                })}
-                            </>
-                        )}
-                    </div>
-                </CollapsibleSection>
+                    emptyMessage="No passive income this year"
+                    accentColor={SIDEBAR_COLORS.passiveIncome}
+                    items={yearData.history.yield.map(item => {
+                        const asset = yearData.assets.find(a => a.id === item.assetId)
+                        return {
+                            label: `${asset?.name || 'Unknown'} (Yield)`,
+                            value: `+${formatAdjusted(item.yieldAmount, yearData.year)}`,
+                            colorClass: 'text-green-600'
+                        }
+                    })}
+                />
 
                 {/* 3. Expense Details */}
-                <CollapsibleSection
+                <ProjectionDetailSection
                     title="Expense Details"
-                    rightContent={<span className="text-red-600 font-light">{formatAdjusted(yearData.totalExpenses, yearData.year)}</span>}
-                >
-                    <div className="space-y-1">
-
-                        {yearData.totalExpenses === 0 ? (
-                            <p className="font-light text-gray-400">No expenses this year</p>
-                        ) : (
-                            <>
-                                {yearData.history.expenses.map(item => (
-                                    <div key={item.id} className="flex justify-between hover:bg-gray-50 transition-colors px-2 py-0.5 -mx-2">
-                                        <span className="font-light truncate mr-2">{item.name}</span>
-                                        <span className="font-medium whitespace-nowrap text-red-600">{formatAdjusted(item.amount, yearData.year)}</span>
-                                    </div>
-                                ))}
-                            </>
-                        )}
-                    </div>
-                </CollapsibleSection>
+                    headerValue={<span className="text-red-600 font-light">{formatAdjusted(yearData.totalExpenses, yearData.year)}</span>}
+                    emptyMessage="No expenses this year"
+                    accentColor={SIDEBAR_COLORS.expenses}
+                    items={yearData.history.expenses.map(item => ({
+                        label: item.name,
+                        value: formatAdjusted(item.amount, yearData.year),
+                        colorClass: 'text-red-600'
+                    }))}
+                />
 
                 {/* 4. Cashflow Allocation (Surplus/Deficit) */}
-                <CollapsibleSection
+                <ProjectionDetailSection
                     title="Cashflow Allocation"
-                    rightContent={
+                    headerValue={
                         <span className={`font-light ${yearData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {formatAdjusted(yearData.netCashflow, yearData.year)}
                         </span>
                     }
-                >
-                    <div className="space-y-1">
-                        {yearData.history.surplus.length === 0 && yearData.history.deficit.length === 0 && yearData.history.contributions.length === 0 ? (
-                            <p className="font-light text-gray-400">No contributions or allocations this year</p>
-                        ) : (
-                            <>
-                                {/* Standard Contributions */}
-                                {yearData.history.contributions.length > 0 && (
-                                    <div>
-                                        <p className="text-xs font-semibold text-gray-600 mb-0.5">Scheduled Contributions</p>
-                                        {yearData.history.contributions.map(item => {
-                                            const asset = yearData.assets.find(a => a.id === item.assetId)
-                                            return (
-                                                <div key={item.assetId} className="flex justify-between text-sm py-0.5">
-                                                    <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-blue-600">+{formatAdjusted(item.amount, yearData.year)}</span>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                )}
-
-                                {/* Surplus Allocations */}
-                                {yearData.history.surplus.length > 0 && (
-                                    <div className={yearData.history.contributions.length > 0 ? "pt-1 border-t" : ""}>
-                                        <p className="text-xs font-semibold text-gray-600 mb-0.5">Surplus Added To:</p>
-                                        {yearData.history.surplus.map(item => {
-                                            const asset = yearData.assets.find(a => a.id === item.assetId)
-                                            return (
-                                                <div key={item.assetId} className="flex justify-between text-sm py-0.5">
-                                                    <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-green-600">+{formatAdjusted(item.amount, yearData.year)}</span>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                )}
-
-                                {/* Deficit Withdrawals */}
-                                {yearData.history.deficit.length > 0 && (
-                                    <div className={yearData.history.surplus.length > 0 ? "pt-1 border-t" : ""}>
-                                        <p className="text-xs font-semibold text-gray-600 mb-0.5">Deficit Withdrawn From:</p>
-                                        {yearData.history.deficit.map(item => {
-                                            const asset = yearData.assets.find(a => a.id === item.assetId)
-                                            return (
-                                                <div key={item.assetId} className="flex justify-between text-sm py-0.5">
-                                                    <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-red-600">-{formatAdjusted(item.amount, yearData.year)}</span>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                )}
-
-                            </>
-                        )}
-                    </div>
-                </CollapsibleSection>
+                    emptyMessage="No contributions or allocations this year"
+                    accentColor={SIDEBAR_COLORS.allocation}
+                    items={[
+                        ...yearData.history.contributions.map(item => {
+                            const asset = yearData.assets.find(a => a.id === item.assetId)
+                            return {
+                                label: asset?.name || 'Unknown',
+                                value: `+${formatAdjusted(item.amount, yearData.year)}`,
+                                colorClass: 'text-blue-600'
+                            }
+                        }),
+                        ...yearData.history.surplus.map(item => {
+                            const asset = yearData.assets.find(a => a.id === item.assetId)
+                            return {
+                                label: `${asset?.name || 'Unknown'} (Surplus)`,
+                                value: `+${formatAdjusted(item.amount, yearData.year)}`,
+                                colorClass: 'text-green-600'
+                            }
+                        }),
+                        ...yearData.history.deficit.map(item => {
+                            const asset = yearData.assets.find(a => a.id === item.assetId)
+                            return {
+                                label: `${asset?.name || 'Unknown'} (Deficit)`,
+                                value: `-${formatAdjusted(item.amount, yearData.year)}`,
+                                colorClass: 'text-red-600'
+                            }
+                        })
+                    ]}
+                />
 
                 {/* 5. Assets */}
-                <CollapsibleSection
+                <ProjectionDetailSection
                     title="Assets"
-                    rightContent={
+                    headerValue={
                         <span className="font-light">
                             {formatAdjusted(yearData.assets.reduce((sum, a) => sum + a.value, 0), yearData.year)}
                         </span>
                     }
-                >
-                    <div className="space-y-1">
-                        {yearData.assets.length === 0 ? (
-                            <p className="font-light text-gray-400">No assets</p>
-                        ) : (
-                            <>
-                                {yearData.assets.map(asset => {
-                                    // Find all changes for this asset
-                                    const growth = yearData.history.growth.find(g => g.assetId === asset.id)
-                                    const contribution = yearData.history.contributions.find(c => c.assetId === asset.id)
-                                    const surplus = yearData.history.surplus.find(s => s.assetId === asset.id)
-                                    const totalChange = (growth?.growthAmount || 0) + (contribution?.amount || 0) + (surplus?.amount || 0)
+                    emptyMessage="No assets"
+                    accentColor={SIDEBAR_COLORS.assets}
+                    items={yearData.assets.map(asset => {
+                        const growth = yearData.history.growth.find(g => g.assetId === asset.id)
+                        const contribution = yearData.history.contributions.find(c => c.assetId === asset.id)
+                        const surplus = yearData.history.surplus.find(s => s.assetId === asset.id)
 
-                                    return (
-                                        <div key={asset.id} className="mb-2">
-                                            <div className="flex justify-between py-0.5">
-                                                <span className="font-light truncate mr-2">{asset.name}</span>
-                                                <span className="font-medium whitespace-nowrap">{formatAdjusted(asset.value, yearData.year)}</span>
-                                            </div>
-                                            {/* Show breakdown if there were any changes */}
-                                            {totalChange > 0 && (
-                                                <div className="ml-4 space-y-0.5 text-xs text-gray-500">
-                                                    {growth && growth.growthAmount > 0 && (
-                                                        <div className="flex justify-between">
-                                                            <span className="font-light">↳ Growth:</span>
-                                                            <span>+{formatAdjusted(growth.growthAmount, yearData.year)}</span>
-                                                        </div>
-                                                    )}
-                                                    {contribution && contribution.amount > 0 && (
-                                                        <div className="flex justify-between">
-                                                            <span className="font-light">↳ Contributions:</span>
-                                                            <span>+{formatAdjusted(contribution.amount, yearData.year)}</span>
-                                                        </div>
-                                                    )}
-                                                    {surplus && surplus.amount > 0 && (
-                                                        <div className="flex justify-between">
-                                                            <span className="font-light">↳ Surplus:</span>
-                                                            <span>+{formatAdjusted(surplus.amount, yearData.year)}</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )
-                                })}
-                            </>
-                        )}
-                    </div>
-                </CollapsibleSection>
+                        const subItems = []
+                        if (growth && growth.growthAmount > 0) subItems.push({ label: 'Growth', value: `+${formatAdjusted(growth.growthAmount, yearData.year)}` })
+                        if (contribution && contribution.amount > 0) subItems.push({ label: 'Contributions', value: `+${formatAdjusted(contribution.amount, yearData.year)}` })
+                        if (surplus && surplus.amount > 0) subItems.push({ label: 'Surplus', value: `+${formatAdjusted(surplus.amount, yearData.year)}` })
+
+                        return {
+                            label: asset.name,
+                            value: formatAdjusted(asset.value, yearData.year),
+                            subItems
+                        }
+                    })}
+                />
 
                 {/* 6. Liabilities */}
-                <CollapsibleSection
+                <ProjectionDetailSection
                     title="Liabilities"
-                    rightContent={
+                    headerValue={
                         <span className="text-red-600 font-light">
                             {formatAdjusted(yearData.liabilities.reduce((sum, l) => sum + l.value, 0), yearData.year)}
                         </span>
                     }
-                >
-                    <div className="space-y-1">
-                        {yearData.liabilities.length === 0 ? (
-                            <p className="font-light text-gray-400">No liabilities</p>
-                        ) : (
-                            <>
-                                {yearData.liabilities.map(liability => (
-                                    <div key={liability.id} className="flex justify-between py-0.5">
-                                        <span className="font-light truncate mr-2">{liability.name}</span>
-                                        <span className="font-medium whitespace-nowrap text-red-600">
-                                            {formatAdjusted(liability.value, yearData.year)}
-                                        </span>
-                                    </div>
-                                ))}
-                            </>
-                        )}
-                    </div>
-                </CollapsibleSection>
+                    emptyMessage="No liabilities"
+                    accentColor={SIDEBAR_COLORS.liabilities}
+                    items={yearData.liabilities.map(liability => ({
+                        label: liability.name,
+                        value: formatAdjusted(liability.value, yearData.year),
+                        colorClass: 'text-red-600'
+                    }))}
+                />
 
                 {/* 7. Investment Growth (Appreciation only) */}
-                <CollapsibleSection
+                <ProjectionDetailSection
                     title="Investment Growth"
-                    rightContent={
+                    headerValue={
                         <span className="text-green-600 font-light">
                             +{formatAdjusted(
-                                yearData.history.growth.reduce((sum, g) => sum + g.growthAmount, 0), // Growth only
+                                yearData.history.growth.reduce((sum, g) => sum + g.growthAmount, 0),
                                 yearData.year
                             )}
                         </span>
                     }
-                >
-                    <div className="space-y-1">
-                        {yearData.history.growth.length === 0 && yearData.history.contributions.length === 0 ? (
-                            <p className="font-light text-gray-400">No capital appreciation this year</p>
-                        ) : (
-                            <>
-                                {/* Appreciation/Growth */}
-                                {yearData.history.growth.length > 0 && (
-                                    <div>
-                                        <p className="text-xs font-semibold text-gray-600 mb-0.5">Capital Appreciation</p>
-                                        {yearData.history.growth.map(item => {
-                                            const asset = yearData.assets.find(a => a.id === item.assetId)
-                                            return (
-                                                <div key={item.assetId} className="flex justify-between text-sm py-0.5">
-                                                    <span className="font-light">{asset?.name || 'Unknown'}</span>
-                                                    <span className="font-medium text-green-600">+{formatAdjusted(item.growthAmount, yearData.year)}</span>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                )}
-
-
-
-                            </>
-                        )}
-                    </div>
-                </CollapsibleSection>
+                    emptyMessage="No capital appreciation this year"
+                    accentColor={SIDEBAR_COLORS.growth}
+                    items={yearData.history.growth.map(item => {
+                        const asset = yearData.assets.find(a => a.id === item.assetId)
+                        return {
+                            label: asset?.name || 'Unknown',
+                            value: `+${formatAdjusted(item.growthAmount, yearData.year)}`,
+                            colorClass: 'text-green-600'
+                        }
+                    })}
+                />
             </div>
 
             {/* Net Worth - Always Visible at Bottom */}

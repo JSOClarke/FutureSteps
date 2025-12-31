@@ -189,7 +189,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
         const yearData = projection.years.find(y => y.year === selectedYear) || projection.years[0]
         const adjustmentFactor = getAdjustmentFactor(yearData.year) // Use year-specific factor
 
-        const nodes: { name: string, category?: string }[] = []
+        const nodes: { name: string, category?: string, fill?: string }[] = []
         const links: { source: number, target: number, value: number, fill?: string }[] = []
 
         // 0. Central Node
@@ -382,7 +382,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 {chartType === 'sankey' ? (
                     <Sankey
                         data={sankeyData}
-                        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                        margin={{ top: 20, right: 125, bottom: 20, left: 125 }}
                         node={({ x, y, width, height, payload }: any) => {
                             // Determine color based on category if fill is missing
                             let fillColor = payload.fill
@@ -397,6 +397,30 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                                 }
                             }
 
+                            const isSmall = height < 30 // Increased threshold for 2 lines
+                            const label = payload.name.toUpperCase()
+
+                            // Map category to display label
+                            let subLabel = ''
+                            let subColor = '#6B7280' // Default gray
+                            switch (payload.category) {
+                                case 'income': subLabel = 'INCOME'; subColor = '#10B981'; break;
+                                case 'expense': subLabel = 'EXPENSE'; subColor = '#EF4444'; break;
+                                case 'saving': subLabel = 'INVESTMENT'; subColor = '#3B82F6'; break;
+                                case 'withdrawal': subLabel = 'WITHDRAWAL'; subColor = '#F59E0B'; break;
+                                case 'total': subLabel = 'BALANCE'; subColor = '#6B7280'; break;
+                            }
+
+                            // Format value
+                            const formattedValue = formatCurrency(payload.value, currency)
+
+                            // Dynamic width based on whichever is wider
+                            const labelWidth = (label.length * 7)
+                            const subLabelWidth = (subLabel.length * 6)
+                            const valueWidth = (formattedValue.length * 6)
+                            const boxWidth = Math.max(labelWidth, subLabelWidth, valueWidth) + 16
+                            const boxHeight = 46 // Taller for 3 lines
+
                             return (
                                 <g>
                                     <rect
@@ -407,6 +431,58 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                                         fill={fillColor}
                                         fillOpacity={1}
                                     />
+                                    {!isSmall && (
+                                        <>
+                                            <rect
+                                                x={x + width / 2 - boxWidth / 2}
+                                                y={y + height / 2 - boxHeight / 2}
+                                                width={boxWidth}
+                                                height={boxHeight}
+                                                fill="#FFFFFF"
+                                                stroke="#E5E7EB"
+                                                strokeWidth={1}
+                                            />
+                                            {/* Main Label */}
+                                            <text
+                                                x={x + width / 2}
+                                                y={y + height / 2 - 12}
+                                                textAnchor="middle"
+                                                dominantBaseline="middle"
+                                                fill="#000000"
+                                                fontSize={11}
+                                                fontWeight="400"
+                                                style={{ pointerEvents: 'none', letterSpacing: '0.5px' }}
+                                            >
+                                                {label}
+                                            </text>
+                                            {/* Sub Label */}
+                                            <text
+                                                x={x + width / 2}
+                                                y={y + height / 2}
+                                                textAnchor="middle"
+                                                dominantBaseline="middle"
+                                                fill={subColor}
+                                                fontSize={9}
+                                                fontWeight="700"
+                                                style={{ pointerEvents: 'none', letterSpacing: '0.5px' }}
+                                            >
+                                                {subLabel}
+                                            </text>
+                                            {/* Value Label */}
+                                            <text
+                                                x={x + width / 2}
+                                                y={y + height / 2 + 12}
+                                                textAnchor="middle"
+                                                dominantBaseline="middle"
+                                                fill="#4B5563" // Gray 600
+                                                fontSize={9}
+                                                fontWeight="500"
+                                                style={{ pointerEvents: 'none' }}
+                                            >
+                                                {formattedValue}
+                                            </text>
+                                        </>
+                                    )}
                                 </g>
                             )
                         }}

@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useProjections } from '../../hooks/useProjections'
 import { usePriority } from '../../pages/PlansPage'
 import { CollapsibleSection, YearSelector } from '../shared'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import { useSettings } from '../../context/SettingsContext'
-import { Settings, ChevronDown, ChevronRight, Percent } from 'lucide-react'
+import { Settings, ChevronDown, ChevronRight, Percentage as Percent } from '../../icons'
 
 interface ProjectionDetailsProps {
     selectedYear: number | null
@@ -38,6 +38,13 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
         return formatCurrency(adjustedAmount, currency)
     }
 
+    // Sync default year to parent on mount if not selected
+    useEffect(() => {
+        if (selectedYear === null && projection && projection.years.length > 0 && onYearChange) {
+            onYearChange(projection.years[0].year)
+        }
+    }, [selectedYear, projection, onYearChange])
+
     if (!projection || projection.years.length === 0) {
         return (
             <div
@@ -53,10 +60,12 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
         )
     }
 
-    // Find the selected year or default to latest
+
+
+    // Find the selected year or default to first
     const yearData = selectedYear
         ? projection.years.find(y => y.year === selectedYear)
-        : projection.years[projection.years.length - 1]
+        : projection.years[0]
 
     if (!yearData) return null
 

@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
-import { X } from 'lucide-react'
+import { Close as X } from '../../icons'
 
 interface ModalProps {
     isOpen: boolean

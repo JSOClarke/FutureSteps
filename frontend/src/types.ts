@@ -5,6 +5,7 @@ export type Frequency = 'monthly' | 'annual'
 export type ExpenseSubCategory =
     | 'housing'        // Rent, Mortgage
     | 'food'           // Groceries, Dining
+    | 'living_expenses' // General living costs
     | 'transportation' // Car, Gas, Public Transit
     | 'utilities'      // Electric, Water, Internet
     | 'healthcare'     // Insurance, Medical

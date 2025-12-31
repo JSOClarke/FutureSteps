@@ -1,4 +1,4 @@
-import { Trash2, ChevronDown, ChevronRight } from 'lucide-react'
+import { Delete as Trash2, ChevronDown, ChevronRight } from '../../icons'
 import { useState, Fragment } from 'react'
 import type { FinancialSnapshot, SnapshotItem } from '../../types'
 import { formatCurrency } from '../../utils/formatters'

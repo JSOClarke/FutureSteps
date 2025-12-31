@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Save, Loader2, RefreshCw } from 'lucide-react'
+import { Save, Loader2, RefreshCw } from '../../icons'
 import FinancialCategoryCard from '@/components/financial/FinancialCategoryCard'
 import { useSnapshots } from '@/context/SnapshotsContext'
 import { useFinancialItems } from '@/context/FinancialItemsContext'

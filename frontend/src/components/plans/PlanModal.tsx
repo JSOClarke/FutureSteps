@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { usePlans } from '../../context/PlansContext'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Edit as Pencil, Delete as Trash2 } from '../../icons'
 import {
     Dialog,
     DialogContent,

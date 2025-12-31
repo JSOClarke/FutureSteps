@@ -11,7 +11,7 @@ import SuccessRateCard from './SuccessRateCard'
 import PortfolioPathsChart from './PortfolioPathsChart'
 import { SampleRunsSection } from './SampleRunsSection'
 import { selectSampleRuns } from '../../utils/simulationSampling'
-import { Settings, Play } from 'lucide-react'
+import { Settings, Run as Play } from '../../icons'
 
 interface RunSimulationProps {
     onBack?: () => void  // Optional, mainly used for modal close

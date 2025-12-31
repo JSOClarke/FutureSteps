@@ -14,7 +14,7 @@ import {
     ResponsiveContainer,
     ReferenceLine
 } from 'recharts'
-import { BarChart3, TrendingUp, Settings } from 'lucide-react'
+import { BarChart3, TrendingUp, Settings } from '../../icons'
 import { formatCurrency, getCurrencySymbol } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import { useSettings } from '../../context/SettingsContext'
@@ -26,7 +26,7 @@ interface GraphVisualizationProps {
     isRealValues: boolean
 }
 
-function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milestones, isRealValues }: GraphVisualizationProps) {
+function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValues }: GraphVisualizationProps) {
     const { surplusPriority, deficitPriority } = usePriority()
     const { projection } = useProjections(surplusPriority, deficitPriority)
     const currency = useCurrency()
@@ -320,6 +320,13 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                                 )
                             }}
                         />
+                        {selectedYear && (
+                            <ReferenceLine
+                                x={selectedYear}
+                                stroke="#6B7280"
+                                strokeDasharray="3 3"
+                            />
+                        )}
                     </BarChart>
                 ) : (
                     <ComposedChart
@@ -388,7 +395,6 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                         <Tooltip content={<CustomTooltip />} />
 
                         <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
-
                         {/* Solid color Area below the line */}
                         <Area
                             type="monotone"
@@ -457,6 +463,13 @@ function GraphVisualization({ selectedYear: _selectedYear, onYearSelect, milesto
                             }}
                             activeDot={{ r: 5, cursor: 'pointer' }}
                         />
+                        {selectedYear && (
+                            <ReferenceLine
+                                x={selectedYear}
+                                stroke="#6B7280"
+                                strokeDasharray="3 3"
+                            />
+                        )}
                     </ComposedChart>
                 )}
             </ResponsiveContainer>

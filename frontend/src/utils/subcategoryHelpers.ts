@@ -1,20 +1,21 @@
 import {
     Briefcase,
     Building,
-    Car,
-    CreditCard,
-    GraduationCap,
-    Heart,
+    Vehicle as Car,
+    Card as CreditCard,
+    Education as GraduationCap,
+    Healthcare as Heart,
     Home,
-    Landmark,
-    Lightbulb,
-    MoreHorizontal,
-    PiggyBank,
-    Smartphone,
+    Institution as Landmark,
+    Utilities as Lightbulb,
+    LivingExpenses,
+    More as MoreHorizontal,
+    Bank as PiggyBank,
+    Entertainment as Smartphone,
     TrendingUp,
-    Utensils,
-    Wallet
-} from 'lucide-react'
+    Food as Utensils,
+    Income as Wallet
+} from '../icons'
 import type {
     FinancialCategory,
     FinancialSubCategory,
@@ -26,6 +27,7 @@ import type {
 
 export const EXPENSE_SUBCATEGORIES: { value: ExpenseSubCategory; label: string; icon: any }[] = [
     { value: 'housing', label: 'Housing', icon: Home },
+    { value: 'living_expenses', label: 'Living Expenses', icon: LivingExpenses },
     { value: 'food', label: 'Food & Dining', icon: Utensils },
     { value: 'transportation', label: 'Transportation', icon: Car },
     { value: 'utilities', label: 'Utilities', icon: Lightbulb },

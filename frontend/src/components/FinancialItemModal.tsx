@@ -14,7 +14,7 @@ import {
 import { FormRenderer } from './financial/forms/FormRenderer'
 import { useSettings } from '../context/SettingsContext'
 import SubCategorySelectionModal from './financial/SubCategorySelectionModal'
-import { Edit2 } from 'lucide-react'
+import { Edit as Edit2 } from '../icons'
 
 
 interface FormState {

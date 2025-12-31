@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '../../icons'
 import { ProjectionEngine } from '@/utils/projections/engine'
 import { compareFinancialState, type ComparisonResult } from '@/utils/projections/comparison'
 import { filterByCategory } from '@/utils/projections/helpers'

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Home, User, FileText, LogOut, ChevronDown, FolderOpen, X, Plus } from 'lucide-react'
+import { Home, Profile as User, Reports as FileText, LogOut, ChevronDown, Plans as FolderOpen, Close as X, Add as Plus } from '../../icons'
 
 // ... lines 4-79 ...
 

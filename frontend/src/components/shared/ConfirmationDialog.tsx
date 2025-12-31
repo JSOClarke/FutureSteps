@@ -6,7 +6,7 @@ import {
     DialogDescription,
     DialogBody
 } from '../ui/dialog'
-import { AlertTriangle } from 'lucide-react'
+import { WarningIcon as AlertTriangle } from '../../icons'
 
 interface ConfirmationDialogProps {
     isOpen: boolean

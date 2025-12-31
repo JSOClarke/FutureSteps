@@ -188,10 +188,6 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                                         <span className="font-medium whitespace-nowrap text-green-600">{formatAdjusted(item.amount, yearData.year)}</span>
                                     </div>
                                 ))}
-                                <div className="flex justify-between pt-1 border-t font-semibold">
-                                    <span>Total Active Income:</span>
-                                    <span className="text-green-600">{formatAdjusted(yearData.totalIncome, yearData.year)}</span>
-                                </div>
                             </>
                         )}
                     </div>
@@ -220,12 +216,6 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                                         </div>
                                     )
                                 })}
-                                <div className="flex justify-between pt-1 border-t font-semibold">
-                                    <span>Total Passive Income:</span>
-                                    <span className="text-green-600">
-                                        {formatAdjusted(yearData.history.yield.reduce((sum, y) => sum + y.yieldAmount, 0), yearData.year)}
-                                    </span>
-                                </div>
                             </>
                         )}
                     </div>
@@ -248,10 +238,6 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                                         <span className="font-medium whitespace-nowrap text-red-600">{formatAdjusted(item.amount, yearData.year)}</span>
                                     </div>
                                 ))}
-                                <div className="flex justify-between pt-1 border-t font-semibold">
-                                    <span>Total Expenses:</span>
-                                    <span className="text-red-600">{formatAdjusted(yearData.totalExpenses, yearData.year)}</span>
-                                </div>
                             </>
                         )}
                     </div>
@@ -319,15 +305,6 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                                     </div>
                                 )}
 
-                                {/* Net Cashflow Summary */}
-                                <div className="pt-1 border-t font-semibold">
-                                    <div className="flex justify-between">
-                                        <span>Net Cashflow:</span>
-                                        <span className={yearData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                            {formatAdjusted(yearData.netCashflow, yearData.year)}
-                                        </span>
-                                    </div>
-                                </div>
                             </>
                         )}
                     </div>
@@ -386,10 +363,6 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                                         </div>
                                     )
                                 })}
-                                <div className="flex justify-between pt-1 border-t font-semibold">
-                                    <span>Total Assets:</span>
-                                    <span>{formatAdjusted(yearData.assets.reduce((sum, a) => sum + a.value, 0), yearData.year)}</span>
-                                </div>
                             </>
                         )}
                     </div>
@@ -417,12 +390,6 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                                         </span>
                                     </div>
                                 ))}
-                                <div className="flex justify-between pt-1 border-t font-semibold">
-                                    <span>Total Liabilities:</span>
-                                    <span className="text-red-600">
-                                        {formatAdjusted(yearData.liabilities.reduce((sum, l) => sum + l.value, 0), yearData.year)}
-                                    </span>
-                                </div>
                             </>
                         )}
                     </div>
@@ -463,18 +430,6 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
 
 
 
-                                {/* Total Growth Summary */}
-                                <div className="pt-1 border-t font-semibold">
-                                    <div className="flex justify-between">
-                                        <span>Total Appreciation:</span>
-                                        <span className="text-green-600">
-                                            +{formatAdjusted(
-                                                yearData.history.growth.reduce((sum, g) => sum + g.growthAmount, 0),
-                                                yearData.year
-                                            )}
-                                        </span>
-                                    </div>
-                                </div>
                             </>
                         )}
                     </div>

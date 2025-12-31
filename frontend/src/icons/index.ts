@@ -43,7 +43,8 @@ import {
     FloppyDisk,
     Warning,
     Briefcase,
-    ShoppingBag
+    ShoppingBag,
+    GitMerge
 } from 'phosphor-react'
 
 // Exporting as aliases to maintain compatibility or semantic naming
@@ -95,6 +96,7 @@ export const More = DotsThree
 export const Income = Wallet
 export const Food = ForkKnife
 export const LivingExpenses = ShoppingBag
+export const SankeyIcon = GitMerge
 export const Work = Briefcase
 
 // Re-export specific icons directly if needed without alias, or commonly used ones

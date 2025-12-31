@@ -12,9 +12,10 @@ import {
     YAxis,
     Tooltip,
     ResponsiveContainer,
-    ReferenceLine
+    ReferenceLine,
+    Sankey
 } from 'recharts'
-import { BarChart3, TrendingUp, Settings } from '../../icons'
+import { BarChart3, TrendingUp, Settings, SankeyIcon } from '../../icons'
 import { formatCurrency, getCurrencySymbol } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import { useSettings } from '../../context/SettingsContext'
@@ -33,7 +34,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
     const { settings } = useSettings()
 
     // Chart type state
-    const [chartType, setChartType] = useState<'bar' | 'line'>('line')
+    const [chartType, setChartType] = useState<'bar' | 'line' | 'sankey'>('line')
 
     // Toggle collapse state
     const [isToggleExpanded, setIsToggleExpanded] = useState(true)
@@ -62,7 +63,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
         }
     }, [isToggleExpanded])
 
-    const handleChartTypeChange = (type: 'bar' | 'line') => {
+    const handleChartTypeChange = (type: 'bar' | 'line' | 'sankey') => {
         setChartType(type)
         setIsToggleExpanded(true) // Reset timer when user interacts
     }
@@ -180,6 +181,153 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
         return null
     }
 
+
+    // Prepare Sankey Data
+    const getSankeyData = () => {
+        if (!selectedYear) return { nodes: [], links: [] }
+
+        const yearData = projection.years.find(y => y.year === selectedYear) || projection.years[0]
+        const adjustmentFactor = getAdjustmentFactor(yearData.year) // Use year-specific factor
+
+        const nodes: { name: string, category?: string }[] = []
+        const links: { source: number, target: number, value: number, fill?: string }[] = []
+
+        // 0. Central Node
+        nodes.push({ name: 'Available Cash', category: 'total' }) // Index 0
+
+        // 1. Incomes (Sources) -> Available Cash
+        let incomeIndex = 1
+
+        // Active Income
+        yearData.history.income.forEach(item => {
+            nodes.push({ name: item.name, category: 'income' })
+            links.push({
+                source: incomeIndex,
+                target: 0, // To Available Cash
+                value: item.amount / adjustmentFactor,
+                fill: '#10B981' // Green flow
+            })
+            incomeIndex++
+        })
+
+        // Passive Income (Yields)
+        const totalPassive = yearData.history.yield.reduce((sum, y) => sum + y.yieldAmount, 0)
+        if (totalPassive > 0) {
+            nodes.push({ name: 'Passive Income', category: 'income' })
+            links.push({
+                source: incomeIndex,
+                target: 0,
+                value: totalPassive / adjustmentFactor,
+                fill: '#34D399' // Green flow
+            })
+            incomeIndex++
+        }
+
+        // Available Cash -> Expenses / Savings / Debt
+        let targetIndex = incomeIndex
+
+        // Expenses
+        yearData.history.expenses.forEach(item => {
+            nodes.push({ name: item.name, category: 'expense' })
+            links.push({
+                source: 0, // From Available Cash
+                target: targetIndex,
+                value: item.amount / adjustmentFactor,
+                fill: '#EF4444' // Red flow
+            })
+            targetIndex++
+        })
+
+        // Contributions (Savings)
+        yearData.history.contributions.forEach(item => {
+            const asset = yearData.assets.find(a => a.id === item.assetId)
+            const name = asset ? `To ${asset.name}` : 'Investment'
+            nodes.push({ name: name, category: 'saving', fill: '#3B82F6' })
+            links.push({
+                source: 0,
+                target: targetIndex,
+                value: item.amount / adjustmentFactor,
+                fill: '#3B82F6' // Blue flow
+            })
+            targetIndex++
+        })
+
+        // Surplus (Savings)
+        yearData.history.surplus.forEach(item => {
+            const asset = yearData.assets.find(a => a.id === item.assetId)
+            const name = asset ? `Surplus to ${asset.name}` : 'Surplus'
+            nodes.push({ name: name, category: 'saving', fill: '#60A5FA' })
+            links.push({
+                source: 0,
+                target: targetIndex,
+                value: item.amount / adjustmentFactor,
+                fill: '#60A5FA' // Light Blue flow
+            })
+            targetIndex++
+        })
+
+        // Deficit (From Assets - actually reverse flow, but complex to visualize mixed flows) 
+        // For simple Sankey, we usually ignore deficit withdrawals as "Income" or handle them separately.
+        // Let's treat Deficit Withdrawals as a source -> Available Cash for simplicity
+        yearData.history.deficit.forEach(item => {
+            const asset = yearData.assets.find(a => a.id === item.assetId)
+            const name = asset ? `From ${asset.name}` : 'Withdrawal'
+
+            // Add as SOURCE node
+            nodes.splice(1, 0, { name: name, category: 'withdrawal' }) // Insert at index 1 to keep incomes together
+            // Shift all existing source targets by 1
+            links.forEach(l => {
+                if (l.target === 0 && l.source >= 1) l.source += 1
+                if (l.source === 0) l.target += 1
+            })
+            // Update our tracking indices
+            incomeIndex++
+            targetIndex++
+
+            links.push({
+                source: 1, // The new inserted node
+                target: 0,
+                value: item.amount / adjustmentFactor,
+                fill: '#F59E0B' // Amber flow
+            })
+        })
+
+        return { nodes, links }
+    }
+
+    const sankeyData = getSankeyData()
+
+    // Custom Tooltip for Sankey
+    const SankeyTooltip = ({ active, payload }: any) => {
+        if (active && payload && payload.length) {
+            const data = payload[0].payload
+            const isLink = data.source && data.target
+
+            return (
+                <div className="bg-white border border-gray-200 p-3 rounded shadow-lg outline-none">
+                    {isLink ? (
+                        <>
+                            <p className="text-sm font-medium text-gray-600 mb-1">
+                                {data.source.name} → {data.target.name}
+                            </p>
+                            <p className="font-semibold text-blue-600">
+                                {formatCurrency(data.value, currency)}
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <p className="font-semibold mb-1">{data.name}</p>
+                            <p className="text-blue-600 text-sm font-medium">
+                                {formatCurrency(data.value, currency)}
+                            </p>
+                        </>
+                    )}
+                </div>
+            )
+        }
+        return null
+    }
+
     return (
         <div
             className="w-full lg:w-[70%] border border-black bg-white p-1 sm:p-2 outline-none focus:outline-none [&_*]:outline-none [&_*:focus]:outline-none relative"
@@ -190,6 +338,16 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
             {/* Chart Type Toggle - Collapsible */}
             {isToggleExpanded ? (
                 <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex gap-1 sm:gap-2 z-10 bg-white border border-black p-1">
+                    <button
+                        onClick={() => handleChartTypeChange('sankey')}
+                        className={`p-1.5 sm:p-2 transition-colors ${chartType === 'sankey'
+                            ? 'bg-black text-white'
+                            : 'bg-white text-black hover:bg-gray-100'
+                            }`}
+                        title="Cashflow Diagram"
+                    >
+                        <SankeyIcon size={16} className="sm:w-5 sm:h-5" />
+                    </button>
                     <button
                         onClick={() => handleChartTypeChange('bar')}
                         className={`p-1.5 sm:p-2 transition-colors ${chartType === 'bar'
@@ -221,7 +379,63 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 </button>
             )}
             <ResponsiveContainer width="100%" height="100%">
-                {chartType === 'bar' ? (
+                {chartType === 'sankey' ? (
+                    <Sankey
+                        data={sankeyData}
+                        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                        node={({ x, y, width, height, payload }: any) => {
+                            // Determine color based on category if fill is missing
+                            let fillColor = payload.fill
+                            if (!fillColor) {
+                                switch (payload.category) {
+                                    case 'income': fillColor = '#10B981'; break; // Green
+                                    case 'expense': fillColor = '#EF4444'; break; // Red
+                                    case 'saving': fillColor = '#3B82F6'; break; // Blue
+                                    case 'withdrawal': fillColor = '#F59E0B'; break; // Amber
+                                    case 'total': fillColor = '#4B5563'; break; // Gray
+                                    default: fillColor = '#8B5CF6'; // Violet (fallback to debug)
+                                }
+                            }
+
+                            return (
+                                <g>
+                                    <rect
+                                        x={x}
+                                        y={y}
+                                        width={width}
+                                        height={height}
+                                        fill={fillColor}
+                                        fillOpacity={1}
+                                    />
+                                </g>
+                            )
+                        }}
+                        link={(props: any) => {
+                            const { sourceX, sourceY, targetX, targetY, linkWidth, payload } = props
+                            const path = `
+                                M${sourceX},${sourceY + linkWidth / 2}
+                                C${sourceX + 100},${sourceY + linkWidth / 2}
+                                ${targetX - 100},${targetY + linkWidth / 2}
+                                ${targetX},${targetY + linkWidth / 2}
+                                L${targetX},${targetY - linkWidth / 2}
+                                C${targetX - 100},${targetY - linkWidth / 2}
+                                ${sourceX + 100},${sourceY - linkWidth / 2}
+                                ${sourceX},${sourceY - linkWidth / 2}
+                                Z
+                            `
+                            return (
+                                <path
+                                    d={path}
+                                    fill={payload.fill || '#E5E7EB'}
+                                    fillOpacity={0.4}
+                                    stroke="none"
+                                />
+                            )
+                        }}
+                    >
+                        <Tooltip content={<SankeyTooltip />} />
+                    </Sankey>
+                ) : chartType === 'bar' ? (
                     <BarChart
                         data={chartData}
                         margin={{ top: 5, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}

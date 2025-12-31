@@ -190,10 +190,10 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
         const adjustmentFactor = getAdjustmentFactor(yearData.year) // Use year-specific factor
 
         const nodes: { name: string, category?: string, fill?: string }[] = []
-        const links: { source: number, target: number, value: number, fill?: string }[] = []
+        const links: { source: number, target: number, value: number, gradientStart?: string, gradientEnd?: string }[] = []
 
         // 0. Central Node
-        nodes.push({ name: 'Available Cash', category: 'total' }) // Index 0
+        nodes.push({ name: 'Available Cash', category: 'total', fill: '#4B5563' }) // Index 0
 
         // 1. Incomes (Sources) -> Available Cash
         let incomeIndex = 1
@@ -205,7 +205,8 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 source: incomeIndex,
                 target: 0, // To Available Cash
                 value: item.amount / adjustmentFactor,
-                fill: '#10B981' // Green flow
+                gradientStart: '#10B981', // Green
+                gradientEnd: '#4B5563'   // Gray
             })
             incomeIndex++
         })
@@ -218,7 +219,8 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 source: incomeIndex,
                 target: 0,
                 value: totalPassive / adjustmentFactor,
-                fill: '#34D399' // Green flow
+                gradientStart: '#34D399', // Green
+                gradientEnd: '#4B5563'   // Gray
             })
             incomeIndex++
         }
@@ -233,7 +235,8 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 source: 0, // From Available Cash
                 target: targetIndex,
                 value: item.amount / adjustmentFactor,
-                fill: '#EF4444' // Red flow
+                gradientStart: '#4B5563', // Gray
+                gradientEnd: '#EF4444'   // Red
             })
             targetIndex++
         })
@@ -247,7 +250,8 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 source: 0,
                 target: targetIndex,
                 value: item.amount / adjustmentFactor,
-                fill: '#3B82F6' // Blue flow
+                gradientStart: '#4B5563', // Gray
+                gradientEnd: '#3B82F6'   // Blue
             })
             targetIndex++
         })
@@ -261,7 +265,8 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 source: 0,
                 target: targetIndex,
                 value: item.amount / adjustmentFactor,
-                fill: '#60A5FA' // Light Blue flow
+                gradientStart: '#4B5563', // Gray
+                gradientEnd: '#60A5FA'   // Light Blue
             })
             targetIndex++
         })
@@ -288,7 +293,8 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 source: 1, // The new inserted node
                 target: 0,
                 value: item.amount / adjustmentFactor,
-                fill: '#F59E0B' // Amber flow
+                gradientStart: '#F59E0B', // Amber
+                gradientEnd: '#4B5563'   // Gray
             })
         })
 
@@ -487,7 +493,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                             )
                         }}
                         link={(props: any) => {
-                            const { sourceX, sourceY, targetX, targetY, linkWidth, payload } = props
+                            const { sourceX, sourceY, targetX, targetY, linkWidth, payload, index } = props
                             const path = `
                                 M${sourceX},${sourceY + linkWidth / 2}
                                 C${sourceX + 100},${sourceY + linkWidth / 2}
@@ -499,13 +505,27 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                                 ${sourceX},${sourceY - linkWidth / 2}
                                 Z
                             `
+
+                            // Create a unique ID for the gradient
+                            const gradientId = `linkGradient-${index}`
+                            const sourceColor = payload.gradientStart || '#9CA3AF'
+                            const targetColor = payload.gradientEnd || '#9CA3AF'
+
                             return (
-                                <path
-                                    d={path}
-                                    fill={payload.fill || '#E5E7EB'}
-                                    fillOpacity={0.4}
-                                    stroke="none"
-                                />
+                                <g>
+                                    <defs>
+                                        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stopColor={sourceColor} stopOpacity={0.4} />
+                                            <stop offset="100%" stopColor={targetColor} stopOpacity={0.4} />
+                                        </linearGradient>
+                                    </defs>
+                                    <path
+                                        d={path}
+                                        fill={`url(#${gradientId})`}
+                                        stroke="none"
+                                        fillOpacity={1} // Control opacity in gradient stops instead
+                                    />
+                                </g>
                             )
                         }}
                     >

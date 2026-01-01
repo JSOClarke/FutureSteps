@@ -4,6 +4,7 @@ import { useFinancialItems } from '../../context/FinancialItemsContext'
 import FinancialItemModal from '../FinancialItemModal'
 
 import { FinancialItemCard } from './FinancialItemCard'
+import { ConfirmationDialog } from '../shared/ConfirmationDialog'
 import SubCategorySelectionModal from './SubCategorySelectionModal'
 import type { FinancialSubCategory } from '../../types'
 
@@ -44,6 +45,7 @@ function FinancialCategoryCard({
     const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false)
     const [editingItem, setEditingItem] = useState<FinancialItem | null>(null)
     const [selectedSubCategory, setSelectedSubCategory] = useState<FinancialSubCategory | undefined>(undefined)
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 
     const handleAddNew = () => {
         setEditingItem(null)
@@ -88,12 +90,17 @@ function FinancialCategoryCard({
     }
 
     const handleDeleteClick = (id: string) => {
-        if (confirm('Are you sure you want to delete this item?')) {
+        setItemToDelete(id)
+    }
+
+    const confirmDelete = () => {
+        if (itemToDelete) {
             if (isCustomMode && onDelete) {
-                onDelete(id)
+                onDelete(itemToDelete)
             } else if (!isCustomMode) {
-                context.deleteItem(id)
+                context.deleteItem(itemToDelete)
             }
+            setItemToDelete(null)
         }
     }
 
@@ -153,6 +160,16 @@ function FinancialCategoryCard({
                 onClose={() => setIsSubCategoryModalOpen(false)}
                 category={category}
                 onSelect={handleSubCategorySelect}
+            />
+
+            <ConfirmationDialog
+                isOpen={!!itemToDelete}
+                onClose={() => setItemToDelete(null)}
+                onConfirm={confirmDelete}
+                title="Delete Item"
+                description="Are you sure you want to delete this item? This action cannot be undone."
+                confirmLabel="Delete"
+                variant="danger"
             />
         </>
     )

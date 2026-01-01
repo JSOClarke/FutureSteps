@@ -1,10 +1,11 @@
 import { CollapsibleSection } from '../shared'
+import { Tooltip } from '../shared/Tooltip'
 
 interface DetailItem {
     label: string
     value: string
     colorClass?: string
-    subItems?: { label: string; value: string }[]
+    subItems?: { label: string; value: string; colorClass?: string }[]
 }
 
 interface ProjectionDetailSectionProps {
@@ -13,9 +14,10 @@ interface ProjectionDetailSectionProps {
     items: DetailItem[]
     emptyMessage: string
     accentColor?: string
+    tooltip?: string
 }
 
-export function ProjectionDetailSection({ title, headerValue, items, emptyMessage, accentColor }: ProjectionDetailSectionProps) {
+export function ProjectionDetailSection({ title, headerValue, items, emptyMessage, accentColor, tooltip }: ProjectionDetailSectionProps) {
     return (
         <CollapsibleSection
             title={
@@ -27,6 +29,7 @@ export function ProjectionDetailSection({ title, headerValue, items, emptyMessag
                         />
                     )}
                     <span>{title}</span>
+                    {tooltip && <Tooltip content={tooltip} />}
                 </div>
             }
             rightContent={headerValue}
@@ -49,7 +52,7 @@ export function ProjectionDetailSection({ title, headerValue, items, emptyMessag
                                     {item.subItems.map((sub, sIdx) => (
                                         <div key={sIdx} className="flex justify-between">
                                             <span className="font-light">↳ {sub.label}:</span>
-                                            <span>{sub.value}</span>
+                                            <span className={sub.colorClass || ''}>{sub.value}</span>
                                         </div>
                                     ))}
                                 </div>

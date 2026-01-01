@@ -53,7 +53,8 @@ export function calculateYearlyIncome(
     incomes: FinancialItem[],
     year: number,
     fractionOfYear: number = 1,
-    inflationRate: number = 0
+    inflationRate: number = 0,
+    baselineYear?: number
 ): IncomeResult {
     const activeIncomes = incomes.filter(i => isActiveInYear(i, year))
     const details: IncomeResult['details'] = []
@@ -63,7 +64,7 @@ export function calculateYearlyIncome(
 
         // Apply inflation adjustment if enabled
         if (income.isAdjustedForInflation && inflationRate !== 0) {
-            const startYear = income.startYear ?? new Date().getFullYear()
+            const startYear = baselineYear ?? income.startYear ?? new Date().getFullYear()
             const yearsDifference = Math.max(0, year - startYear)
             if (yearsDifference > 0) {
                 annual = annual * Math.pow(1 + inflationRate, yearsDifference)
@@ -91,7 +92,8 @@ export function calculateYearlyExpenses(
     expenses: FinancialItem[],
     year: number,
     fractionOfYear: number = 1,
-    inflationRate: number = 0
+    inflationRate: number = 0,
+    baselineYear?: number
 ): ExpenseResult {
     const activeExpenses = expenses.filter(e => isActiveInYear(e, year))
     const details: ExpenseResult['details'] = []
@@ -101,7 +103,7 @@ export function calculateYearlyExpenses(
 
         // Apply inflation adjustment if enabled
         if (expense.isAdjustedForInflation && inflationRate !== 0) {
-            const startYear = expense.startYear ?? new Date().getFullYear()
+            const startYear = baselineYear ?? expense.startYear ?? new Date().getFullYear()
             const yearsDifference = Math.max(0, year - startYear)
             if (yearsDifference > 0) {
                 annual = annual * Math.pow(1 + inflationRate, yearsDifference)
@@ -204,12 +206,10 @@ export function applyAssetGrowth(
             value: asset.value + totalGrowth
         })
 
-        if (totalGrowth !== 0) {
-            growthHistory.push({
-                assetId: asset.id,
-                growthAmount: totalGrowth
-            })
-        }
+        growthHistory.push({
+            assetId: asset.id,
+            growthAmount: totalGrowth
+        })
     }
 
     return { updatedAssets, growthHistory }

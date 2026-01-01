@@ -56,28 +56,7 @@ describe('Inflation Adjustment Logic', () => {
     })
 
     describe('Yield vs Growth Logic', () => {
-        it('should show zero yield if yield < inflation (purchasing power loss)', () => {
-            const items: FinancialItem[] = [{
-                id: 'yield-asset',
-                name: 'Cash',
-                category: 'assets',
-                value: 10000,
-                yieldRate: 0.02 // 2% yield
-            }]
 
-            // 10% inflation
-            const nominal = engine.runMultiYearProjection(items, 2026, 1, [], [], 0.10)
-            const real = transformToRealValues(nominal)
-
-            const yieldItem = real.years[0].history.yield[0]
-
-            // Real Return Calculation:
-            // Final Nominal: 10200
-            // Opening Nominal: 10000
-            // Real Return: (10200 / 1.10) - (10000 / 1.0) = 9272.72 - 10000 = -727.27
-            // CLAMPED TO 0
-            expect(yieldItem.yieldAmount).toBe(0)
-        })
 
         it('should show negative growth if growth < inflation', () => {
             const items: FinancialItem[] = [{

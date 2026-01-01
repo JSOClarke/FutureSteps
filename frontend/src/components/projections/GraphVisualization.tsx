@@ -73,91 +73,8 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
     // Select the current projection source
     const currentProjection = isRealValues ? realProjection : projection
 
-    if (!currentProjection || currentProjection.years.length === 0) {
-        return (
-            <div
-                className="w-full lg:w-[70%] border border-black flex items-center justify-center bg-white"
-                style={{ minHeight: '70vh' }}
-            >
-                <p className="text-2xl font-light text-gray-600 text-center">
-                    Add financial items to see projections
-                </p>
-            </div>
-        )
-    }
-
-    // Prepare data for Recharts
-    const chartData = currentProjection.years.map(year => ({
-        year: year.year,
-        'Net Worth': year.netWorth,
-        'Income': year.totalIncome,
-        'Expenses': year.totalExpenses,
-    }))
-
-    // Find first year where each milestone is reached
-    const milestoneYears = milestones.map(m => {
-        if (m.type === 'year') {
-            return { milestone: m, year: m.value }
-        }
-        return {
-            milestone: m,
-            year: currentProjection.years.find(y => y.netWorth >= m.value)?.year
-        }
-    }).filter(m => m.year !== undefined)
-
-    const handleBarClick = (data: any, index: number) => {
-        if (data && data.year) {
-            onYearSelect(data.year)
-        } else if (index !== undefined && chartData[index]) {
-            onYearSelect(chartData[index].year)
-        }
-    }
-
-    const CustomTooltip = ({ active, payload, label }: any) => {
-        if (active && payload && payload.length) {
-            const yearData = label
-            const yearMilestones = milestoneYears.filter(m => m.year === yearData)
-            const uniquePayload = payload.reduce((acc: any[], entry: any) => {
-                if (!acc.find(item => item.dataKey === entry.dataKey)) {
-                    acc.push(entry)
-                }
-                return acc
-            }, [])
-
-            return (
-                <div className="bg-white border border-gray-200 p-3 rounded shadow-lg outline-none">
-                    <p className="font-semibold mb-2">{yearData}</p>
-                    {uniquePayload.map((entry: any) => (
-                        <p key={entry.name} style={{ color: entry.color }} className="text-sm">
-                            {entry.name}: {formatCurrency(entry.value, currency)}
-                        </p>
-                    ))}
-                    {yearMilestones.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-gray-100">
-                            <p className="text-xs font-semibold text-gray-500 mb-1">Milestones:</p>
-                            {yearMilestones.map(m => (
-                                <div key={m.milestone.id} className="flex items-center gap-2 mb-1">
-                                    <div
-                                        className="w-2 h-2 rounded-full"
-                                        style={{ backgroundColor: m.milestone.color || '#22C55E' }}
-                                    />
-                                    <p className="text-sm">
-                                        {m.milestone.name}: {m.milestone.type === 'year'
-                                            ? m.milestone.value
-                                            : formatCurrency(m.milestone.value, currency)}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )
-        }
-        return null
-    }
-
     const sankeyData = useMemo(() => {
-        if (!selectedYear) return { nodes: [], links: [] }
+        if (!selectedYear || !currentProjection || currentProjection.years.length === 0) return { nodes: [], links: [] }
         const yearData = currentProjection.years.find(y => y.year === selectedYear) || currentProjection.years[0]
         const nodes: { name: string, category?: string, fill?: string }[] = []
         const links: { source: number, target: number, value: number, gradientStart?: string, gradientEnd?: string }[] = []
@@ -247,6 +164,90 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
 
         return { nodes, links }
     }, [selectedYear, currentProjection])
+
+    if (!currentProjection || currentProjection.years.length === 0) {
+        return (
+            <div
+                className="w-full lg:w-[70%] border border-black flex items-center justify-center bg-white"
+                style={{ minHeight: '70vh' }}
+            >
+                <p className="text-2xl font-light text-gray-600 text-center">
+                    Add financial items to see projections
+                </p>
+            </div>
+        )
+    }
+
+    // Prepare data for Recharts
+    const chartData = currentProjection.years.map(year => ({
+        year: year.year,
+        'Net Worth': year.netWorth,
+        'Income': year.totalIncome,
+        'Expenses': year.totalExpenses,
+    }))
+
+    // Find first year where each milestone is reached
+    const milestoneYears = milestones.map(m => {
+        if (m.type === 'year') {
+            return { milestone: m, year: m.value }
+        }
+        return {
+            milestone: m,
+            year: currentProjection.years.find(y => y.netWorth >= m.value)?.year
+        }
+    }).filter(m => m.year !== undefined)
+
+    const handleBarClick = (data: any, index: number) => {
+        if (data && data.year) {
+            onYearSelect(data.year)
+        } else if (index !== undefined && chartData[index]) {
+            onYearSelect(chartData[index].year)
+        }
+    }
+
+    const CustomTooltip = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            const yearData = label
+            const yearMilestones = milestoneYears.filter(m => m.year === yearData)
+            const uniquePayload = payload.reduce((acc: any[], entry: any) => {
+                if (!acc.find(item => item.dataKey === entry.dataKey)) {
+                    acc.push(entry)
+                }
+                return acc
+            }, [])
+
+            return (
+                <div className="bg-white border border-gray-200 p-3 rounded shadow-lg outline-none">
+                    <p className="font-semibold mb-2">{yearData}</p>
+                    {uniquePayload.map((entry: any) => (
+                        <p key={entry.name} style={{ color: entry.color }} className="text-sm">
+                            {entry.name}: {formatCurrency(entry.value, currency)}
+                        </p>
+                    ))}
+                    {yearMilestones.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                            <p className="text-xs font-semibold text-gray-500 mb-1">Milestones:</p>
+                            {yearMilestones.map(m => (
+                                <div key={m.milestone.id} className="flex items-center gap-2 mb-1">
+                                    <div
+                                        className="w-2 h-2 rounded-full"
+                                        style={{ backgroundColor: m.milestone.color || '#22C55E' }}
+                                    />
+                                    <p className="text-sm">
+                                        {m.milestone.name}: {m.milestone.type === 'year'
+                                            ? m.milestone.value
+                                            : formatCurrency(m.milestone.value, currency)}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )
+        }
+        return null
+    }
+
 
     const SankeyTooltip = ({ active, payload }: any) => {
         if (active && payload && payload.length) {

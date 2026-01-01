@@ -40,6 +40,7 @@ export default function SubCategorySelectionModal({
                                     key={sub.value}
                                     onClick={() => onSelect(sub.value)}
                                     className="flex flex-col items-center justify-center p-4 border border-gray-200 hover:border-black hover:bg-gray-50 transition-all rounded-lg gap-3 group"
+                                    data-testid={`subcategory-option-${sub.value}`}
                                 >
                                     <div className="p-3 bg-gray-100 rounded-full group-hover:bg-white border border-transparent group-hover:border-gray-200 transition-all">
                                         <Icon size={24} className="text-gray-600 group-hover:text-black" />

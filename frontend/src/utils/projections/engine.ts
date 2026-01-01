@@ -24,8 +24,18 @@ export interface YearResult {
     history: {
         income: Array<{ id: string; name: string; amount: number }>
         expenses: Array<{ id: string; name: string; amount: number }>
-        growth: Array<{ assetId: string; growthAmount: number }>
-        yield: Array<{ assetId: string; yieldAmount: number }>
+        growth: Array<{
+            assetId: string;
+            growthAmount: number;
+            nominalGrowthRealValue?: number; // Real value of the nominal gain
+            inflationImpact?: number;        // Loss of purchasing power on principal
+        }>
+        yield: Array<{
+            assetId: string;
+            yieldAmount: number;
+            nominalYieldRealValue?: number; // Real value of the nominal yield
+            inflationImpact?: number;        // Loss of purchasing power on the yield cashflow
+        }>
         contributions: Array<{ assetId: string; amount: number }>
         surplus: Array<{ assetId: string; amount: number }>
         deficit: Array<{ assetId: string; amount: number }>
@@ -62,14 +72,15 @@ export class ProjectionEngine {
         surplusPriority: string[] = [],
         deficitPriority: string[] = [],
         inflationRate: number = 0,
-        inflationFactor: number = 1
+        inflationFactor: number = 1,
+        baselineYear?: number
     ): YearResult {
         // 0. Capture opening balances for Mid-Year Convention calculation
         const openingBalances = new Map(assets.map(a => [a.id, a.value]))
 
         // 1. Calculate income and expenses for the year
-        const incomeResult = calculateYearlyIncome(incomes, year, fractionOfYear, inflationRate)
-        const expenseResult = calculateYearlyExpenses(expenses, year, fractionOfYear, inflationRate)
+        const incomeResult = calculateYearlyIncome(incomes, year, fractionOfYear, inflationRate, baselineYear)
+        const expenseResult = calculateYearlyExpenses(expenses, year, fractionOfYear, inflationRate, baselineYear)
 
         let cashflow = incomeResult.total - expenseResult.total
         const netCashflow = cashflow
@@ -188,7 +199,8 @@ export class ProjectionEngine {
                 surplusPriority,
                 deficitPriority,
                 inflationRate,
-                cumulativeInflationFactor
+                cumulativeInflationFactor,
+                startYear
             )
 
             years.push(yearResult)

@@ -1,16 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
-import process from 'node:process';
 
 export default defineConfig({
     testDir: './tests',
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
-    /* 2 workers is the sweet spot for GitHub standard runners (2 cores) */
-    workers: process.env.CI ? 2 : undefined,
+    workers: process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
-        baseURL: 'http://localhost:4173',
+        baseURL: 'http://localhost:5173',
         trace: 'on-first-retry',
     },
 
@@ -19,13 +17,20 @@ export default defineConfig({
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
         },
+        // {
+        //   name: 'firefox',
+        //   use: { ...devices['Desktop Firefox'] },
+        // },
+        // {
+        //   name: 'webkit',
+        //   use: { ...devices['Desktop Safari'] },
+        // },
     ],
 
-    /* Build the app and use 'vite preview' for faster, more stable CI tests */
+    /* Run your local dev server before starting the tests */
     webServer: {
-        command: process.env.CI ? 'npm run build && npm run preview' : 'npm run dev',
-        url: 'http://localhost:4173',
+        command: 'npm run dev',
+        url: 'http://localhost:5173',
         reuseExistingServer: !process.env.CI,
-        timeout: 120 * 1000,
     },
 });

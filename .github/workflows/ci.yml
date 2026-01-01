@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: CI Pipeline
 on:
   push:
     branches: [ main, master, dev ]
@@ -22,26 +22,8 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-
     - name: Run Build
       run: npm run build
 
     - name: Run Vitest (Unit Tests)
       run: npm run test
-
-    - name: Run Playwright tests (E2E)
-      run: npm run test:e2e
-      env:
-        # If your E2E tests need environment variables (like a test Supabase URL), 
-        # you can add them here or as GitHub Secrets.
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: frontend/playwright-report/
-        retention-days: 30

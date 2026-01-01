@@ -5,10 +5,11 @@ export default defineConfig({
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
-    workers: process.env.CI ? 1 : undefined,
+    /* 2 workers is the sweet spot for GitHub standard runners (2 cores) */
+    workers: process.env.CI ? 2 : undefined,
     reporter: 'html',
     use: {
-        baseURL: 'http://localhost:5173',
+        baseURL: 'http://localhost:4173',
         trace: 'on-first-retry',
     },
 
@@ -17,20 +18,13 @@ export default defineConfig({
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
         },
-        // {
-        //   name: 'firefox',
-        //   use: { ...devices['Desktop Firefox'] },
-        // },
-        // {
-        //   name: 'webkit',
-        //   use: { ...devices['Desktop Safari'] },
-        // },
     ],
 
-    /* Run your local dev server before starting the tests */
+    /* Build the app and use 'vite preview' for faster, more stable CI tests */
     webServer: {
-        command: 'npm run dev',
-        url: 'http://localhost:5173',
+        command: process.env.CI ? 'npm run build && npm run preview' : 'npm run dev',
+        url: 'http://localhost:4173',
         reuseExistingServer: !process.env.CI,
+        timeout: 120 * 1000,
     },
 });

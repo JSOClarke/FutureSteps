@@ -5,6 +5,7 @@ import { useDashboardItems } from '../../context/DashboardItemsContext'
 import { DashboardItemModal } from './DashboardItemModal'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
+import { ConfirmationDialog } from '../shared/ConfirmationDialog'
 
 interface DashboardCategoryCardProps {
     title: string
@@ -19,6 +20,7 @@ export function DashboardCategoryCard({ title, category, backgroundColor }: Dash
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingItem, setEditingItem] = useState<DashboardItem | undefined>()
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 
     const handleAddNew = () => {
         setEditingItem(undefined)
@@ -39,8 +41,13 @@ export function DashboardCategoryCard({ title, category, backgroundColor }: Dash
     }
 
     const handleDelete = (id: string) => {
-        if (confirm('Are you sure you want to delete this item?')) {
-            deleteItem(id)
+        setItemToDelete(id)
+    }
+
+    const confirmDelete = () => {
+        if (itemToDelete) {
+            deleteItem(itemToDelete)
+            setItemToDelete(null)
         }
     }
 
@@ -114,6 +121,16 @@ export function DashboardCategoryCard({ title, category, backgroundColor }: Dash
                 onSave={handleSave}
                 initialData={editingItem}
                 category={category}
+            />
+
+            <ConfirmationDialog
+                isOpen={!!itemToDelete}
+                onClose={() => setItemToDelete(null)}
+                onConfirm={confirmDelete}
+                title="Delete Item"
+                description="Are you sure you want to delete this item? This action cannot be undone."
+                confirmLabel="Delete"
+                variant="danger"
             />
         </>
     )

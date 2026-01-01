@@ -69,6 +69,7 @@ export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
                     checked={data.isAdjustedForInflation || false}
                     onChange={(e) => onChange('isAdjustedForInflation', e.target.checked)}
                     className="w-4 h-4 accent-black cursor-pointer"
+                    data-testid="item-inflation-toggle"
                 />
             </div>
         </>

@@ -68,7 +68,8 @@ export function FinancialItemsProvider({ children }: { children: React.ReactNode
                     maxAnnualContribution: item.max_annual_contribution,
                     interestRate: item.interest_rate,
                     minimumPayment: item.minimum_payment,
-                    subCategory: item.sub_category // Map from DB
+                    subCategory: item.sub_category, // Map from DB
+                    isAdjustedForInflation: item.is_adjusted_for_inflation
                 }))
 
                 setItems(mappedItems)
@@ -117,7 +118,8 @@ export function FinancialItemsProvider({ children }: { children: React.ReactNode
                 max_annual_contribution: newItemData.maxAnnualContribution,
                 interest_rate: newItemData.interestRate,
                 minimum_payment: newItemData.minimumPayment,
-                sub_category: newItemData.subCategory // Map to DB
+                sub_category: newItemData.subCategory, // Map to DB
+                is_adjusted_for_inflation: newItemData.isAdjustedForInflation
             }
 
             const { data, error } = await supabase
@@ -166,6 +168,7 @@ export function FinancialItemsProvider({ children }: { children: React.ReactNode
             if (updatedData.interestRate !== undefined) dbUpdate.interest_rate = updatedData.interestRate
             if (updatedData.minimumPayment !== undefined) dbUpdate.minimum_payment = updatedData.minimumPayment
             if (updatedData.subCategory !== undefined) dbUpdate.sub_category = updatedData.subCategory
+            if (updatedData.isAdjustedForInflation !== undefined) dbUpdate.is_adjusted_for_inflation = updatedData.isAdjustedForInflation
 
             const { error } = await supabase
                 .from('financial_items')

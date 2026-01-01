@@ -16,6 +16,7 @@ export const CashFields = ({ data, onChange }: FormFieldProps) => {
                     value={data.yieldRate || ''}
                     onChange={(e) => onChange('yieldRate', e.target.value)}
                     placeholder="e.g. 4.5 for 4.5%"
+                    data-testid="item-yield-rate-input"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                     Annual Equivalent Rate for your savings.

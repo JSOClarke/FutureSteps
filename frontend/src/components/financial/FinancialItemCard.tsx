@@ -42,6 +42,11 @@ export function FinancialItemCard({ item, onEdit, onDelete }: FinancialItemCardP
         }
     }
 
+    // Add inflation adjustment indicator
+    if (item.isAdjustedForInflation) {
+        infoItems.push('Incl. Inflation')
+    }
+
     return (
         <div
             onClick={() => onEdit(item)}

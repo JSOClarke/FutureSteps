@@ -16,6 +16,7 @@ export const GrowthFields = ({ data, onChange }: FormFieldProps) => {
                     value={data.growthRate || ''}
                     onChange={(e) => onChange('growthRate', e.target.value)}
                     placeholder="e.g. 7.0 for 7%"
+                    data-testid="item-growth-rate-input"
                 />
             </div>
 
@@ -29,6 +30,7 @@ export const GrowthFields = ({ data, onChange }: FormFieldProps) => {
                     value={data.yieldRate || ''}
                     onChange={(e) => onChange('yieldRate', e.target.value)}
                     placeholder="e.g. 3.0 for 3%"
+                    data-testid="item-yield-rate-input"
                 />
             </div>
 

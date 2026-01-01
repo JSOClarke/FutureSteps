@@ -16,6 +16,7 @@ export const LiabilityFields = ({ data, onChange }: FormFieldProps) => {
                     value={data.interestRate || ''}
                     onChange={(e) => onChange('interestRate', e.target.value)}
                     placeholder="e.g. 4.5 for 4.5%"
+                    data-testid="item-interest-rate-input"
                 />
             </div>
 
@@ -26,6 +27,7 @@ export const LiabilityFields = ({ data, onChange }: FormFieldProps) => {
                     value={data.minimumPayment?.toString() || ''}
                     onChange={(val) => onChange('minimumPayment', val)}
                     placeholder="0.00"
+                    data-testid="item-minimum-payment-input"
                 />
             </div>
         </>

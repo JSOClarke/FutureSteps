@@ -64,8 +64,10 @@ export interface FinancialItem {
     interestRate?: number // Annual interest rate (e.g., 0.045 for 4.5%)
     minimumPayment?: number // Annual minimum payment
 
-    // Inflation adjustment
-    isAdjustedForInflation?: boolean
+    // Inflation adjustment & Growth
+    isAdjustedForInflation?: boolean // Deprecated in favor of growthMode, kept for migration
+    growthMode?: 'none' | 'inflation' | 'percentage'
+    maxValue?: number // Cap on the value (for inflation or percentage growth)
 }
 
 export interface Milestone {

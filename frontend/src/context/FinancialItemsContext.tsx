@@ -68,7 +68,9 @@ export function FinancialItemsProvider({ children, planId }: { children: React.R
                     interestRate: item.interest_rate,
                     minimumPayment: item.minimum_payment,
                     subCategory: item.sub_category, // Map from DB
-                    isAdjustedForInflation: item.is_adjusted_for_inflation
+                    isAdjustedForInflation: item.is_adjusted_for_inflation,
+                    growthMode: item.growth_mode,
+                    maxValue: item.max_value
                 }))
 
                 setItems(mappedItems)
@@ -118,7 +120,9 @@ export function FinancialItemsProvider({ children, planId }: { children: React.R
                 interest_rate: newItemData.interestRate,
                 minimum_payment: newItemData.minimumPayment,
                 sub_category: newItemData.subCategory, // Map to DB
-                is_adjusted_for_inflation: newItemData.isAdjustedForInflation
+                is_adjusted_for_inflation: newItemData.isAdjustedForInflation,
+                growth_mode: newItemData.growthMode,
+                max_value: newItemData.maxValue
             }
 
             const { data, error } = await supabase
@@ -168,6 +172,8 @@ export function FinancialItemsProvider({ children, planId }: { children: React.R
             if (updatedData.minimumPayment !== undefined) dbUpdate.minimum_payment = updatedData.minimumPayment
             if (updatedData.subCategory !== undefined) dbUpdate.sub_category = updatedData.subCategory
             if (updatedData.isAdjustedForInflation !== undefined) dbUpdate.is_adjusted_for_inflation = updatedData.isAdjustedForInflation
+            if (updatedData.growthMode !== undefined) dbUpdate.growth_mode = updatedData.growthMode
+            if (updatedData.maxValue !== undefined) dbUpdate.max_value = updatedData.maxValue
 
             const { error } = await supabase
                 .from('financial_items')

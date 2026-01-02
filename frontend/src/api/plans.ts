@@ -72,6 +72,8 @@ export async function fetchPlans(user: User | null): Promise<Plan[]> {
                 maxAnnualContribution: item.max_annual_contribution,
                 interestRate: item.interest_rate,
                 minimumPayment: item.minimum_payment,
+                growthMode: item.growth_mode,
+                maxValue: item.max_value
             })),
         milestones: milestonesData
             .filter(m => m.plan_id === p.id)

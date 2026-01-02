@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
 import AuthModal from '../components/shared/AuthModal'
-import { Carousel } from '../components/shared/Carousel'
+import { InteractiveSection } from '../components/landing/InteractiveSection'
+
 
 export default function LandingPage() {
     const navigate = useNavigate()
@@ -63,24 +64,14 @@ export default function LandingPage() {
                 </div>
             </nav>
 
-            {/* Hero Section with Screenshot Backdrop */}
-            <section className="relative overflow-hidden bg-gray-50 border-b border-black">
-                {/* Screenshot Background Grid */}
-                <div className="absolute inset-0 flex items-center justify-center p-8 opacity-30">
-                    <img
-                        src="/sitescreenshots/hero/full_app_plans.png"
-                        alt="Financial Plans Overview"
-                        className="w-full h-full object-contain"
-                    />
-                </div>
-
-                {/* Hero Content - Overlaid on top */}
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
-                    <div className="text-center">
+            {/* Hero Section */}
+            <InteractiveSection className="bg-white border-b border-black pt-20 pb-24 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
                         <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-black mb-6">
                             Plan Your Financial Future
                         </h1>
-                        <p className="text-xl sm:text-2xl font-light text-gray-700 mb-12 max-w-3xl mx-auto">
+                        <p className="text-xl sm:text-2xl font-light text-gray-600 mb-10 leading-relaxed">
                             Create detailed financial projections, track your progress, and make informed decisions about your future.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -92,38 +83,113 @@ export default function LandingPage() {
                             </button>
                             <button
                                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                                className="px-8 py-4 bg-white border-2 border-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide transition-colors shadow-lg"
+                                className="px-8 py-4 bg-white border border-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide transition-colors"
                             >
                                 Learn More
                             </button>
                         </div>
                     </div>
-                </div>
-            </section>
 
-            {/* Screenshot Carousel */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-wide">
-                    See It In Action
-                </h2>
-                <Carousel
-                    images={[
-                        {
-                            src: '/sitescreenshots/carousel/linegraph.png',
-                            alt: 'Financial Projections - Track your financial future with detailed year-by-year projections'
-                        },
-                        {
-                            src: '/sitescreenshots/carousel/barchart.png',
-                            alt: 'Financial Analysis - Visualize your income, expenses, assets, and liabilities'
-                        },
-                        {
-                            src: '/sitescreenshots/carousel/cashflowsankey.png',
-                            alt: 'Cash Flow Visualization - Understand where your money flows with interactive diagrams'
-                        }
-                    ]}
-                    autoPlayInterval={5000}
-                />
-            </section>
+                    {/* Screenshot Container */}
+                    <div className="relative max-w-5xl mx-auto mt-12 mb-8 group p-4">
+                        {/* Static Backdrop - Left aligned skew */}
+                        <div className="absolute top-6 -left-6 bottom-6 -right-6 z-0">
+                            <div className="absolute inset-0 bg-blue-100 rounded-xl transform -rotate-1 skew-y-1" />
+                        </div>
+
+                        {/* Main Image */}
+                        <img
+                            src="/sitescreenshots/hero/full_app_plans.png"
+                            alt="Financial Plans Overview"
+                            className="relative z-10 w-full rounded-lg border border-gray-200 shadow-2xl bg-white"
+                        />
+                    </div>
+                </div>
+            </InteractiveSection>
+
+            {/* Feature 1: Financial Projections (Image Right) */}
+            <InteractiveSection className="py-24 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                        <div className="flex-1 max-w-xl">
+                            <h2 className="text-3xl font-light text-black mb-6">
+                                Financial Projections
+                            </h2>
+                            <p className="text-lg font-light text-gray-600 leading-relaxed mb-8">
+                                Track your financial future with detailed year-by-year projections. See exactly how your net worth, income, and assets will grow over time with our intuitive interactive graphs.
+                            </p>
+                        </div>
+                        <div className="flex-1 relative w-full max-w-xl group p-4">
+                            {/* Backdrop Right */}
+                            <div className="absolute top-4 -right-4 bottom-4 left-4 z-0">
+                                <div className="absolute inset-0 bg-blue-100 rounded-xl transform rotate-1 skew-y-1" />
+                            </div>
+
+                            <img
+                                src="/sitescreenshots/carousel/linegraph.png"
+                                alt="Financial Projections Graph"
+                                className="relative z-10 w-full rounded-lg border border-gray-200 shadow-xl bg-white"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </InteractiveSection>
+
+            {/* Feature 2: Financial Analysis (Image Left) */}
+            <InteractiveSection className="py-24 bg-gray-50 overflow-hidden border-y border-black/5">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col lg:flex-row-reverse items-center gap-16">
+                        <div className="flex-1 max-w-xl">
+                            <h2 className="text-3xl font-light text-black mb-6">
+                                Detailed Analysis
+                            </h2>
+                            <p className="text-lg font-light text-gray-600 leading-relaxed mb-8">
+                                Visualize your financial health with comprehensive breakdowns. Analyze your income sources, expense categories, and asset allocation to make smarter financial decisions.
+                            </p>
+                        </div>
+                        <div className="flex-1 relative w-full max-w-xl group p-4">
+                            {/* Backdrop Left */}
+                            <div className="absolute top-4 -left-4 bottom-4 right-4 z-0">
+                                <div className="absolute inset-0 bg-blue-100 rounded-xl transform -rotate-1 skew-y-1" />
+                            </div>
+
+                            <img
+                                src="/sitescreenshots/carousel/barchart.png"
+                                alt="Financial Analysis Chart"
+                                className="relative z-10 w-full rounded-lg border border-gray-200 shadow-xl bg-white"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </InteractiveSection>
+
+            {/* Feature 3: Cash Flow (Image Right) */}
+            <InteractiveSection className="py-24 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                        <div className="flex-1 max-w-xl">
+                            <h2 className="text-3xl font-light text-black mb-6">
+                                Cash Flow Visualization
+                            </h2>
+                            <p className="text-lg font-light text-gray-600 leading-relaxed mb-8">
+                                Understand exactly where your money goes. Our interactive Sankey diagrams trace every dollar from income to expenses, savings, and investments, giving you complete clarity.
+                            </p>
+                        </div>
+                        <div className="flex-1 relative w-full max-w-xl group p-4">
+                            {/* Backdrop Right */}
+                            <div className="absolute top-4 -right-4 bottom-4 left-4 z-0">
+                                <div className="absolute inset-0 bg-blue-100 rounded-xl transform rotate-1 skew-y-1" />
+                            </div>
+
+                            <img
+                                src="/sitescreenshots/carousel/cashflowsankey.png"
+                                alt="Cash Flow Sankey Diagram"
+                                className="relative z-10 w-full rounded-lg border border-gray-200 shadow-xl bg-white"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </InteractiveSection>
 
             {/* Features Section */}
             <section id="features" className="bg-gray-50 border-y border-black py-20">

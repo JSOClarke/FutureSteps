@@ -44,18 +44,19 @@ export default function LandingPage() {
                                 alt="FutureSteps Logo"
                                 className="h-8 mix-blend-multiply contrast-125 brightness-110"
                             />
-                            <h1 className="text-xl font-normal uppercase tracking-wide">FutureSteps</h1>
+                            {/* Hide text on mobile to prevent overlap */}
+                            <h1 className="text-xl font-normal uppercase tracking-wide hidden sm:block">FutureSteps</h1>
                         </div>
                         <div className="flex gap-4">
                             <button
                                 onClick={handleSignIn}
-                                className="px-6 py-2 border border-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide transition-colors"
+                                className="px-3 sm:px-6 py-2 border border-black hover:bg-gray-50 font-normal text-xs sm:text-sm uppercase tracking-wide transition-colors"
                             >
                                 Sign In
                             </button>
                             <button
                                 onClick={handleGetStarted}
-                                className="px-6 py-2 bg-black text-white hover:bg-gray-800 font-normal text-sm uppercase tracking-wide transition-colors"
+                                className="px-3 sm:px-6 py-2 bg-black text-white hover:bg-gray-800 font-normal text-xs sm:text-sm uppercase tracking-wide transition-colors"
                             >
                                 Get Started
                             </button>
@@ -93,7 +94,8 @@ export default function LandingPage() {
                     {/* Screenshot Container */}
                     <div className="relative max-w-5xl mx-auto mt-12 mb-8 group p-4">
                         {/* Static Backdrop - Left aligned skew */}
-                        <div className="absolute top-6 -left-6 bottom-6 -right-6 z-0">
+                        {/* Mobile: Tight margins (-2). Desktop (sm+): Spread out (-6) */}
+                        <div className="absolute top-2 -left-2 bottom-2 -right-2 sm:top-6 sm:-left-6 sm:bottom-6 sm:-right-6 z-0">
                             <div className="absolute inset-0 bg-blue-100 rounded-xl transform -rotate-1 skew-y-1" />
                         </div>
 
@@ -121,7 +123,7 @@ export default function LandingPage() {
                         </div>
                         <div className="flex-1 relative w-full max-w-xl group p-4">
                             {/* Backdrop Right */}
-                            <div className="absolute top-4 -right-4 bottom-4 left-4 z-0">
+                            <div className="absolute top-2 -right-2 bottom-2 left-2 sm:top-4 sm:-right-4 sm:bottom-4 sm:left-4 z-0">
                                 <div className="absolute inset-0 bg-blue-100 rounded-xl transform rotate-1 skew-y-1" />
                             </div>
 
@@ -149,7 +151,7 @@ export default function LandingPage() {
                         </div>
                         <div className="flex-1 relative w-full max-w-xl group p-4">
                             {/* Backdrop Left */}
-                            <div className="absolute top-4 -left-4 bottom-4 right-4 z-0">
+                            <div className="absolute top-2 -left-2 bottom-2 right-2 sm:top-4 sm:-left-4 sm:bottom-4 sm:right-4 z-0">
                                 <div className="absolute inset-0 bg-blue-100 rounded-xl transform -rotate-1 skew-y-1" />
                             </div>
 
@@ -177,7 +179,7 @@ export default function LandingPage() {
                         </div>
                         <div className="flex-1 relative w-full max-w-xl group p-4">
                             {/* Backdrop Right */}
-                            <div className="absolute top-4 -right-4 bottom-4 left-4 z-0">
+                            <div className="absolute top-2 -right-2 bottom-2 left-2 sm:top-4 sm:-right-4 sm:bottom-4 sm:left-4 z-0">
                                 <div className="absolute inset-0 bg-blue-100 rounded-xl transform rotate-1 skew-y-1" />
                             </div>
 

@@ -329,7 +329,8 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                             return (
                                 <g>
                                     <rect x={x} y={y} width={width} height={height} fill={fillColor} fillOpacity={1} />
-                                    {!isSmall && (
+                                    {/* Hide labels on mobile for cleaner view */}
+                                    {!isMobile && !isSmall && (
                                         <>
                                             <rect x={x + width / 2 - boxWidth / 2} y={y + height / 2 - boxHeight / 2} width={boxWidth} height={boxHeight} fill="#FFFFFF" stroke="#E5E7EB" strokeWidth={1} />
                                             <text x={x + width / 2} y={y + height / 2 - 12} textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize={11} fontWeight="400" style={{ pointerEvents: 'none', letterSpacing: '0.5px' }}>{label}</text>

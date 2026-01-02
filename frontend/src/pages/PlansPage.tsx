@@ -1,6 +1,8 @@
-import { useState, createContext, useContext } from 'react'
+import { useState, createContext, useContext, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Edit as Pencil, TrendingUp, Add as Plus } from '../icons'
 import { usePlans } from '../context/PlansContext'
+import { FinancialItemsProvider } from '../context/FinancialItemsContext'
 import { GraphVisualization, ProjectionDetails } from '../components/projections'
 import { FinancialCategoryCard } from '../components/financial'
 import { PageHeader } from '../components/shared/PageHeader'
@@ -24,12 +26,27 @@ const PriorityContext = createContext<PriorityContextType>({
 export const usePriority = () => useContext(PriorityContext)
 
 export function PlansPage() {
+    const { planId } = useParams<{ planId: string }>()
+    const navigate = useNavigate()
     const [selectedYear, setSelectedYear] = useState<number | null>(null)
     const [showSimulation, setShowSimulation] = useState(false)
     const [isRealValues, setIsRealValues] = useState(false)
     const [createModalOpen, setCreateModalOpen] = useState(false)
-    const { plans, activePlan, updatePlan, activePlanId, loading } = usePlans()
+    const { plans, getPlanById, updatePlan, loading } = usePlans()
     const [renameModalOpen, setRenameModalOpen] = useState(false)
+
+    // Get active plan from URL
+    const activePlan = planId ? getPlanById(planId) : null
+
+    // Redirect if plan ID is invalid or missing
+    useEffect(() => {
+        if (!loading && plans.length > 0) {
+            if (!planId || !activePlan) {
+                // Redirect to first available plan
+                navigate(`/plans/${plans[0].id}`, { replace: true })
+            }
+        }
+    }, [planId, activePlan, plans, loading, navigate])
 
     if (loading) {
         return <Loader fullScreen text="Loading Plans" />
@@ -73,148 +90,150 @@ export function PlansPage() {
     const milestones = activePlan?.milestones || []
 
     const handleSurplusPriorityChange = async (priority: string[]) => {
-        if (activePlanId && activePlan) {
-            await updatePlan(activePlanId, { surplusPriority: priority })
+        if (planId && activePlan) {
+            await updatePlan(planId, { surplusPriority: priority })
         }
     }
 
     const handleDeficitPriorityChange = (priority: string[]) => {
-        if (activePlanId && activePlan) {
-            updatePlan(activePlanId, { deficitPriority: priority })
+        if (planId && activePlan) {
+            updatePlan(planId, { deficitPriority: priority })
         }
     }
 
     const handleMilestonesChange = (newMilestones: typeof milestones) => {
-        if (activePlanId && activePlan) {
-            updatePlan(activePlanId, { milestones: newMilestones })
+        if (planId && activePlan) {
+            updatePlan(planId, { milestones: newMilestones })
         }
     }
 
     return (
-        <PriorityContext.Provider value={{ surplusPriority, deficitPriority }}>
-            <PageHeader
-                title={
-                    <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-3">
-                            <span>
-                                <span className="text-gray-400">PLAN : </span>
-                                {activePlan?.name || 'Financial Plan'}
-                            </span>
-                            {activePlan && (
-                                <button
-                                    onClick={() => setRenameModalOpen(true)}
-                                    className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition-colors"
-                                    title="Edit Plan"
-                                >
-                                    <Pencil size={18} />
-                                </button>
+        <FinancialItemsProvider planId={planId}>
+            <PriorityContext.Provider value={{ surplusPriority, deficitPriority }}>
+                <PageHeader
+                    title={
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-3">
+                                <span>
+                                    <span className="text-gray-400">PLAN : </span>
+                                    {activePlan?.name || 'Financial Plan'}
+                                </span>
+                                {activePlan && (
+                                    <button
+                                        onClick={() => setRenameModalOpen(true)}
+                                        className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition-colors"
+                                        title="Edit Plan"
+                                    >
+                                        <Pencil size={18} />
+                                    </button>
+                                )}
+                            </div>
+                            {activePlan?.description && (
+                                <p className="text-sm text-gray-500 font-light max-w-2xl">
+                                    {activePlan.description}
+                                </p>
                             )}
                         </div>
-                        {activePlan?.description && (
-                            <p className="text-sm text-gray-500 font-light max-w-2xl">
-                                {activePlan.description}
-                            </p>
-                        )}
-                    </div>
-                }
-            />
-
-            {/* Top bar with plan controls */}
-            <Navbar
-                surplusPriority={surplusPriority}
-                deficitPriority={deficitPriority}
-                onSurplusPriorityChange={handleSurplusPriorityChange}
-                onDeficitPriorityChange={handleDeficitPriorityChange}
-                milestones={milestones}
-                onMilestonesChange={handleMilestonesChange}
-                onSimulationClick={() => setShowSimulation(true)}
-            />
-
-            {/* Page content */}
-            <div className="space-y-4">
-                {/* Top Section: Graph and Projection Details */}
-                <div className="flex flex-col lg:flex-row gap-4">
-                    <GraphVisualization
-                        selectedYear={selectedYear}
-                        onYearSelect={setSelectedYear}
-                        milestones={milestones}
-                        isRealValues={isRealValues}
-                    />
-                    <ProjectionDetails
-                        selectedYear={selectedYear}
-                        onYearChange={setSelectedYear}
-                        isRealValues={isRealValues}
-                        onToggleRealValues={setIsRealValues}
-                    />
-                </div>
-
-                {/* Bottom Section: Financial Categories */}
-                <div className="flex flex-col lg:flex-row gap-4">
-                    <FinancialCategoryCard
-                        title="Income"
-                        category="income"
-                        backgroundColor="#FFFFFF"
-                    />
-                    <FinancialCategoryCard
-                        title="Expenses"
-                        category="expenses"
-                        backgroundColor="#FFFFFF"
-                    />
-                    <FinancialCategoryCard
-                        title="Assets"
-                        category="assets"
-                        backgroundColor="#FFFFFF"
-                    />
-                    <FinancialCategoryCard
-                        title="Liabilities"
-                        category="liabilities"
-                        backgroundColor="#FFFFFF"
-                    />
-                </div>
-            </div>
-
-            {/* Plan-Specific Simulation Modal */}
-            {showSimulation && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white border-2 border-black w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b-2 border-black p-4 flex justify-between items-center">
-                            <h2 className="text-2xl font-normal">
-                                Simulation: {activePlan?.name || 'Current Plan'}
-                            </h2>
-                            <button
-                                onClick={() => setShowSimulation(false)}
-                                className="px-4 py-2 border border-black hover:bg-gray-100 transition-colors text-sm font-normal uppercase tracking-wide"
-                            >
-                                Close
-                            </button>
-                        </div>
-                        <div className="p-4">
-                            <RunSimulation onBack={() => setShowSimulation(false)} lockToPlan={true} />
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Rename Plan Modal */}
-            {activePlan && (
-                <RenamePlanModal
-                    isOpen={renameModalOpen}
-                    onClose={() => setRenameModalOpen(false)}
-                    planId={activePlan.id}
-                    currentName={activePlan.name}
-                    currentDescription={activePlan.description}
+                    }
                 />
-            )}
 
-            {/* Create Plan Modal needs to be available even if plans exist, technically, 
+                {/* Top bar with plan controls */}
+                <Navbar
+                    surplusPriority={surplusPriority}
+                    deficitPriority={deficitPriority}
+                    onSurplusPriorityChange={handleSurplusPriorityChange}
+                    onDeficitPriorityChange={handleDeficitPriorityChange}
+                    milestones={milestones}
+                    onMilestonesChange={handleMilestonesChange}
+                    onSimulationClick={() => setShowSimulation(true)}
+                />
+
+                {/* Page content */}
+                <div className="space-y-4">
+                    {/* Top Section: Graph and Projection Details */}
+                    <div className="flex flex-col lg:flex-row gap-4">
+                        <GraphVisualization
+                            selectedYear={selectedYear}
+                            onYearSelect={setSelectedYear}
+                            milestones={milestones}
+                            isRealValues={isRealValues}
+                        />
+                        <ProjectionDetails
+                            selectedYear={selectedYear}
+                            onYearChange={setSelectedYear}
+                            isRealValues={isRealValues}
+                            onToggleRealValues={setIsRealValues}
+                        />
+                    </div>
+
+                    {/* Bottom Section: Financial Categories */}
+                    <div className="flex flex-col lg:flex-row gap-4">
+                        <FinancialCategoryCard
+                            title="Income"
+                            category="income"
+                            backgroundColor="#FFFFFF"
+                        />
+                        <FinancialCategoryCard
+                            title="Expenses"
+                            category="expenses"
+                            backgroundColor="#FFFFFF"
+                        />
+                        <FinancialCategoryCard
+                            title="Assets"
+                            category="assets"
+                            backgroundColor="#FFFFFF"
+                        />
+                        <FinancialCategoryCard
+                            title="Liabilities"
+                            category="liabilities"
+                            backgroundColor="#FFFFFF"
+                        />
+                    </div>
+                </div>
+
+                {/* Plan-Specific Simulation Modal */}
+                {showSimulation && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white border-2 border-black w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+                            <div className="sticky top-0 bg-white border-b-2 border-black p-4 flex justify-between items-center">
+                                <h2 className="text-2xl font-normal">
+                                    Simulation: {activePlan?.name || 'Current Plan'}
+                                </h2>
+                                <button
+                                    onClick={() => setShowSimulation(false)}
+                                    className="px-4 py-2 border border-black hover:bg-gray-100 transition-colors text-sm font-normal uppercase tracking-wide"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                            <div className="p-4">
+                                <RunSimulation onBack={() => setShowSimulation(false)} lockToPlan={true} />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Rename Plan Modal */}
+                {activePlan && (
+                    <RenamePlanModal
+                        isOpen={renameModalOpen}
+                        onClose={() => setRenameModalOpen(false)}
+                        planId={activePlan.id}
+                        currentName={activePlan.name}
+                        currentDescription={activePlan.description}
+                    />
+                )}
+
+                {/* Create Plan Modal needs to be available even if plans exist, technically, 
                 but usually Sidebar creates plans. 
                 However, handling it here for consistency if we wanted an 'Add Plan' button 
                 in the header later. For now only used in Empty State.
             */}
-            <CreatePlanModal
-                isOpen={createModalOpen}
-                onClose={() => setCreateModalOpen(false)}
-            />
-        </PriorityContext.Provider>
+                <CreatePlanModal
+                    isOpen={createModalOpen}
+                    onClose={() => setCreateModalOpen(false)}
+                />
+            </PriorityContext.Provider>
+        </FinancialItemsProvider>
     )
 }

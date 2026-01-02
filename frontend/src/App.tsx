@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import Onboarding from './components/Onboarding'
 import { UserProvider, useUser } from './context/UserContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { PlansProvider } from './context/PlansContext'
@@ -11,6 +10,7 @@ import { SettingsProvider } from './context/SettingsContext'
 import { ToastProvider } from './context/ToastContext'
 import { MainLayout } from './components/layouts/MainLayout'
 import { DashboardPage, PlansPage, ReportsPage } from './pages'
+import LandingPage from './pages/LandingPage'
 import Profile from './components/profile/Profile'
 import './index.css'
 
@@ -28,9 +28,16 @@ function AppContent() {
 
   }
 
-  // Show Onboarding if not logged in AND no guest profile
+  // Show Landing Page if not logged in AND no guest profile
   if (!user && !userProfile) {
-    return <Onboarding />
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    )
   }
 
   return (
@@ -39,7 +46,8 @@ function AppContent() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="plans" element={<PlansPage />} />
+          <Route path="plans/:planId" element={<PlansPage />} />
+          <Route path="plans" element={<Navigate to="/dashboard" replace />} />
           <Route path="profile" element={<Profile />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

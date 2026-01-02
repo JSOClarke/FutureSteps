@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
 import AuthModal from '../components/shared/AuthModal'
-import { Carousel } from '../components/shared/Carousel'
+
 
 export default function LandingPage() {
     const navigate = useNavigate()
@@ -105,28 +105,85 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Screenshot Carousel */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-wide">
-                    See It In Action
-                </h2>
-                <Carousel
-                    images={[
-                        {
-                            src: '/sitescreenshots/carousel/linegraph.png',
-                            alt: 'Financial Projections - Track your financial future with detailed year-by-year projections'
-                        },
-                        {
-                            src: '/sitescreenshots/carousel/barchart.png',
-                            alt: 'Financial Analysis - Visualize your income, expenses, assets, and liabilities'
-                        },
-                        {
-                            src: '/sitescreenshots/carousel/cashflowsankey.png',
-                            alt: 'Cash Flow Visualization - Understand where your money flows with interactive diagrams'
-                        }
-                    ]}
-                    autoPlayInterval={5000}
-                />
+            {/* Feature 1: Financial Projections (Image Right) */}
+            <section className="py-24 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                        <div className="flex-1 max-w-xl">
+                            <h2 className="text-3xl font-light text-black mb-6">
+                                Financial Projections
+                            </h2>
+                            <p className="text-lg font-light text-gray-600 leading-relaxed mb-8">
+                                Track your financial future with detailed year-by-year projections. See exactly how your net worth, income, and assets will grow over time with our intuitive interactive graphs.
+                            </p>
+                        </div>
+                        <div className="flex-1 relative w-full max-w-xl">
+                            {/* Backdrop Right */}
+                            <div className="absolute top-8 -right-8 w-full h-full bg-blue-100 rounded-xl transform rotate-1 skew-y-1 block z-0"></div>
+                            <div className="absolute top-8 -right-8 w-full h-full bg-blue-500/10 blur-3xl rounded-full z-0"></div>
+
+                            <img
+                                src="/sitescreenshots/carousel/linegraph.png"
+                                alt="Financial Projections Graph"
+                                className="relative z-10 w-full rounded-lg border border-gray-200 shadow-xl bg-white"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Feature 2: Financial Analysis (Image Left) */}
+            <section className="py-24 bg-gray-50 overflow-hidden border-y border-black/5">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col lg:flex-row-reverse items-center gap-16">
+                        <div className="flex-1 max-w-xl">
+                            <h2 className="text-3xl font-light text-black mb-6">
+                                Detailed Analysis
+                            </h2>
+                            <p className="text-lg font-light text-gray-600 leading-relaxed mb-8">
+                                Visualize your financial health with comprehensive breakdowns. Analyze your income sources, expense categories, and asset allocation to make smarter financial decisions.
+                            </p>
+                        </div>
+                        <div className="flex-1 relative w-full max-w-xl">
+                            {/* Backdrop Left */}
+                            <div className="absolute top-8 -left-8 w-full h-full bg-blue-100 rounded-xl transform -rotate-1 skew-y-1 block z-0"></div>
+                            <div className="absolute top-8 -left-8 w-full h-full bg-blue-500/10 blur-3xl rounded-full z-0"></div>
+
+                            <img
+                                src="/sitescreenshots/carousel/barchart.png"
+                                alt="Financial Analysis Chart"
+                                className="relative z-10 w-full rounded-lg border border-gray-200 shadow-xl bg-white"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Feature 3: Cash Flow (Image Right) */}
+            <section className="py-24 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                        <div className="flex-1 max-w-xl">
+                            <h2 className="text-3xl font-light text-black mb-6">
+                                Cash Flow Visualization
+                            </h2>
+                            <p className="text-lg font-light text-gray-600 leading-relaxed mb-8">
+                                Understand exactly where your money goes. Our interactive Sankey diagrams trace every dollar from income to expenses, savings, and investments, giving you complete clarity.
+                            </p>
+                        </div>
+                        <div className="flex-1 relative w-full max-w-xl">
+                            {/* Backdrop Right */}
+                            <div className="absolute top-8 -right-8 w-full h-full bg-blue-100 rounded-xl transform rotate-1 skew-y-1 block z-0"></div>
+                            <div className="absolute top-8 -right-8 w-full h-full bg-blue-500/10 blur-3xl rounded-full z-0"></div>
+
+                            <img
+                                src="/sitescreenshots/carousel/cashflowsankey.png"
+                                alt="Cash Flow Sankey Diagram"
+                                className="relative z-10 w-full rounded-lg border border-gray-200 shadow-xl bg-white"
+                            />
+                        </div>
+                    </div>
+                </div>
             </section>
 
             {/* Features Section */}

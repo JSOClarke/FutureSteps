@@ -2,7 +2,9 @@ import { useEffect } from 'react'
 import { useProjections } from '../../hooks/useProjections'
 import { useFinancialItems } from '../../context/FinancialItemsContext'
 import { usePriority } from '../../pages/PlansPage'
+import { useUser } from '../../context/UserContext'
 import { YearSelector } from '../shared'
+import { Tooltip } from '../shared/Tooltip'
 import { ProjectionDetailSection } from './ProjectionDetailSection'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -30,6 +32,7 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
     const { surplusPriority, deficitPriority } = usePriority()
     const { projection, realProjection, config } = useProjections(surplusPriority, deficitPriority)
     const { items: initialItems } = useFinancialItems()
+    const { userProfile } = useUser()
 
     // Helper: Safely calculate totals with types
     const getPreviousTotal = (prevData: any) => {
@@ -86,13 +89,33 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
     if (!yearData) return null
 
     return (
-        <div className="w-full lg:w-[30%] border border-black flex flex-col bg-white overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style={{ height: '70vh' }}>
-            <div className="border-b border-black">
+        <div className="w-full lg:w-[30%] border border-black flex flex-col bg-white relative" style={{ height: '70vh' }}>
+            <div className="border-b border-black shrink-0 relative z-50">
                 <div className="p-4 pb-2">
                     <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                            <label className="text-sm font-normal text-gray-600 uppercase tracking-wide">Year:</label>
-                            <YearSelector selectedYear={yearData.year} availableYears={availableYears} onYearChange={(year) => onYearChange?.(year)} className="flex-1" />
+                            <div className="flex items-center gap-1">
+                                <label className="text-sm font-normal text-gray-600 uppercase tracking-wide">
+                                    {userProfile?.dateOfBirth ? 'Age:' : 'Year:'}
+                                </label>
+                                {userProfile?.dateOfBirth && (
+                                    <Tooltip content="Your projected age at the end of this year" />
+                                )}
+                            </div>
+                            <YearSelector
+                                selectedYear={yearData.year}
+                                availableYears={availableYears}
+                                onYearChange={(year) => onYearChange?.(year)}
+                                className="flex-1"
+                                formatLabel={(year) => {
+                                    if (userProfile?.dateOfBirth) {
+                                        const birthYear = new Date(userProfile.dateOfBirth).getFullYear()
+                                        const age = year - birthYear
+                                        return age.toString()
+                                    }
+                                    return year.toString()
+                                }}
+                            />
                         </div>
 
                         {/* Compact Toggle */}
@@ -129,7 +152,7 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                 </div>
             </div>
 
-            <div>
+            <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-white">
                 <ProjectionDetailSection
                     title="Income Details"
                     headerValue={<span className="text-green-600 font-light">{formatValue(yearData.totalIncome)}</span>}

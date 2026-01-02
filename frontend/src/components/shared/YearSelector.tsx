@@ -3,9 +3,10 @@ interface YearSelectorProps {
     availableYears: number[]
     onYearChange: (year: number) => void
     className?: string
+    formatLabel?: (year: number) => string
 }
 
-export function YearSelector({ selectedYear, availableYears, onYearChange, className = '' }: YearSelectorProps) {
+export function YearSelector({ selectedYear, availableYears, onYearChange, className = '', formatLabel }: YearSelectorProps) {
     const currentIndex = availableYears.findIndex(y => y === selectedYear)
     const isFirstYear = currentIndex === 0
     const isLastYear = currentIndex === availableYears.length - 1
@@ -44,9 +45,10 @@ export function YearSelector({ selectedYear, availableYears, onYearChange, class
             >
                 {availableYears.map(year => (
                     <option key={year} value={year}>
-                        {year}
+                        {formatLabel ? formatLabel(year) : year}
                     </option>
                 ))}
+
             </select>
 
             {/* Increment Button */}
@@ -59,6 +61,6 @@ export function YearSelector({ selectedYear, availableYears, onYearChange, class
             >
                 ▲
             </button>
-        </div>
+        </div >
     )
 }

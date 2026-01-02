@@ -11,6 +11,7 @@ import {
     SignOut,
     CaretDown,
     CaretRight,
+    CaretLeft,
     CaretUp,
     Plus,
     X,
@@ -59,6 +60,7 @@ export const LogOut = SignOut
 // UI Elements
 export const ChevronDown = CaretDown
 export const ChevronRight = CaretRight
+export const ChevronLeft = CaretLeft
 export const ChevronUp = CaretUp
 export const Add = Plus
 export const Close = X

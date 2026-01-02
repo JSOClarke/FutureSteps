@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
 import AuthModal from '../components/shared/AuthModal'
+import { Carousel } from '../components/shared/Carousel'
 
 export default function LandingPage() {
     const navigate = useNavigate()
@@ -36,7 +37,12 @@ export default function LandingPage() {
             <nav className="border-b border-black">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-3">
+                            <img
+                                src="/logo.png"
+                                alt="FutureSteps Logo"
+                                className="h-8 mix-blend-multiply contrast-125 brightness-110"
+                            />
                             <h1 className="text-xl font-normal uppercase tracking-wide">FutureSteps</h1>
                         </div>
                         <div className="flex gap-4">
@@ -57,30 +63,66 @@ export default function LandingPage() {
                 </div>
             </nav>
 
-            {/* Hero Section */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
-                <div className="text-center">
-                    <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-black mb-6">
-                        Plan Your Financial Future
-                    </h1>
-                    <p className="text-xl sm:text-2xl font-light text-gray-600 mb-12 max-w-3xl mx-auto">
-                        Create detailed financial projections, track your progress, and make informed decisions about your future.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button
-                            onClick={handleGetStarted}
-                            className="px-8 py-4 bg-black text-white hover:bg-gray-800 font-normal text-sm uppercase tracking-wide transition-colors"
-                        >
-                            Start Planning Free
-                        </button>
-                        <button
-                            onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="px-8 py-4 border border-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide transition-colors"
-                        >
-                            Learn More
-                        </button>
+            {/* Hero Section with Screenshot Backdrop */}
+            <section className="relative overflow-hidden bg-gray-50 border-b border-black">
+                {/* Screenshot Background Grid */}
+                <div className="absolute inset-0 flex items-center justify-center p-8 opacity-30">
+                    <img
+                        src="/sitescreenshots/hero/full_app_plans.png"
+                        alt="Financial Plans Overview"
+                        className="w-full h-full object-contain"
+                    />
+                </div>
+
+                {/* Hero Content - Overlaid on top */}
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
+                    <div className="text-center">
+                        <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-black mb-6">
+                            Plan Your Financial Future
+                        </h1>
+                        <p className="text-xl sm:text-2xl font-light text-gray-700 mb-12 max-w-3xl mx-auto">
+                            Create detailed financial projections, track your progress, and make informed decisions about your future.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button
+                                onClick={handleGetStarted}
+                                className="px-8 py-4 bg-black text-white hover:bg-gray-800 font-normal text-sm uppercase tracking-wide transition-colors shadow-lg"
+                            >
+                                Start Planning Free
+                            </button>
+                            <button
+                                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                                className="px-8 py-4 bg-white border-2 border-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide transition-colors shadow-lg"
+                            >
+                                Learn More
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </section>
+
+            {/* Screenshot Carousel */}
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-wide">
+                    See It In Action
+                </h2>
+                <Carousel
+                    images={[
+                        {
+                            src: '/sitescreenshots/carousel/linegraph.png',
+                            alt: 'Financial Projections - Track your financial future with detailed year-by-year projections'
+                        },
+                        {
+                            src: '/sitescreenshots/carousel/barchart.png',
+                            alt: 'Financial Analysis - Visualize your income, expenses, assets, and liabilities'
+                        },
+                        {
+                            src: '/sitescreenshots/carousel/cashflowsankey.png',
+                            alt: 'Cash Flow Visualization - Understand where your money flows with interactive diagrams'
+                        }
+                    ]}
+                    autoPlayInterval={5000}
+                />
             </section>
 
             {/* Features Section */}
@@ -92,9 +134,6 @@ export default function LandingPage() {
                     <div className="grid md:grid-cols-3 gap-12">
                         {/* Feature 1 */}
                         <div className="text-center">
-                            <div className="w-16 h-16 bg-black text-white flex items-center justify-center mx-auto mb-6 text-2xl font-light">
-                                📊
-                            </div>
                             <h3 className="text-xl font-normal mb-4 uppercase tracking-wide">
                                 Financial Projections
                             </h3>
@@ -105,9 +144,6 @@ export default function LandingPage() {
 
                         {/* Feature 2 */}
                         <div className="text-center">
-                            <div className="w-16 h-16 bg-black text-white flex items-center justify-center mx-auto mb-6 text-2xl font-light">
-                                🎯
-                            </div>
                             <h3 className="text-xl font-normal mb-4 uppercase tracking-wide">
                                 Milestone Tracking
                             </h3>
@@ -118,9 +154,6 @@ export default function LandingPage() {
 
                         {/* Feature 3 */}
                         <div className="text-center">
-                            <div className="w-16 h-16 bg-black text-white flex items-center justify-center mx-auto mb-6 text-2xl font-light">
-                                📈
-                            </div>
                             <h3 className="text-xl font-normal mb-4 uppercase tracking-wide">
                                 Multiple Scenarios
                             </h3>

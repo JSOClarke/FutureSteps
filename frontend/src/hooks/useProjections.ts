@@ -1,9 +1,10 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useFinancialItems } from '../context/FinancialItemsContext'
 import { useUser } from '../context/UserContext'
-import { ProjectionEngine } from '../utils/projections'
+import { ProjectionEngine, type YearResult } from '../utils/projections'
 import { useSettings } from '../context/SettingsContext'
 import { transformToRealValues } from '../utils/projections/transformer'
+import { calculateNetWorth } from '../utils/projections/helpers'
 
 export interface ProjectionConfig {
     startYear: number
@@ -58,6 +59,31 @@ export function useProjections(surplusPriority: string[] = [], deficitPriority: 
             deficitPriority,
             settings.inflationRate
         )
+
+        // Create Initial Year (Start State)
+        const initialYearResult: YearResult = {
+            year: config.startYear - 1,
+            totalIncome: 0,
+            totalExpenses: 0,
+            fractionOfYear: 0,
+            inflationFactor: 1,
+            netCashflow: 0,
+            remainingCashflow: 0,
+            assets: items.filter(i => i.category === 'assets'),
+            liabilities: items.filter(i => i.category === 'liabilities'),
+            netWorth: calculateNetWorth(
+                items.filter(i => i.category === 'assets'),
+                items.filter(i => i.category === 'liabilities')
+            ),
+            history: {
+                income: [], expenses: [], growth: [], yield: [],
+                contributions: [], surplus: [], deficit: [], liabilityPayments: []
+            }
+        }
+
+        // Prepend Initial Year
+        nominal.years.unshift(initialYearResult)
+        nominal.summary.startingNetWorth = initialYearResult.netWorth
 
         return {
             projection: nominal,

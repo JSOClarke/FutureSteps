@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { FinancialItem, FinancialCategory } from '../types'
 import { useAuth } from './AuthContext'
-import { usePlans } from './PlansContext'
 import { supabase } from '../lib/supabase'
 
 interface FinancialItemsContextType {
@@ -30,10 +29,10 @@ interface FinancialItemsContextType {
 
 const FinancialItemsContext = createContext<FinancialItemsContextType | undefined>(undefined)
 
-export function FinancialItemsProvider({ children }: { children: React.ReactNode }) {
+export function FinancialItemsProvider({ children, planId }: { children: React.ReactNode, planId?: string | null }) {
     const [items, setItems] = useState<FinancialItem[]>([])
     const { user } = useAuth()
-    const { activePlanId } = usePlans()
+    const activePlanId = planId
 
     // Fetch items when user or active plan changes
     useEffect(() => {

@@ -1,17 +1,14 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext } from 'react'
 import type { Plan } from '../types'
 import { usePlansQuery } from '../hooks/usePlans'
 import { useCreatePlan, useUpdatePlan, useDeletePlan } from '../hooks/usePlanMutations'
 
 interface PlansContextType {
     plans: Plan[]
-    activePlanId: string | null
-    activePlan: Plan | null
-    createPlan: (name: string, description?: string) => Promise<void>
+    getPlanById: (id: string) => Plan | null
+    createPlan: (name: string, description?: string) => Promise<string>
     updatePlan: (id: string, updates: Partial<Plan>) => Promise<void>
     deletePlan: (id: string) => Promise<void>
-    setActivePlanId: (id: string) => void
-    setActivePlan: (id: string) => void
     renamePlan: (id: string, newName: string) => Promise<void>
     loading: boolean
     error: any
@@ -20,27 +17,21 @@ interface PlansContextType {
 const PlansContext = createContext<PlansContextType | undefined>(undefined)
 
 export function PlansProvider({ children }: { children: React.ReactNode }) {
-    const [activePlanId, setActivePlanId] = useState<string | null>(null)
-
     // React Query Hooks
     const { data: plans = [], isLoading, error } = usePlansQuery()
     const createMutation = useCreatePlan()
     const updateMutation = useUpdatePlan()
     const deleteMutation = useDeletePlan()
 
-    // Auto-select first plan if none selected
-    useEffect(() => {
-        if (plans.length > 0 && !activePlanId) {
-            setActivePlanId(plans[0].id)
-        }
-    }, [plans, activePlanId])
+    // Helper to get plan by ID
+    const getPlanById = (id: string): Plan | null => {
+        return plans.find((p) => p.id === id) || null
+    }
 
-    const activePlan = plans.find((p) => p.id === activePlanId) || null
-
-    // Wrappers to match existing interface (could expose mutations directly later)
-    const createPlan = async (name: string, description?: string) => {
+    // Create plan and return the new plan ID for navigation
+    const createPlan = async (name: string, description?: string): Promise<string> => {
         const result = await createMutation.mutateAsync({ name, description })
-        setActivePlanId(result.id)
+        return result.id
     }
 
     const updatePlan = async (id: string, updates: Partial<Plan>) => {
@@ -49,9 +40,6 @@ export function PlansProvider({ children }: { children: React.ReactNode }) {
 
     const deletePlan = async (id: string) => {
         await deleteMutation.mutateAsync(id)
-        if (activePlanId === id) {
-            setActivePlanId(null) // effect will pick next one
-        }
     }
 
     const renamePlan = async (id: string, newName: string) => {
@@ -61,13 +49,10 @@ export function PlansProvider({ children }: { children: React.ReactNode }) {
     return (
         <PlansContext.Provider value={{
             plans,
-            activePlanId,
-            activePlan,
+            getPlanById,
             createPlan,
             updatePlan,
             deletePlan,
-            setActivePlanId,
-            setActivePlan: setActivePlanId,
             renamePlan,
             loading: isLoading,
             error

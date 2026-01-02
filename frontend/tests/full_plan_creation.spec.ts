@@ -13,6 +13,11 @@ test.describe('Full Plan Creation Flow', () => {
         const planName = `Full Plan ${Date.now()}`;
         await plansPage.createPlan(planName, 'Comprehensive testing of all categories');
 
+        // Verify URL contains plan ID
+        await expect(page).toHaveURL(/\/plans\/[a-f0-9-]+/);
+        const planId = await plansPage.getPlanIdFromUrl();
+        expect(planId).toBeTruthy();
+
         // 3. Add Income
         await financialItemsPage.addIncome(
             'Primary Salary',

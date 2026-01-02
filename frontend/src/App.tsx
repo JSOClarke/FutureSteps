@@ -39,7 +39,8 @@ function AppContent() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="plans" element={<PlansPage />} />
+          <Route path="plans/:planId" element={<PlansPage />} />
+          <Route path="plans" element={<Navigate to="/dashboard" replace />} />
           <Route path="profile" element={<Profile />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
@@ -64,15 +65,13 @@ function App() {
         <UserProvider>
           <SettingsProvider>
             <PlansProvider>
-              <FinancialItemsProvider>
-                <SnapshotsProvider>
-                  <DashboardItemsProvider>
-                    <ToastProvider>
-                      <AppContent />
-                    </ToastProvider>
-                  </DashboardItemsProvider>
-                </SnapshotsProvider>
-              </FinancialItemsProvider>
+              <SnapshotsProvider>
+                <DashboardItemsProvider>
+                  <ToastProvider>
+                    <AppContent />
+                  </ToastProvider>
+                </DashboardItemsProvider>
+              </SnapshotsProvider>
             </PlansProvider>
           </SettingsProvider>
         </UserProvider>

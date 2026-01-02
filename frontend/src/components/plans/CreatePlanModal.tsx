@@ -47,10 +47,11 @@ function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProps) {
                 })
             }
 
-            // 2. Create Plan
-            await createPlan(newPlanName.trim(), description.trim())
+            // 2. Create Plan and get the new plan ID
+            const newPlanId = await createPlan(newPlanName.trim(), description.trim())
 
-            navigate('/plans')
+            // 3. Navigate to the new plan
+            navigate(`/plans/${newPlanId}`)
             setNewPlanName('')
             setDescription('')
             onClose()

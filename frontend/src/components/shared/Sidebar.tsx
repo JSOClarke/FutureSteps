@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { Home, Profile as User, Reports as FileText, LogOut, ChevronDown, Plans as FolderOpen, Close as X, Add as Plus } from '../../icons'
 
 // ... lines 4-79 ...
@@ -18,12 +18,16 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     const { signOut, user } = useAuth()
-    const { plans, activePlanId, setActivePlanId, deletePlan } = usePlans()
+    const { plans, deletePlan } = usePlans()
+    const location = useLocation()
     const [plansExpanded, setPlansExpanded] = useState(true)
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [planToDelete, setPlanToDelete] = useState<{ id: string, name: string } | null>(null)
     const { toast } = useToast()
     const navigate = useNavigate()
+
+    // Get active plan ID from URL
+    const activePlanId = location.pathname.match(/\/plans\/([a-f0-9-]+)/)?.[1] || null
 
     // Reusable handler to close sidebar on mobile after navigation
     const closeSidebarOnMobile = useCallback(() => {
@@ -31,12 +35,6 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
             onToggleCollapse()
         }
     }, [onToggleCollapse])
-
-    const handlePlanClick = (planId: string) => {
-        setActivePlanId(planId)
-        navigate('/plans')
-        closeSidebarOnMobile()
-    }
 
     const handleGuestSignIn = () => {
         // Clear all guest data
@@ -66,10 +64,15 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                 message: `"${planToDelete.name}" has been deleted.`,
                 type: 'success'
             })
-            // If active plan was deleted, router/context should handle redirect, 
-            // but we can force it here if needed.
+
+            // If active plan was deleted, navigate to first available plan or dashboard
             if (activePlanId === planToDelete.id) {
-                navigate('/dashboard')
+                const remainingPlans = plans.filter(p => p.id !== planToDelete.id)
+                if (remainingPlans.length > 0) {
+                    navigate(`/plans/${remainingPlans[0].id}`)
+                } else {
+                    navigate('/dashboard')
+                }
             }
         } catch (error) {
             console.error('Failed to delete plan:', error)
@@ -181,24 +184,25 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                                         {plans.map((plan) => (
                                             <div
                                                 key={plan.id}
-                                                className={`
-                                                    group flex items-center justify-between px-4 py-2
-                                                    transition-colors
-                                                    ${activePlanId === plan.id
-                                                        ? 'bg-gray-200 text-black'
-                                                        : 'text-gray-600 hover:bg-gray-50'
-                                                    }
-                                                `}
+                                                className="relative group"
                                             >
-                                                <button
-                                                    onClick={() => handlePlanClick(plan.id)}
-                                                    className="flex-1 text-left text-xs font-light truncate"
+                                                <NavLink
+                                                    to={`/plans/${plan.id}`}
+                                                    onClick={closeSidebarOnMobile}
+                                                    className={`
+                                                        flex items-center justify-between px-4 py-2
+                                                        transition-colors text-xs font-light truncate
+                                                        ${activePlanId === plan.id
+                                                            ? 'bg-gray-200 text-black'
+                                                            : 'text-gray-600 hover:bg-gray-50'
+                                                        }
+                                                    `}
                                                 >
-                                                    {plan.name}
-                                                </button>
+                                                    <span className="truncate pr-6">{plan.name}</span>
+                                                </NavLink>
                                                 <button
                                                     onClick={(e) => handleDeleteClick(plan.id, plan.name, e)}
-                                                    className="p-1 text-gray-400 hover:text-red-600 transition-all"
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-red-600 transition-all z-10"
                                                     title={`Delete ${plan.name}`}
                                                 >
                                                     <X size={14} />

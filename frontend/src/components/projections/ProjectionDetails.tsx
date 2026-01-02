@@ -127,7 +127,6 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
 
                     <div className="flex items-center gap-2 mb-2">
                         <input type="range" value={yearData.year} onChange={(e) => onYearChange?.(parseInt(e.target.value))} min={firstYear?.year || config.startYear} max={lastYear?.year || config.startYear + config.numberOfYears - 1} className="flex-1 accent-black h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
-                        <span className="text-xs text-gray-400 font-light ml-1 text-nowrap w-24 text-right">(End of Year)</span>
                     </div>
 
                     {/* Conditional Inflation Slider */}

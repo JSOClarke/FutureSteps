@@ -146,7 +146,6 @@ export function CheckInStep1({ onContinue }: CheckInStep1Props) {
                 <FinancialCategoryCard
                     title="Assets"
                     category="assets"
-                    backgroundColor="bg-gray-50"
                     items={localItems}
                     onAdd={handleAdd}
                     onUpdate={handleUpdate}
@@ -155,7 +154,6 @@ export function CheckInStep1({ onContinue }: CheckInStep1Props) {
                 <FinancialCategoryCard
                     title="Liabilities"
                     category="liabilities"
-                    backgroundColor="bg-gray-50"
                     items={localItems}
                     onAdd={handleAdd}
                     onUpdate={handleUpdate}
@@ -164,7 +162,6 @@ export function CheckInStep1({ onContinue }: CheckInStep1Props) {
                 <FinancialCategoryCard
                     title="Income"
                     category="income"
-                    backgroundColor="bg-gray-50"
                     items={localItems}
                     onAdd={handleAdd}
                     onUpdate={handleUpdate}
@@ -173,7 +170,6 @@ export function CheckInStep1({ onContinue }: CheckInStep1Props) {
                 <FinancialCategoryCard
                     title="Expenses"
                     category="expenses"
-                    backgroundColor="bg-gray-50"
                     items={localItems}
                     onAdd={handleAdd}
                     onUpdate={handleUpdate}

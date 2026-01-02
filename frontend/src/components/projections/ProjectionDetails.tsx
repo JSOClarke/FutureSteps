@@ -90,7 +90,7 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
 
     return (
         <div className="w-full lg:w-[30%] border border-black flex flex-col bg-white relative" style={{ height: '70vh' }}>
-            <div className="border-b border-black shrink-0 relative z-50">
+            <div className="border-b border-black shrink-0 relative z-10">
                 <div className="p-4 pb-2">
                     <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">

@@ -174,7 +174,6 @@ export function SnapshotEditorModal({ isOpen, onClose }: SnapshotEditorModalProp
                                 <FinancialCategoryCard
                                     title="Assets"
                                     category="assets"
-                                    backgroundColor="#eff6ff"
                                     items={localItems.filter(i => i.category === 'assets')}
                                     onAdd={handleAdd}
                                     onUpdate={handleUpdate}
@@ -184,7 +183,6 @@ export function SnapshotEditorModal({ isOpen, onClose }: SnapshotEditorModalProp
                                 <FinancialCategoryCard
                                     title="Liabilities"
                                     category="liabilities"
-                                    backgroundColor="#fff7ed"
                                     items={localItems.filter(i => i.category === 'liabilities')}
                                     onAdd={handleAdd}
                                     onUpdate={handleUpdate}
@@ -194,7 +192,6 @@ export function SnapshotEditorModal({ isOpen, onClose }: SnapshotEditorModalProp
                                 <FinancialCategoryCard
                                     title="Income (Monthly)"
                                     category="income"
-                                    backgroundColor="#f0fdf4"
                                     items={localItems.filter(i => i.category === 'income')}
                                     onAdd={handleAdd}
                                     onUpdate={handleUpdate}
@@ -204,7 +201,6 @@ export function SnapshotEditorModal({ isOpen, onClose }: SnapshotEditorModalProp
                                 <FinancialCategoryCard
                                     title="Expenses (Monthly)"
                                     category="expenses"
-                                    backgroundColor="#fef2f2"
                                     items={localItems.filter(i => i.category === 'expenses')}
                                     onAdd={handleAdd}
                                     onUpdate={handleUpdate}

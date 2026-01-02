@@ -171,22 +171,18 @@ export function PlansPage() {
                         <FinancialCategoryCard
                             title="Income"
                             category="income"
-                            backgroundColor="#FFFFFF"
                         />
                         <FinancialCategoryCard
                             title="Expenses"
                             category="expenses"
-                            backgroundColor="#FFFFFF"
                         />
                         <FinancialCategoryCard
                             title="Assets"
                             category="assets"
-                            backgroundColor="#FFFFFF"
                         />
                         <FinancialCategoryCard
                             title="Liabilities"
                             category="liabilities"
-                            backgroundColor="#FFFFFF"
                         />
                     </div>
                 </div>

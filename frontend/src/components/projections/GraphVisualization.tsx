@@ -329,7 +329,8 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                             return (
                                 <g>
                                     <rect x={x} y={y} width={width} height={height} fill={fillColor} fillOpacity={1} />
-                                    {!isSmall && (
+                                    {/* Hide labels on mobile for cleaner view */}
+                                    {!isMobile && !isSmall && (
                                         <>
                                             <rect x={x + width / 2 - boxWidth / 2} y={y + height / 2 - boxHeight / 2} width={boxWidth} height={boxHeight} fill="#FFFFFF" stroke="#E5E7EB" strokeWidth={1} />
                                             <text x={x + width / 2} y={y + height / 2 - 12} textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize={11} fontWeight="400" style={{ pointerEvents: 'none', letterSpacing: '0.5px' }}>{label}</text>
@@ -357,7 +358,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 ) : chartType === 'bar' ? (
                     <BarChart data={chartData} margin={{ top: 5, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}>
                         <XAxis dataKey="year" hide={true} />
-                        <YAxis width={isMobile ? 20 : 60} tickFormatter={(value) => { const currencySymbol = getCurrencySymbol(currency); const absValue = Math.abs(value); if (absValue >= 1000000) return `${currencySymbol}${(value / 1000000).toFixed(1)}M`; if (absValue >= 1000) return `${currencySymbol}${(value / 1000).toFixed(0)}k`; return `${currencySymbol}${value}`; }} stroke="#6B7280" />
+                        <YAxis width={isMobile ? 40 : 60} tick={{ fontSize: isMobile ? 10 : 12 }} tickFormatter={(value) => { const currencySymbol = getCurrencySymbol(currency); const absValue = Math.abs(value); if (absValue >= 1000000) return `${currencySymbol}${(value / 1000000).toFixed(1)}M`; if (absValue >= 1000) return `${currencySymbol}${(value / 1000).toFixed(0)}k`; return `${currencySymbol}${value}`; }} stroke="#6B7280" />
                         <Tooltip content={<CustomTooltip />} />
                         <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
                         <Bar dataKey="Net Worth" fill="#3B82F6" cursor="pointer" onClick={handleBarClick} shape={(props: any) => {
@@ -376,7 +377,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                     <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: isMobile ? 0 : 5, bottom: 5 }} onClick={(data) => { if (data && data.activeLabel) onYearSelect(Number(data.activeLabel)) }}>
                         <defs><linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3B82F6" stopOpacity={0.5} /><stop offset="95%" stopColor="#3B82F6" stopOpacity={0} /></linearGradient></defs>
                         <XAxis dataKey="year" hide={true} />
-                        <YAxis width={isMobile ? 20 : 60} tickFormatter={(value) => { const currencySymbol = getCurrencySymbol(currency); const absValue = Math.abs(value); if (absValue >= 1000000) return `${currencySymbol}${(value / 1000000).toFixed(1)}M`; if (absValue >= 1000) return `${currencySymbol}${(value / 1000).toFixed(0)}k`; return `${currencySymbol}${value}`; }} stroke="#6B7280" />
+                        <YAxis width={isMobile ? 40 : 60} tick={{ fontSize: isMobile ? 10 : 12 }} tickFormatter={(value) => { const currencySymbol = getCurrencySymbol(currency); const absValue = Math.abs(value); if (absValue >= 1000000) return `${currencySymbol}${(value / 1000000).toFixed(1)}M`; if (absValue >= 1000) return `${currencySymbol}${(value / 1000).toFixed(0)}k`; return `${currencySymbol}${value}`; }} stroke="#6B7280" />
                         <Tooltip content={<CustomTooltip />} />
                         <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
                         <Area type="monotone" dataKey="Net Worth" stroke="none" fill="#3B82F6" fillOpacity={0.2} />

@@ -11,7 +11,6 @@ import type { FinancialSubCategory } from '../../types'
 interface FinancialCategoryCardProps {
     title: string
     category: FinancialCategory
-    backgroundColor: string
     // Optional props for custom data source (e.g. Health Check)
     items?: FinancialItem[]
     onAdd?: (item: Omit<FinancialItem, 'id'>) => void
@@ -20,10 +19,16 @@ interface FinancialCategoryCardProps {
     simpleMode?: boolean
 }
 
+const GRADIENTS = {
+    income: 'from-white to-green-50',
+    expenses: 'from-white to-red-50',
+    assets: 'from-white to-blue-50',
+    liabilities: 'from-white to-orange-50'
+}
+
 function FinancialCategoryCard({
     title,
     category,
-    backgroundColor,
     items: customItems,
     onAdd,
     onUpdate,
@@ -107,9 +112,8 @@ function FinancialCategoryCard({
     return (
         <>
             <div
-                className="flex-1 p-4 flex flex-col border border-black"
+                className={`flex-1 p-4 flex flex-col border border-black bg-gradient-to-b ${GRADIENTS[category] || 'from-white to-gray-50'}`}
                 style={{
-                    backgroundColor,
                     minHeight: '300px',
                 }}
             >

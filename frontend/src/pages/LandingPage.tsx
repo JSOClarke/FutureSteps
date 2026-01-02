@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
 import AuthModal from '../components/shared/AuthModal'
+import { InteractiveSection } from '../components/landing/InteractiveSection'
 
 
 export default function LandingPage() {
@@ -64,7 +65,7 @@ export default function LandingPage() {
             </nav>
 
             {/* Hero Section */}
-            <section className="bg-white border-b border-black pt-20 pb-24 overflow-hidden relative">
+            <InteractiveSection className="bg-white border-b border-black pt-20 pb-24 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-black mb-6">
@@ -90,10 +91,11 @@ export default function LandingPage() {
                     </div>
 
                     {/* Screenshot Container */}
-                    <div className="relative max-w-5xl mx-auto mt-12 mb-8">
-                        {/* Colored Shadow Effect - Left aligned */}
-                        <div className="absolute top-10 -left-10 w-full h-full bg-blue-100 rounded-xl transform -rotate-1 skew-y-1 block z-0"></div>
-                        <div className="absolute top-10 -left-10 w-full h-full bg-blue-500/10 blur-3xl rounded-full z-0"></div>
+                    <div className="relative max-w-5xl mx-auto mt-12 mb-8 group p-4">
+                        {/* Static Backdrop - Left aligned skew */}
+                        <div className="absolute top-6 -left-6 bottom-6 -right-6 z-0">
+                            <div className="absolute inset-0 bg-blue-100 rounded-xl transform -rotate-1 skew-y-1" />
+                        </div>
 
                         {/* Main Image */}
                         <img
@@ -103,10 +105,10 @@ export default function LandingPage() {
                         />
                     </div>
                 </div>
-            </section>
+            </InteractiveSection>
 
             {/* Feature 1: Financial Projections (Image Right) */}
-            <section className="py-24 overflow-hidden">
+            <InteractiveSection className="py-24 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col lg:flex-row items-center gap-16">
                         <div className="flex-1 max-w-xl">
@@ -117,10 +119,11 @@ export default function LandingPage() {
                                 Track your financial future with detailed year-by-year projections. See exactly how your net worth, income, and assets will grow over time with our intuitive interactive graphs.
                             </p>
                         </div>
-                        <div className="flex-1 relative w-full max-w-xl">
+                        <div className="flex-1 relative w-full max-w-xl group p-4">
                             {/* Backdrop Right */}
-                            <div className="absolute top-8 -right-8 w-full h-full bg-blue-100 rounded-xl transform rotate-1 skew-y-1 block z-0"></div>
-                            <div className="absolute top-8 -right-8 w-full h-full bg-blue-500/10 blur-3xl rounded-full z-0"></div>
+                            <div className="absolute top-4 -right-4 bottom-4 left-4 z-0">
+                                <div className="absolute inset-0 bg-blue-100 rounded-xl transform rotate-1 skew-y-1" />
+                            </div>
 
                             <img
                                 src="/sitescreenshots/carousel/linegraph.png"
@@ -130,10 +133,10 @@ export default function LandingPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </InteractiveSection>
 
             {/* Feature 2: Financial Analysis (Image Left) */}
-            <section className="py-24 bg-gray-50 overflow-hidden border-y border-black/5">
+            <InteractiveSection className="py-24 bg-gray-50 overflow-hidden border-y border-black/5">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col lg:flex-row-reverse items-center gap-16">
                         <div className="flex-1 max-w-xl">
@@ -144,10 +147,11 @@ export default function LandingPage() {
                                 Visualize your financial health with comprehensive breakdowns. Analyze your income sources, expense categories, and asset allocation to make smarter financial decisions.
                             </p>
                         </div>
-                        <div className="flex-1 relative w-full max-w-xl">
+                        <div className="flex-1 relative w-full max-w-xl group p-4">
                             {/* Backdrop Left */}
-                            <div className="absolute top-8 -left-8 w-full h-full bg-blue-100 rounded-xl transform -rotate-1 skew-y-1 block z-0"></div>
-                            <div className="absolute top-8 -left-8 w-full h-full bg-blue-500/10 blur-3xl rounded-full z-0"></div>
+                            <div className="absolute top-4 -left-4 bottom-4 right-4 z-0">
+                                <div className="absolute inset-0 bg-blue-100 rounded-xl transform -rotate-1 skew-y-1" />
+                            </div>
 
                             <img
                                 src="/sitescreenshots/carousel/barchart.png"
@@ -157,10 +161,10 @@ export default function LandingPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </InteractiveSection>
 
             {/* Feature 3: Cash Flow (Image Right) */}
-            <section className="py-24 overflow-hidden">
+            <InteractiveSection className="py-24 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col lg:flex-row items-center gap-16">
                         <div className="flex-1 max-w-xl">
@@ -171,10 +175,11 @@ export default function LandingPage() {
                                 Understand exactly where your money goes. Our interactive Sankey diagrams trace every dollar from income to expenses, savings, and investments, giving you complete clarity.
                             </p>
                         </div>
-                        <div className="flex-1 relative w-full max-w-xl">
+                        <div className="flex-1 relative w-full max-w-xl group p-4">
                             {/* Backdrop Right */}
-                            <div className="absolute top-8 -right-8 w-full h-full bg-blue-100 rounded-xl transform rotate-1 skew-y-1 block z-0"></div>
-                            <div className="absolute top-8 -right-8 w-full h-full bg-blue-500/10 blur-3xl rounded-full z-0"></div>
+                            <div className="absolute top-4 -right-4 bottom-4 left-4 z-0">
+                                <div className="absolute inset-0 bg-blue-100 rounded-xl transform rotate-1 skew-y-1" />
+                            </div>
 
                             <img
                                 src="/sitescreenshots/carousel/cashflowsankey.png"
@@ -184,7 +189,7 @@ export default function LandingPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </InteractiveSection>
 
             {/* Features Section */}
             <section id="features" className="bg-gray-50 border-y border-black py-20">

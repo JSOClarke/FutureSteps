@@ -63,24 +63,14 @@ export default function LandingPage() {
                 </div>
             </nav>
 
-            {/* Hero Section with Screenshot Backdrop */}
-            <section className="relative overflow-hidden bg-gray-50 border-b border-black">
-                {/* Screenshot Background Grid */}
-                <div className="absolute inset-0 flex items-center justify-center p-8 opacity-30">
-                    <img
-                        src="/sitescreenshots/hero/full_app_plans.png"
-                        alt="Financial Plans Overview"
-                        className="w-full h-full object-contain"
-                    />
-                </div>
-
-                {/* Hero Content - Overlaid on top */}
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
-                    <div className="text-center">
+            {/* Hero Section */}
+            <section className="bg-white border-b border-black pt-20 pb-24 overflow-hidden relative">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
                         <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-black mb-6">
                             Plan Your Financial Future
                         </h1>
-                        <p className="text-xl sm:text-2xl font-light text-gray-700 mb-12 max-w-3xl mx-auto">
+                        <p className="text-xl sm:text-2xl font-light text-gray-600 mb-10 leading-relaxed">
                             Create detailed financial projections, track your progress, and make informed decisions about your future.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -92,11 +82,25 @@ export default function LandingPage() {
                             </button>
                             <button
                                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                                className="px-8 py-4 bg-white border-2 border-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide transition-colors shadow-lg"
+                                className="px-8 py-4 bg-white border border-black hover:bg-gray-50 font-normal text-sm uppercase tracking-wide transition-colors"
                             >
                                 Learn More
                             </button>
                         </div>
+                    </div>
+
+                    {/* Screenshot Container */}
+                    <div className="relative max-w-5xl mx-auto mt-12 mb-8">
+                        {/* Colored Shadow Effect - Left aligned */}
+                        <div className="absolute top-10 -left-10 w-full h-full bg-blue-100 rounded-xl transform -rotate-1 skew-y-1 block z-0"></div>
+                        <div className="absolute top-10 -left-10 w-full h-full bg-blue-500/10 blur-3xl rounded-full z-0"></div>
+
+                        {/* Main Image */}
+                        <img
+                            src="/sitescreenshots/hero/full_app_plans.png"
+                            alt="Financial Plans Overview"
+                            className="relative z-10 w-full rounded-lg border border-gray-200 shadow-2xl bg-white"
+                        />
                     </div>
                 </div>
             </section>

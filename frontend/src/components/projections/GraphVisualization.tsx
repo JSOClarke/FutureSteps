@@ -296,7 +296,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                 {chartType === 'sankey' ? (
                     <Sankey
                         data={sankeyData}
-                        margin={{ top: 20, right: 125, bottom: 20, left: 125 }}
+                        margin={{ top: 20, right: isMobile ? 10 : 125, bottom: 20, left: isMobile ? 10 : 125 }}
                         node={({ x, y, width, height, payload }: any) => {
                             let fillColor = payload.fill
                             if (!fillColor) {

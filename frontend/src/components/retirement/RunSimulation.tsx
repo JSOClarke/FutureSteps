@@ -20,14 +20,17 @@ interface RunSimulationProps {
 
 type PortfolioSource = 'custom' | 'plan'
 
+import { useParams } from 'react-router-dom'
+
 function RunSimulation({ lockToPlan = false }: RunSimulationProps) {
     const currency = useCurrency()
-    const { plans, activePlanId } = usePlans()
+    const { plans } = usePlans()
+    const { planId } = useParams()
     const { userProfile } = useUser()
 
     // Portfolio source mode - lock to plan if specified
     const [portfolioSource, setPortfolioSource] = useState<PortfolioSource>(lockToPlan ? 'plan' : 'custom')
-    const [selectedPlanId, setSelectedPlanId] = useState<string>(activePlanId || '')
+    const [selectedPlanId, setSelectedPlanId] = useState<string>(planId || '')
     const [startAge, setStartAge] = useState<number>(65)
 
     // Get projection data for selected plan

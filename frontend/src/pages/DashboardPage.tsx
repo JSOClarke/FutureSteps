@@ -107,7 +107,7 @@ export function DashboardPage() {
 
                     {/* Summary Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                        <div className="border border-black p-3 bg-green-50">
+                        <div className="border border-black p-3 bg-gradient-to-b from-white to-green-50">
                             <div className="flex items-center gap-2 mb-1">
                                 <TrendingUp size={16} className="text-green-600" />
                                 <span className="text-xs uppercase text-gray-600">Income</span>
@@ -116,7 +116,7 @@ export function DashboardPage() {
                                 {formatCurrency(mostRecentSnapshot.total_income, currency)}
                             </p>
                         </div>
-                        <div className="border border-black p-3 bg-red-50">
+                        <div className="border border-black p-3 bg-gradient-to-b from-white to-red-50">
                             <div className="flex items-center gap-2 mb-1">
                                 <TrendingDown size={16} className="text-red-600" />
                                 <span className="text-xs uppercase text-gray-600">Expenses</span>
@@ -125,7 +125,7 @@ export function DashboardPage() {
                                 {formatCurrency(mostRecentSnapshot.total_expenses, currency)}
                             </p>
                         </div>
-                        <div className="border border-black p-3 bg-blue-50">
+                        <div className="border border-black p-3 bg-gradient-to-b from-white to-blue-50">
                             <div className="flex items-center gap-2 mb-1">
                                 <Building size={16} className="text-blue-600" />
                                 <span className="text-xs uppercase text-gray-600">Assets</span>
@@ -134,7 +134,7 @@ export function DashboardPage() {
                                 {formatCurrency(mostRecentSnapshot.total_assets, currency)}
                             </p>
                         </div>
-                        <div className="border border-black p-3 bg-orange-50">
+                        <div className="border border-black p-3 bg-gradient-to-b from-white to-orange-50">
                             <div className="flex items-center gap-2 mb-1">
                                 <CreditCard size={16} className="text-orange-600" />
                                 <span className="text-xs uppercase text-gray-600">Liabilities</span>

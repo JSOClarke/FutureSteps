@@ -3,9 +3,13 @@ import YearSelect from '../../shared/YearSelect'
 import { usePlans } from '../../../context/PlansContext'
 import type { FormFieldProps } from './types'
 
+import { useParams } from 'react-router-dom'
+
 export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
     const currentYear = new Date().getFullYear()
-    const { activePlan } = usePlans()
+    const { planId } = useParams()
+    const { plans } = usePlans()
+    const activePlan = plans.find(p => p.id === planId)
     const milestones = activePlan?.milestones || []
 
     return (

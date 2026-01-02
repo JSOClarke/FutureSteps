@@ -15,7 +15,7 @@ interface PlanModalProps {
 }
 
 function PlanModal({ isOpen, onClose }: PlanModalProps) {
-    const { plans, activePlanId, createPlan, deletePlan, renamePlan, setActivePlan } = usePlans()
+    const { plans, createPlan, deletePlan, renamePlan } = usePlans()
     const [newPlanName, setNewPlanName] = useState('')
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editName, setEditName] = useState('')
@@ -27,7 +27,7 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
             return
         }
 
-        createPlan(newPlanName, duplicate ? activePlanId || undefined : undefined)
+        createPlan(newPlanName, duplicate ? undefined : undefined)
         setNewPlanName('')
     }
 
@@ -101,10 +101,7 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                             {plans.map(plan => (
                                 <div
                                     key={plan.id}
-                                    className={`p-4 border ${plan.id === activePlanId
-                                        ? 'border-black bg-gray-50'
-                                        : 'border-gray-200 bg-white'
-                                        } hover:bg-gray-50 transition-colors`}
+                                    className="p-4 border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
                                 >
                                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                         <div className="flex-1">
@@ -136,16 +133,9 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
                                                 </div>
                                             ) : (
                                                 <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <h4 className="font-semibold text-lg">
-                                                            {plan.name}
-                                                        </h4>
-                                                        {plan.id === activePlanId && (
-                                                            <span className="px-2 py-0.5 bg-black text-white text-xs font-medium uppercase tracking-wide">
-                                                                ACTIVE
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                    <h4 className="font-semibold text-lg">
+                                                        {plan.name}
+                                                    </h4>
                                                     <div className="text-sm text-gray-600 mt-1 font-light">
                                                         {plan.financialItems.length} financial items •{' '}
                                                         {plan.milestones.length} milestones •{' '}
@@ -157,17 +147,6 @@ function PlanModal({ isOpen, onClose }: PlanModalProps) {
 
                                         {editingId !== plan.id && (
                                             <div className="flex flex-wrap gap-2 mt-2 sm:mt-0 sm:ml-4">
-                                                {plan.id !== activePlanId && (
-                                                    <button
-                                                        onClick={() => {
-                                                            setActivePlan(plan.id)
-                                                            onClose()
-                                                        }}
-                                                        className="px-2 sm:px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-xs sm:text-sm font-light uppercase tracking-wide transition-colors"
-                                                    >
-                                                        Switch
-                                                    </button>
-                                                )}
                                                 <button
                                                     onClick={() => startEditing(plan.id, plan.name)}
                                                     className="px-2 sm:px-3 py-1 bg-white border border-black text-black hover:bg-gray-50 text-xs sm:text-sm font-light uppercase tracking-wide flex items-center gap-1 transition-colors"

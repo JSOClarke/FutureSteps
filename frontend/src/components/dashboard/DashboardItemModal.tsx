@@ -1,8 +1,14 @@
-import { Close as X } from '../../icons'
 import { useState, useEffect } from 'react'
 import type { DashboardItem, FinancialCategory } from '../../types'
 import CurrencyInput from '../shared/CurrencyInput'
 import { useCurrency } from '../../hooks/useCurrency'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogBody,
+} from '../ui/dialog'
 
 interface DashboardItemModalProps {
     isOpen: boolean
@@ -45,8 +51,6 @@ export function DashboardItemModal({ isOpen, onClose, onSave, initialData, categ
         onClose()
     }
 
-    if (!isOpen) return null
-
     const categoryTitles: Record<FinancialCategory, string> = {
         income: 'Income',
         expenses: 'Expenses',
@@ -67,70 +71,63 @@ export function DashboardItemModal({ isOpen, onClose, onSave, initialData, categ
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white border-2 border-black w-full max-w-md">
-                {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b-2 border-black">
-                    <h2 className="text-xl font-normal">
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>
                         {initialData ? 'Edit' : 'Add'} {categoryTitles[category]} Item
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="p-1 hover:bg-gray-100 rounded transition-colors"
-                    >
-                        <X size={20} />
-                    </button>
-                </div>
+                    </DialogTitle>
+                </DialogHeader>
+                <DialogBody>
+                    <form onSubmit={handleSubmit}>
+                        <div className="space-y-4">
+                            {/* Name Field */}
+                            <div>
+                                <label className="block text-sm font-normal text-gray-600 uppercase tracking-wide mb-2">
+                                    Item Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="e.g., Cash ISA, Rent, Salary"
+                                    className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-2 focus:ring-black"
+                                    autoFocus
+                                />
+                            </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6">
-                    <div className="space-y-4">
-                        {/* Name Field */}
-                        <div>
-                            <label className="block text-sm font-normal text-gray-600 uppercase tracking-wide mb-2">
-                                Item Name
-                            </label>
-                            <input
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="e.g., Cash ISA, Rent, Salary"
-                                className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                autoFocus
-                            />
+                            {/* Amount Field - Using CurrencyInput */}
+                            <div>
+                                <CurrencyInput
+                                    value={amount}
+                                    onChange={setAmount}
+                                    placeholder="0.00"
+                                    label="Amount"
+                                    prefix={getCurrencySymbol()}
+                                    allowDecimals={true}
+                                />
+                            </div>
                         </div>
 
-                        {/* Amount Field - Using CurrencyInput */}
-                        <div>
-                            <CurrencyInput
-                                value={amount}
-                                onChange={setAmount}
-                                placeholder="0.00"
-                                label="Amount"
-                                prefix={getCurrencySymbol()}
-                                allowDecimals={true}
-                            />
+                        {/* Buttons */}
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="flex-1 px-4 py-2 border border-black hover:bg-gray-100 transition-colors text-sm font-normal uppercase tracking-wide"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="flex-1 px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
+                            >
+                                {initialData ? 'Update' : 'Add'}
+                            </button>
                         </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="flex gap-3 mt-6">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 px-4 py-2 border border-black hover:bg-gray-100 transition-colors text-sm font-normal uppercase tracking-wide"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="flex-1 px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-normal uppercase tracking-wide"
-                        >
-                            {initialData ? 'Update' : 'Add'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    </form>
+                </DialogBody>
+            </DialogContent>
+        </Dialog>
     )
 }

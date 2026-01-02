@@ -62,13 +62,25 @@ export function calculateYearlyIncome(
     const total = activeIncomes.reduce((sum, income) => {
         let annual = annualizeAmount(income.value, income.frequency)
 
-        // Apply inflation adjustment if enabled
-        if (income.isAdjustedForInflation && inflationRate !== 0) {
+        // Apply Growth (Inflation or Fixed %)
+        let growthRateToUse = 0
+        if (income.growthMode === 'inflation' || (income.growthMode === undefined && income.isAdjustedForInflation)) {
+            growthRateToUse = inflationRate
+        } else if (income.growthMode === 'percentage') {
+            growthRateToUse = income.growthRate ?? 0
+        }
+
+        if (growthRateToUse !== 0) {
             const startYear = baselineYear ?? income.startYear ?? new Date().getFullYear()
             const yearsDifference = Math.max(0, year - startYear)
             if (yearsDifference > 0) {
-                annual = annual * Math.pow(1 + inflationRate, yearsDifference)
+                annual = annual * Math.pow(1 + growthRateToUse, yearsDifference)
             }
+        }
+
+        // Apply Cap
+        if (income.maxValue !== undefined && income.maxValue > 0) {
+            annual = Math.min(annual, income.maxValue)
         }
 
         const prorated = applyProportional(annual, fractionOfYear)
@@ -101,13 +113,25 @@ export function calculateYearlyExpenses(
     const total = activeExpenses.reduce((sum, expense) => {
         let annual = annualizeAmount(expense.value, expense.frequency)
 
-        // Apply inflation adjustment if enabled
-        if (expense.isAdjustedForInflation && inflationRate !== 0) {
+        // Apply Growth (Inflation or Fixed %)
+        let growthRateToUse = 0
+        if (expense.growthMode === 'inflation' || (expense.growthMode === undefined && expense.isAdjustedForInflation)) {
+            growthRateToUse = inflationRate
+        } else if (expense.growthMode === 'percentage') {
+            growthRateToUse = expense.growthRate ?? 0
+        }
+
+        if (growthRateToUse !== 0) {
             const startYear = baselineYear ?? expense.startYear ?? new Date().getFullYear()
             const yearsDifference = Math.max(0, year - startYear)
             if (yearsDifference > 0) {
-                annual = annual * Math.pow(1 + inflationRate, yearsDifference)
+                annual = annual * Math.pow(1 + growthRateToUse, yearsDifference)
             }
+        }
+
+        // Apply Cap
+        if (expense.maxValue !== undefined && expense.maxValue > 0) {
+            annual = Math.min(annual, expense.maxValue)
         }
 
         const prorated = applyProportional(annual, fractionOfYear)

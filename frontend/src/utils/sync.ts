@@ -85,7 +85,9 @@ export async function syncGuestData(userId: string) {
                     yield_rate: item.yieldRate,
                     monthly_contribution: item.monthlyContribution,
                     interest_rate: item.interestRate,
-                    minimum_payment: item.minimumPayment
+                    minimum_payment: item.minimumPayment,
+                    growth_mode: item.growthMode,
+                    max_value: item.maxValue
                 }
             }).filter((i: any) => i !== null)
 

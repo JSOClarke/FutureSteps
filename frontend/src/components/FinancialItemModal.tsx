@@ -29,6 +29,8 @@ interface FormState {
     interestRate?: string
     minimumPayment?: string
     isAdjustedForInflation: boolean
+    growthMode?: 'none' | 'inflation' | 'percentage'
+    maxValue?: string
 }
 
 interface FinancialItemModalProps {
@@ -68,7 +70,9 @@ function FinancialItemModal({
         interestRate: initialData?.interestRate ? (Math.round(initialData.interestRate * 10000) / 100).toString() : '',
         minimumPayment: initialData?.minimumPayment?.toString() || '',
         subCategory: initialData?.subCategory || initialSubCategory,
-        isAdjustedForInflation: initialData?.isAdjustedForInflation || false
+        isAdjustedForInflation: initialData?.isAdjustedForInflation || false,
+        growthMode: initialData?.growthMode || (initialData?.isAdjustedForInflation ? 'inflation' : 'none'),
+        maxValue: initialData?.maxValue?.toString() || ''
     })
 
     // Unified Form State
@@ -85,7 +89,9 @@ function FinancialItemModal({
             maxAnnualContribution: initial.maxAnnualContribution,
             interestRate: initial.interestRate,
             minimumPayment: initial.minimumPayment,
-            isAdjustedForInflation: initial.isAdjustedForInflation
+            isAdjustedForInflation: initial.isAdjustedForInflation,
+            growthMode: initial.growthMode,
+            maxValue: initial.maxValue
         }
     })
 
@@ -112,7 +118,9 @@ function FinancialItemModal({
                 maxAnnualContribution: values.maxAnnualContribution,
                 interestRate: values.interestRate,
                 minimumPayment: values.minimumPayment,
-                isAdjustedForInflation: values.isAdjustedForInflation
+                isAdjustedForInflation: values.isAdjustedForInflation,
+                growthMode: values.growthMode,
+                maxValue: values.maxValue
             })
             setSubCategory(initialData?.subCategory || initialSubCategory)
             setErrors({})
@@ -171,6 +179,20 @@ function FinancialItemModal({
             }
         }
 
+        // Validate growth/cap fields for income/expenses
+        if (!simpleMode && (category === 'income' || category === 'expenses')) {
+            if (formData.growthMode === 'percentage') {
+                if (!formData.growthRate) {
+                    // Warning?? Or required? Let's make it optional but good practice to check
+                } else if (isNaN(Number(formData.growthRate)) || Number(formData.growthRate) < 0) {
+                    newErrors.growthRate = 'Must be a positive percentage'
+                }
+            }
+            if (formData.maxValue && (isNaN(Number(formData.maxValue)) || Number(formData.maxValue) < 0)) {
+                newErrors.maxValue = 'Must be a positive number'
+            }
+        }
+
         // Validate liability fields
         if (!simpleMode && category === 'liabilities') {
             if (formData.interestRate && (isNaN(Number(formData.interestRate)) || Number(formData.interestRate) < 0)) {
@@ -210,7 +232,15 @@ function FinancialItemModal({
 
             // Only applicable for income/expenses
             if (category === 'income' || category === 'expenses') {
-                data.isAdjustedForInflation = formData.isAdjustedForInflation
+                data.growthMode = formData.growthMode || 'none'
+                data.isAdjustedForInflation = data.growthMode === 'inflation'
+
+                if (formData.maxValue) data.maxValue = Number(formData.maxValue)
+
+                // If percentage mode, ensure growthRate is set on the item
+                if (data.growthMode === 'percentage' && formData.growthRate) {
+                    data.growthRate = Math.round(Number(formData.growthRate) * 100) / 10000
+                }
             }
 
             onSave(data)
@@ -232,7 +262,9 @@ function FinancialItemModal({
             maxAnnualContribution: '',
             interestRate: '',
             minimumPayment: '',
-            isAdjustedForInflation: false
+            isAdjustedForInflation: false,
+            growthMode: 'none',
+            maxValue: ''
         })
         setSubCategory(undefined)
         setErrors({})

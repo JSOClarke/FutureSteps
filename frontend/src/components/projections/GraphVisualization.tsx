@@ -357,15 +357,21 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                     ><Tooltip content={<SankeyTooltip />} /></Sankey>
                 ) : chartType === 'bar' ? (
                     <BarChart data={chartData} margin={{ top: 5, right: 10, left: isMobile ? 0 : 5, bottom: 5 }}>
+                        <defs>
+                            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#3B82F6" stopOpacity={1} />
+                                <stop offset="100%" stopColor="#BFDBFE" stopOpacity={0.8} />
+                            </linearGradient>
+                        </defs>
                         <XAxis dataKey="year" hide={true} />
                         <YAxis width={isMobile ? 40 : 60} tick={{ fontSize: isMobile ? 10 : 12 }} tickFormatter={(value) => { const currencySymbol = getCurrencySymbol(currency); const absValue = Math.abs(value); if (absValue >= 1000000) return `${currencySymbol}${(value / 1000000).toFixed(1)}M`; if (absValue >= 1000) return `${currencySymbol}${(value / 1000).toFixed(0)}k`; return `${currencySymbol}${value}`; }} stroke="#6B7280" />
                         <Tooltip content={<CustomTooltip />} />
                         <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
-                        <Bar dataKey="Net Worth" fill="#3B82F6" cursor="pointer" onClick={handleBarClick} shape={(props: any) => {
+                        <Bar dataKey="Net Worth" fill="url(#barGradient)" cursor="pointer" onClick={handleBarClick} shape={(props: any) => {
                             const { x, y, width, height, payload } = props
                             const yearMilestones = milestoneYears.filter(m => m.year === payload.year)
                             return (
-                                <>{/* Regular bar */}<rect x={x} y={y} width={width} height={height} fill="#3B82F6" />
+                                <>{/* Regular bar */}<rect x={x} y={y} width={width} height={height} fill="url(#barGradient)" />
                                     {yearMilestones.map((m, index) => (
                                         <g key={m.milestone.id}><rect x={x + width / 2 - 6} y={y - 25 - (index * 18)} width={12} height={12} fill={m.milestone.color || "#22C55E"} stroke={m.milestone.color ? undefined : "#16A34A"} strokeWidth={1} /><title>{m.milestone.name}: {m.milestone.type === 'year' ? m.milestone.value : formatCurrency(m.milestone.value, currency)}</title></g>
                                     ))}</>
@@ -375,12 +381,12 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
                     </BarChart>
                 ) : (
                     <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: isMobile ? 0 : 5, bottom: 5 }} onClick={(data) => { if (data && data.activeLabel) onYearSelect(Number(data.activeLabel)) }}>
-                        <defs><linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3B82F6" stopOpacity={0.5} /><stop offset="95%" stopColor="#3B82F6" stopOpacity={0} /></linearGradient></defs>
+                        <defs><linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3B82F6" stopOpacity={0.5} /><stop offset="95%" stopColor="#BFDBFE" stopOpacity={0.2} /></linearGradient></defs>
                         <XAxis dataKey="year" hide={true} />
                         <YAxis width={isMobile ? 40 : 60} tick={{ fontSize: isMobile ? 10 : 12 }} tickFormatter={(value) => { const currencySymbol = getCurrencySymbol(currency); const absValue = Math.abs(value); if (absValue >= 1000000) return `${currencySymbol}${(value / 1000000).toFixed(1)}M`; if (absValue >= 1000) return `${currencySymbol}${(value / 1000).toFixed(0)}k`; return `${currencySymbol}${value}`; }} stroke="#6B7280" />
                         <Tooltip content={<CustomTooltip />} />
                         <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="3 3" />
-                        <Area type="monotone" dataKey="Net Worth" stroke="none" fill="#3B82F6" fillOpacity={0.2} />
+                        <Area type="monotone" dataKey="Net Worth" stroke="none" fill="url(#colorNetWorth)" fillOpacity={1} />
                         <Line type="monotone" dataKey="Net Worth" stroke="#3B82F6" strokeWidth={2} dot={(props: any) => {
                             const { cx, cy, payload } = props
                             const yearMilestones = milestoneYears.filter(m => m.year === payload.year)

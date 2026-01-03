@@ -29,7 +29,7 @@ export function YearSelector({ selectedYear, availableYears, onYearChange, class
             <button
                 onClick={handlePrevious}
                 disabled={isFirstYear}
-                className="px-1 py-0.5 border border-black hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-xs w-6"
+                className="px-0 py-0.5 border border-black hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-xs w-10 flex items-center justify-center"
                 title="Previous year"
                 aria-label="Previous year"
             >
@@ -55,7 +55,7 @@ export function YearSelector({ selectedYear, availableYears, onYearChange, class
             <button
                 onClick={handleNext}
                 disabled={isLastYear}
-                className="px-1 py-0.5 border border-black hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-xs w-6"
+                className="px-0 py-0.5 border border-black hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-xs w-10 flex items-center justify-center"
                 title="Next year"
                 aria-label="Next year"
             >

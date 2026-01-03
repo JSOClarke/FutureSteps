@@ -88,6 +88,41 @@ h6 {
   background-color: var(--color-gray-50);
 }
 
+/* Reusable Gradients */
+@layer components {
+  .gradient-subtle {
+    @apply bg-gradient-to-b from-white to-gray-50;
+  }
+
+  .gradient-subtle-green {
+    @apply bg-gradient-to-b from-white to-green-50;
+  }
+
+  .gradient-subtle-red {
+    @apply bg-gradient-to-b from-white to-red-50;
+  }
+
+  .gradient-subtle-blue {
+    @apply bg-gradient-to-b from-white to-blue-50;
+  }
+
+  .gradient-subtle-orange {
+    @apply bg-gradient-to-b from-white to-orange-50;
+  }
+
+  .range-square {
+    @apply appearance-none bg-gray-200 rounded-none h-1;
+  }
+
+  .range-square::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-black rounded-none cursor-pointer border-none;
+  }
+
+  .range-square::-moz-range-thumb {
+    @apply w-4 h-4 bg-black rounded-none cursor-pointer border-none;
+  }
+}
+
 #root {
   min-height: 100vh;
 }

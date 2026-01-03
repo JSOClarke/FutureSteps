@@ -9,7 +9,8 @@ import { ProjectionDetailSection } from './ProjectionDetailSection'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import { useSettings } from '../../context/SettingsContext'
-import { Percentage as Percent } from '../../icons'
+import { Percentage as Percent, Settings, X } from '../../icons'
+import { useState, useRef } from 'react'
 
 interface ProjectionDetailsProps {
     selectedYear: number | null
@@ -33,6 +34,25 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
     const { projection, realProjection, config } = useProjections(surplusPriority, deficitPriority)
     const { items: initialItems } = useFinancialItems()
     const { userProfile } = useUser()
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+    const settingsRef = useRef<HTMLDivElement>(null)
+
+    // Close settings when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+                setIsSettingsOpen(false)
+            }
+        }
+
+        if (isSettingsOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [isSettingsOpen])
 
     // Helper: Safely calculate totals with types
     const getPreviousTotal = (prevData: any) => {
@@ -93,7 +113,7 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
             <div className="border-b border-black shrink-0 relative z-10">
                 <div className="p-4 pb-2">
                     <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex-1 flex items-center gap-2">
                             <div className="flex items-center gap-1">
                                 <label className="text-sm font-normal text-gray-600 uppercase tracking-wide">
                                     {userProfile?.dateOfBirth ? 'Age:' : 'Year:'}
@@ -118,19 +138,83 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                             />
                         </div>
 
-                        {/* Compact Toggle */}
-                        <div className="flex bg-gray-100 rounded p-0.5 border border-gray-200">
-                            <button onClick={() => setIsRealValues(false)} className={`px-2 py-0.5 text-xs font-normal rounded transition-colors ${!isRealValues ? 'bg-white text-black shadow-sm border border-gray-100' : 'text-gray-500 hover:text-black'}`}>Nominal</button>
-                            <button onClick={() => setIsRealValues(true)} className={`px-2 py-0.5 text-xs font-normal rounded transition-colors ${isRealValues ? 'bg-white text-black shadow-sm border border-gray-100' : 'text-gray-500 hover:text-black'}`}>Real</button>
+                        {/* Settings Gear */}
+                        <div className="relative" ref={settingsRef}>
+                            <button
+                                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                                className={`p-1.5 rounded-full transition-colors ${isSettingsOpen ? 'bg-gray-100 text-black' : 'text-gray-400 hover:text-black hover:bg-gray-50'}`}
+                            >
+                                <Settings className="w-4 h-4" weight={isSettingsOpen ? "fill" : "regular"} />
+                            </button>
+
+                            {/* Settings Dropdown */}
+                            {isSettingsOpen && (
+                                <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-black shadow-lg z-50 p-4 animate-in fade-in zoom-in-95 duration-200">
+                                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+                                        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-900">Projection Settings</h3>
+                                        <button onClick={() => setIsSettingsOpen(false)} className="text-gray-400 hover:text-black">
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {/* Projection Mode */}
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-gray-500 uppercase tracking-wide font-medium">Projection Mode</label>
+                                            <div className="flex bg-gray-50 p-1 border border-gray-200">
+                                                <button
+                                                    onClick={() => setIsRealValues(false)}
+                                                    className={`flex-1 px-3 py-1.5 text-xs font-normal transition-colors ${!isRealValues ? 'bg-white text-black shadow-sm border border-gray-100' : 'text-gray-500 hover:text-black'}`}
+                                                >
+                                                    Nominal
+                                                </button>
+                                                <button
+                                                    onClick={() => setIsRealValues(true)}
+                                                    className={`flex-1 px-3 py-1.5 text-xs font-normal transition-colors ${isRealValues ? 'bg-white text-black shadow-sm border border-gray-100' : 'text-gray-500 hover:text-black'}`}
+                                                >
+                                                    Real (Inflation Adjusted)
+                                                </button>
+                                            </div>
+                                            <p className="text-[10px] text-gray-400 leading-tight">
+                                                {isRealValues
+                                                    ? "Values adjusted for purchasing power based on inflation."
+                                                    : "Actual future values including inflation effects."}
+                                            </p>
+                                        </div>
+
+                                        {/* Inflation Slider */}
+                                        <div className="space-y-2 pt-2 border-t border-gray-50">
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-1.5 text-gray-600">
+                                                    <Percent className="w-3 h-3" />
+                                                    <span className="text-xs font-medium uppercase tracking-wide">Inflation Rate</span>
+                                                </div>
+                                                <span className="text-xs font-mono bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
+                                                    {(settings.inflationRate * 100).toFixed(1)}%
+                                                </span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="10"
+                                                step="0.1"
+                                                value={settings.inflationRate * 100}
+                                                onChange={(e) => updateSettings({ inflationRate: Number(e.target.value) / 100 })}
+                                                className="w-full range-square"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2 mb-2">
-                        <input type="range" value={yearData.year} onChange={(e) => onYearChange?.(parseInt(e.target.value))} min={firstYear?.year || config.startYear} max={lastYear?.year || config.startYear + config.numberOfYears - 1} className="flex-1 accent-black h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
+                        <input type="range" value={yearData.year} onChange={(e) => onYearChange?.(parseInt(e.target.value))} min={firstYear?.year || config.startYear} max={lastYear?.year || config.startYear + config.numberOfYears - 1} className="flex-1 range-square" />
                     </div>
 
                     {/* Conditional Inflation Slider */}
-                    {isRealValues && (
+                    {false && (
                         <div className="flex items-center gap-3 animate-in fade-in slide-in-from-top-1 pt-1 border-t border-gray-50">
                             <div className="flex items-center gap-1 text-xs text-gray-400 font-light min-w-[80px]">
                                 <Percent className="w-3 h-3" />
@@ -328,9 +412,9 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                 />
             </div>
 
-            <div className="mt-auto p-4 bg-gray-50 border-t border-black">
+            <div className="mt-auto p-4 gradient-subtle border-t border-black">
                 <div className="flex justify-between items-center text-sm font-semibold text-black uppercase tracking-wide"><span>Net Worth:</span><span>{formatValue(yearData.netWorth)}</span></div>
-                <div className="flex justify-between items-center mt-2 text-xs text-gray-500 font-light italic"><span>Projection: {config.startYear} - {config.startYear + config.numberOfYears - 1}</span>{isRealValues && <span>Inflation Adjusted ({yearData.year})</span>}</div>
+                <div className="flex justify-end items-center mt-2 text-xs text-gray-500 font-light italic">{isRealValues && <span>Inflation Adjusted ({yearData.year})</span>}</div>
             </div>
         </div>
     )

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { useUser } from '../../context/UserContext'
 import {
     Dialog,
     DialogContent,
@@ -16,6 +17,7 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     const { signInWithEmail, signUpWithEmail, error, clearError } = useAuth()
+    const { createProfile } = useUser()
     const [isLogin, setIsLogin] = useState(true)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -35,6 +37,19 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             onClose()
         } catch (err) {
             // Error is handled in context
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleGuestAccess = async () => {
+        setLoading(true)
+        try {
+            await createProfile({})
+            if (onSuccess) await onSuccess()
+            onClose()
+        } catch (error) {
+            console.error('Error creating guest profile:', error)
         } finally {
             setLoading(false)
         }
@@ -102,6 +117,16 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                             className="text-black font-medium hover:underline uppercase tracking-wide text-xs ml-1"
                         >
                             {isLogin ? 'Sign Up' : 'Sign In'}
+                        </button>
+                    </div>
+
+                    <div className="mt-4 text-center">
+                        <button
+                            onClick={handleGuestAccess}
+                            disabled={loading}
+                            className="text-xs text-gray-500 hover:text-black font-light underline uppercase tracking-wide disabled:opacity-50"
+                        >
+                            Continue as Guest
                         </button>
                     </div>
                 </DialogBody>

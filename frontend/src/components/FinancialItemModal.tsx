@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { FinancialItem, FinancialCategory, Frequency, FinancialSubCategory } from '../types'
-import { getSubCategoryLabel, getSubCategoryIcon, getSubCategoryColor } from '../utils/subcategoryHelpers'
+import { getSubCategoryLabel, getSubCategoryIcon } from '../utils/subcategoryHelpers'
 import { Button } from './ui/button'
 import {
     Dialog,
@@ -296,26 +296,24 @@ function FinancialItemModal({
                 </DialogHeader>
                 <DialogBody>
                     {subCategory && (
-                        <div className={`mb-6 p-3 rounded-lg flex items-center justify-between ${getSubCategoryColor(category)} bg-opacity-10 border border-opacity-20`}>
+                        <div className="mb-6 p-4 bg-gray-50 border-l-2 border-black flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 {(() => {
                                     const Icon = getSubCategoryIcon(subCategory)
-                                    return <Icon size={20} />
+                                    return <Icon size={20} className="text-black" />
                                 })()}
-                                <span className="font-medium text-sm">
+                                <span className="font-medium text-xs uppercase tracking-widest text-black">
                                     {getSubCategoryLabel(subCategory)}
                                 </span>
                             </div>
-                            <Button
+                            <button
                                 type="button"
-                                variant="ghost"
-                                size="sm"
                                 onClick={() => setIsSubCategoryModalOpen(true)}
-                                className="h-8 px-2 text-xs hover:bg-black/5"
+                                className="text-xs uppercase tracking-wide font-normal text-gray-500 hover:text-black transition-colors flex items-center gap-1.5"
                             >
-                                <Edit2 size={14} className="mr-1" />
+                                <Edit2 size={12} />
                                 Change
-                            </Button>
+                            </button>
                         </div>
                     )}
 

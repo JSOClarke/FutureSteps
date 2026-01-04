@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 import type { Plan } from '../types'
 import { usePlansQuery } from '../hooks/usePlans'
-import { useCreatePlan, useUpdatePlan, useDeletePlan } from '../hooks/usePlanMutations'
+import { useCreatePlan, useUpdatePlan, useDeletePlan, useDuplicatePlan } from '../hooks/usePlanMutations'
 
 interface PlansContextType {
     plans: Plan[]
@@ -10,6 +10,7 @@ interface PlansContextType {
     updatePlan: (id: string, updates: Partial<Plan>) => Promise<void>
     deletePlan: (id: string) => Promise<void>
     renamePlan: (id: string, newName: string) => Promise<void>
+    duplicatePlan: (sourcePlanId: string, name: string, description?: string) => Promise<string>
     loading: boolean
     error: any
 }
@@ -46,6 +47,13 @@ export function PlansProvider({ children }: { children: React.ReactNode }) {
         await updatePlan(id, { name: newName })
     }
 
+    const duplicateMutation = useDuplicatePlan()
+
+    const duplicatePlan = async (sourcePlanId: string, name: string, description?: string): Promise<string> => {
+        const result = await duplicateMutation.mutateAsync({ sourcePlanId, name, description })
+        return result.id
+    }
+
     return (
         <PlansContext.Provider value={{
             plans,
@@ -54,6 +62,7 @@ export function PlansProvider({ children }: { children: React.ReactNode }) {
             updatePlan,
             deletePlan,
             renamePlan,
+            duplicatePlan,
             loading: isLoading,
             error
         }}>

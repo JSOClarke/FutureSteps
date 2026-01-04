@@ -18,13 +18,15 @@ interface CreatePlanModalProps {
 
 export default function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProps) {
     const navigate = useNavigate()
-    const { createPlan } = usePlans()
+    const { createPlan, duplicatePlan, plans } = usePlans()
     const { userProfile, updateProfile } = useUser()
     const { toast } = useToast()
 
     const [newPlanName, setNewPlanName] = useState('')
     const [description, setDescription] = useState('')
     const [creating, setCreating] = useState(false)
+    const [mode, setMode] = useState<'scratch' | 'clone'>('scratch')
+    const [sourcePlanId, setSourcePlanId] = useState('')
 
     // Profile fields (if needed)
     const [fullName, setFullName] = useState('')
@@ -36,6 +38,8 @@ export default function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProp
         if (isOpen) {
             setNewPlanName('')
             setDescription('')
+            setMode('scratch')
+            setSourcePlanId('')
             setFullName(userProfile?.full_name || '')
             setDateOfBirth(userProfile?.dateOfBirth || '')
         }
@@ -55,12 +59,17 @@ export default function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProp
                 })
             }
 
-            // Create the plan and get the new plan ID
-            const newPlanId = await createPlan(newPlanName.trim(), description.trim())
+            // Create or Duplicate logic
+            let newPlanId: string
+            if (mode === 'clone' && sourcePlanId) {
+                newPlanId = await duplicatePlan(sourcePlanId, newPlanName.trim(), description.trim())
+            } else {
+                newPlanId = await createPlan(newPlanName.trim(), description.trim())
+            }
 
             toast({
-                title: 'Plan Created',
-                message: `"${newPlanName}" has been created successfully`,
+                title: mode === 'clone' ? 'Plan Cloned' : 'Plan Created',
+                message: `"${newPlanName}" has been ${mode === 'clone' ? 'cloned' : 'created'} successfully`,
                 type: 'success'
             })
 
@@ -116,6 +125,68 @@ export default function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProp
                             </div>
                         )}
 
+                        <div className="mb-6">
+                            <label className="block text-sm font-normal mb-2 uppercase tracking-wide">
+                                Start From
+                            </label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    className={`
+                                        px-3 py-2 text-sm border transition-colors text-center
+                                        ${mode === 'scratch'
+                                            ? 'bg-black text-white border-black'
+                                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                        }
+                                    `}
+                                    onClick={() => setMode('scratch')}
+                                >
+                                    Scratch
+                                </button>
+                                <button
+                                    className={`
+                                        px-3 py-2 text-sm border transition-colors text-center
+                                        ${mode === 'clone'
+                                            ? 'bg-black text-white border-black'
+                                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                        }
+                                    `}
+                                    onClick={() => setMode('clone')}
+                                    disabled={plans.length === 0}
+                                    title={plans.length === 0 ? "No plans available to clone" : ""}
+                                >
+                                    Existing Plan
+                                </button>
+                            </div>
+                        </div>
+
+                        {mode === 'clone' && (
+                            <div className="mb-4 animate-in fade-in slide-in-from-top-2">
+                                <label htmlFor="sourcePlan" className="block text-sm font-normal mb-2 uppercase tracking-wide">
+                                    Source Plan
+                                </label>
+                                <select
+                                    id="sourcePlan"
+                                    value={sourcePlanId}
+                                    onChange={(e) => {
+                                        setSourcePlanId(e.target.value)
+                                        // Auto-fill name if empty
+                                        if (!newPlanName && e.target.value) {
+                                            const plan = plans.find(p => p.id === e.target.value)
+                                            if (plan) setNewPlanName(`${plan.name} (Copy)`)
+                                        }
+                                    }}
+                                    className="w-full px-4 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black bg-white appearance-none"
+                                >
+                                    <option value="">Select a plan to clone...</option>
+                                    {plans.map(plan => (
+                                        <option key={plan.id} value={plan.id}>
+                                            {plan.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
                         <div>
                             <label htmlFor="planName" className="block text-sm font-normal mb-2 uppercase tracking-wide">
                                 Plan Name
@@ -166,11 +237,11 @@ export default function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProp
                             </button>
                             <button
                                 onClick={() => handleCreate()}
-                                disabled={creating || !newPlanName.trim() || description.length > 144 || (needsProfile && (!fullName.trim() || !dateOfBirth))}
+                                disabled={creating || !newPlanName.trim() || description.length > 144 || (needsProfile && (!fullName.trim() || !dateOfBirth)) || (mode === 'clone' && !sourcePlanId)}
                                 className="w-full px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed font-normal text-sm uppercase tracking-wide transition-colors"
                                 data-testid="create-plan-submit-button"
                             >
-                                {creating ? 'Creating...' : 'Create Plan'}
+                                {creating ? 'Creating...' : (mode === 'clone' ? 'Clone Plan' : 'Create Plan')}
                             </button>
                         </div>
                     </div>

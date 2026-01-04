@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 import { usePlans } from '../../context/PlansContext'
 import CreatePlanModal from '../plans/CreatePlanModal'
 import { ConfirmationDialog } from './ConfirmationDialog'
+import AuthModal from './AuthModal'
 import { useToast } from '../../context/ToastContext'
 
 interface SidebarProps {
@@ -22,6 +23,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     const location = useLocation()
     const [plansExpanded, setPlansExpanded] = useState(true)
     const [showCreateModal, setShowCreateModal] = useState(false)
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
     const [planToDelete, setPlanToDelete] = useState<{ id: string, name: string } | null>(null)
     const { toast } = useToast()
     const navigate = useNavigate()
@@ -37,13 +39,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     }, [onToggleCollapse])
 
     const handleGuestSignIn = () => {
-        // Clear all guest data
-        localStorage.removeItem('guest_profile')
-        localStorage.removeItem('guest_plans')
-        localStorage.removeItem('guest_financial_items')
-
-        // Reload the app to trigger onboarding
-        window.location.href = '/'
+        setIsAuthModalOpen(true)
     }
 
 
@@ -249,7 +245,12 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                                     </div>
                                 )}
                                 <button
-                                    onClick={() => signOut()}
+                                    onClick={async () => {
+                                        // Clear any guest data to ensure we go to landing page
+                                        localStorage.removeItem('guest_profile')
+                                        await signOut()
+                                        navigate('/')
+                                    }}
                                     className={`
                                         w-full flex items-center gap-3 px-4 py-3
                                         text-black hover:bg-gray-100 transition-colors
@@ -266,12 +267,12 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                             <>
                                 {!isCollapsed && (
                                     <div className="mb-3 px-4">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                                            <p className="text-xs text-orange-600 uppercase tracking-wide font-medium">Guest Mode</p>
+                                        <div className="flex items-center gap-2 mb-1.5">
+                                            <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                                            <p className="text-[10px] text-black uppercase tracking-widest font-medium">Guest Mode</p>
                                         </div>
-                                        <p className="text-xs text-gray-600 font-light leading-relaxed">
-                                            ⚠️ Your data will be lost when you close this browser. Sign in to save permanently.
+                                        <p className="text-[10px] text-gray-400 font-light leading-relaxed">
+                                            Data is stored locally and will be lost if you clear your browser cache.
                                         </p>
                                     </div>
                                 )}
@@ -315,6 +316,12 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
             />
+            {/* Auth Modal */}
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+            />
+
             {/* Confirmation Dialogs */}
             <ConfirmationDialog
                 isOpen={!!planToDelete}

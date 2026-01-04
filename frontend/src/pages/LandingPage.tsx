@@ -9,6 +9,8 @@ export default function LandingPage() {
     const navigate = useNavigate()
     const { user } = useAuth()
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+    const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
+
 
     // Redirect authenticated users to dashboard
     useEffect(() => {
@@ -18,12 +20,12 @@ export default function LandingPage() {
     }, [user, navigate])
 
     const handleSignIn = () => {
+        setAuthMode('login')
         setIsAuthModalOpen(true)
     }
 
     const handleGetStarted = () => {
-        // For now, just show the auth modal
-        // In the future, you could show a signup-specific modal
+        setAuthMode('signup')
         setIsAuthModalOpen(true)
     }
 
@@ -101,7 +103,7 @@ export default function LandingPage() {
 
                         {/* Main Image */}
                         <img
-                            src="/sitescreenshots/hero/full_app_plans.png"
+                            src="/sitescreenshots/new/full_plan_image.png"
                             alt="Financial Plans Overview"
                             className="relative z-10 w-full rounded-lg border border-gray-200 shadow-2xl bg-white"
                         />
@@ -128,7 +130,7 @@ export default function LandingPage() {
                             </div>
 
                             <img
-                                src="/sitescreenshots/carousel/linegraph.png"
+                                src="/sitescreenshots/new/line_graph_image.png"
                                 alt="Financial Projections Graph"
                                 className="relative z-10 w-full rounded-lg border border-gray-200 shadow-xl bg-white"
                             />
@@ -156,7 +158,7 @@ export default function LandingPage() {
                             </div>
 
                             <img
-                                src="/sitescreenshots/carousel/barchart.png"
+                                src="/sitescreenshots/new/bar_chart_image.png"
                                 alt="Financial Analysis Chart"
                                 className="relative z-10 w-full rounded-lg border border-gray-200 shadow-xl bg-white"
                             />
@@ -184,7 +186,7 @@ export default function LandingPage() {
                             </div>
 
                             <img
-                                src="/sitescreenshots/carousel/cashflowsankey.png"
+                                src="/sitescreenshots/new/cashflow_sankey_image.png"
                                 alt="Cash Flow Sankey Diagram"
                                 className="relative z-10 w-full rounded-lg border border-gray-200 shadow-xl bg-white"
                             />
@@ -251,6 +253,24 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* Contact Section */}
+            <InteractiveSection className="bg-gray-50 border-t border-black py-24">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 className="text-3xl font-light text-black mb-8">
+                        Get in Touch
+                    </h2>
+                    <p className="text-xl font-light text-gray-600 mb-10 max-w-2xl mx-auto">
+                        Have questions about the platform? We're here to help you on your financial journey.
+                    </p>
+                    <a
+                        href="mailto:support@futuresteps.com"
+                        className="inline-block px-8 py-4 bg-white border border-black hover:bg-black hover:text-white font-normal text-sm uppercase tracking-wide transition-colors"
+                    >
+                        Contact Support
+                    </a>
+                </div>
+            </InteractiveSection>
+
             {/* Footer */}
             <footer className="border-t border-black bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -265,6 +285,7 @@ export default function LandingPage() {
             {/* Auth Modal */}
             <AuthModal
                 isOpen={isAuthModalOpen}
+                initialMode={authMode}
                 onClose={() => setIsAuthModalOpen(false)}
                 onSuccess={handleAuthSuccess}
             />

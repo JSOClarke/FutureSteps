@@ -67,13 +67,27 @@ function Navbar({
                         onClick={() => setSurplusModalOpen(true)}
                         title="Configure how surplus cash is allocated"
                     >
-                        Surplus
+                        <div className="flex items-center gap-2">
+                            Surplus
+                            {surplusPriority.length === 0 && (
+                                <div className="flex items-center gap-1.5 border-l border-gray-300 pl-2">
+                                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                                </div>
+                            )}
+                        </div>
                     </NavButton>
                     <NavButton
                         onClick={() => setDeficitModalOpen(true)}
                         title="Configure how deficits are covered"
                     >
-                        Deficit
+                        <div className="flex items-center gap-2">
+                            Deficit
+                            {deficitPriority.length === 0 && (
+                                <div className="flex items-center gap-1.5 border-l border-gray-300 pl-2">
+                                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                                </div>
+                            )}
+                        </div>
                     </NavButton>
                     <NavButton
                         onClick={onSimulationClick}
@@ -128,9 +142,12 @@ function Navbar({
                                 <span className="flex items-center justify-center gap-2">
                                     Surplus Priority
                                     {surplusPriority.length === 0 && (
-                                        <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">
-                                            Not Set
-                                        </span>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-1 h-1 bg-red-500"></div>
+                                            <span className="text-[9px] text-gray-500 uppercase tracking-widest font-medium">
+                                                Not Set
+                                            </span>
+                                        </div>
                                     )}
                                 </span>
                             </NavButton>
@@ -144,9 +161,12 @@ function Navbar({
                                 <span className="flex items-center justify-center gap-2">
                                     Deficit Priority
                                     {deficitPriority.length === 0 && (
-                                        <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">
-                                            Not Set
-                                        </span>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-1 h-1 bg-red-500"></div>
+                                            <span className="text-[9px] text-gray-500 uppercase tracking-widest font-medium">
+                                                Not Set
+                                            </span>
+                                        </div>
                                     )}
                                 </span>
                             </NavButton>

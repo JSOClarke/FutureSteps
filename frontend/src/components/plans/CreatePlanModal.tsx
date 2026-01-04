@@ -10,6 +10,7 @@ import {
     DialogTitle,
     DialogBody,
 } from '../ui/dialog'
+import { ToggleGroup } from '../ui/ToggleGroup'
 
 interface CreatePlanModalProps {
     isOpen: boolean
@@ -129,34 +130,19 @@ export default function CreatePlanModal({ isOpen, onClose }: CreatePlanModalProp
                             <label className="block text-sm font-normal mb-2 uppercase tracking-wide">
                                 Start From
                             </label>
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
-                                    className={`
-                                        px-3 py-2 text-sm border transition-colors text-center
-                                        ${mode === 'scratch'
-                                            ? 'bg-black text-white border-black'
-                                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                                        }
-                                    `}
-                                    onClick={() => setMode('scratch')}
-                                >
-                                    Scratch
-                                </button>
-                                <button
-                                    className={`
-                                        px-3 py-2 text-sm border transition-colors text-center
-                                        ${mode === 'clone'
-                                            ? 'bg-black text-white border-black'
-                                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                                        }
-                                    `}
-                                    onClick={() => setMode('clone')}
-                                    disabled={plans.length === 0}
-                                    title={plans.length === 0 ? "No plans available to clone" : ""}
-                                >
-                                    Existing Plan
-                                </button>
-                            </div>
+                            <ToggleGroup
+                                options={[
+                                    { label: 'Scratch', value: 'scratch' },
+                                    {
+                                        label: 'Existing Plan',
+                                        value: 'clone',
+                                        disabled: plans.length === 0,
+                                        title: plans.length === 0 ? "No plans available to clone" : ""
+                                    }
+                                ]}
+                                value={mode}
+                                onChange={(val) => setMode(val as 'scratch' | 'clone')}
+                            />
                         </div>
 
                         {mode === 'clone' && (

@@ -98,7 +98,15 @@ export function calculateMonthlyIncome(
             annual = Math.min(annual, income.maxValue)
         }
 
-        const monthlyAmount = applyProportional(annual, fractionOfYear)
+        let monthlyAmount = 0
+        if (income.frequency === 'annual') {
+            const targetMonth = income.startMonth ?? 1
+            if (month === targetMonth) {
+                monthlyAmount = annual
+            }
+        } else {
+            monthlyAmount = applyProportional(annual, fractionOfYear)
+        }
 
         details.push({
             id: income.id,
@@ -155,7 +163,15 @@ export function calculateMonthlyExpenses(
             annual = Math.min(annual, expense.maxValue)
         }
 
-        const monthlyAmount = applyProportional(annual, fractionOfYear)
+        let monthlyAmount = 0
+        if (expense.frequency === 'annual') {
+            const targetMonth = expense.startMonth ?? 1
+            if (month === targetMonth) {
+                monthlyAmount = annual
+            }
+        } else {
+            monthlyAmount = applyProportional(annual, fractionOfYear)
+        }
 
         details.push({
             id: expense.id,
@@ -272,7 +288,33 @@ export function applyAssetYield(
 
     for (const asset of assets) {
         const yieldRate = asset.yieldRate ?? 0
-        const yieldAmount = asset.value * yieldRate * fractionOfYear
+        const rateType = asset.yieldRateType || 'nominal'
+
+        // New logic:
+        let periodRate: number
+
+        if (Math.abs(fractionOfYear - 1 / 12) < 0.0001) {
+            // Monthly Step
+            if (rateType === 'aer') {
+                periodRate = Math.pow(1 + yieldRate, 1.0 / 12.0) - 1
+            } else {
+                periodRate = yieldRate / 12.0
+            }
+        } else {
+            // Fallback for non-monthly steps (linear approx for safe measure or full calc?)
+            // For now, let's Stick to the formula that worked for monthly.
+            // If fraction is 1 (full year), AER should be yieldRate.
+            // (1+r)^1 - 1 = r. 
+            // Formula: (1+r)^t - 1 where t is time in years.
+
+            if (rateType === 'aer') {
+                periodRate = Math.pow(1 + yieldRate, fractionOfYear) - 1
+            } else {
+                periodRate = yieldRate * fractionOfYear
+            }
+        }
+
+        const yieldAmount = asset.value * periodRate
 
         updatedAssets.push({
             ...asset,

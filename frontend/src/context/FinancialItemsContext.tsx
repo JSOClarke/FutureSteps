@@ -61,6 +61,8 @@ export function FinancialItemsProvider({ children, planId }: { children: React.R
                     category: item.category as FinancialCategory,
                     startYear: item.start_year,
                     endYear: item.end_year,
+                    startMonth: item.start_month,
+                    endMonth: item.end_month,
                     frequency: item.frequency,
                     growthRate: item.growth_rate,
                     yieldRate: item.yield_rate,
@@ -70,7 +72,8 @@ export function FinancialItemsProvider({ children, planId }: { children: React.R
                     subCategory: item.sub_category, // Map from DB
                     isAdjustedForInflation: item.is_adjusted_for_inflation,
                     growthMode: item.growth_mode,
-                    maxValue: item.max_value
+                    maxValue: item.max_value,
+                    yieldRateType: item.yield_rate_type as 'nominal' | 'aer'
                 }))
 
                 setItems(mappedItems)
@@ -113,6 +116,8 @@ export function FinancialItemsProvider({ children, planId }: { children: React.R
                 category: newItemData.category,
                 start_year: newItemData.startYear,
                 end_year: newItemData.endYear,
+                start_month: newItemData.startMonth,
+                end_month: newItemData.endMonth,
                 frequency: newItemData.frequency,
                 growth_rate: newItemData.growthRate,
                 yield_rate: newItemData.yieldRate,
@@ -122,7 +127,8 @@ export function FinancialItemsProvider({ children, planId }: { children: React.R
                 sub_category: newItemData.subCategory, // Map to DB
                 is_adjusted_for_inflation: newItemData.isAdjustedForInflation,
                 growth_mode: newItemData.growthMode,
-                max_value: newItemData.maxValue
+                max_value: newItemData.maxValue,
+                yield_rate_type: newItemData.yieldRateType
             }
 
             const { data, error } = await supabase
@@ -163,7 +169,10 @@ export function FinancialItemsProvider({ children, planId }: { children: React.R
             if (updatedData.value !== undefined) dbUpdate.value = updatedData.value
             if (updatedData.category !== undefined) dbUpdate.category = updatedData.category
             if (updatedData.startYear !== undefined) dbUpdate.start_year = updatedData.startYear
+            if (updatedData.startYear !== undefined) dbUpdate.start_year = updatedData.startYear
             if (updatedData.endYear !== undefined) dbUpdate.end_year = updatedData.endYear
+            if (updatedData.startMonth !== undefined) dbUpdate.start_month = updatedData.startMonth
+            if (updatedData.endMonth !== undefined) dbUpdate.end_month = updatedData.endMonth
             if (updatedData.frequency !== undefined) dbUpdate.frequency = updatedData.frequency
             if (updatedData.growthRate !== undefined) dbUpdate.growth_rate = updatedData.growthRate
             if (updatedData.yieldRate !== undefined) dbUpdate.yield_rate = updatedData.yieldRate
@@ -174,6 +183,7 @@ export function FinancialItemsProvider({ children, planId }: { children: React.R
             if (updatedData.isAdjustedForInflation !== undefined) dbUpdate.is_adjusted_for_inflation = updatedData.isAdjustedForInflation
             if (updatedData.growthMode !== undefined) dbUpdate.growth_mode = updatedData.growthMode
             if (updatedData.maxValue !== undefined) dbUpdate.max_value = updatedData.maxValue
+            if (updatedData.yieldRateType !== undefined) dbUpdate.yield_rate_type = updatedData.yieldRateType
 
             const { error } = await supabase
                 .from('financial_items')

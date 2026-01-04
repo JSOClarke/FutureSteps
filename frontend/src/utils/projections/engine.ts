@@ -382,15 +382,66 @@ export class ProjectionEngine {
         accumulator.netCashflow = (accumulator.netCashflow || 0) + monthly.netCashflow
         accumulator.remainingCashflow = (accumulator.remainingCashflow || 0) + monthly.remainingCashflow
 
+        // Helper for simple aggregation (Income/Expense)
+        const aggregateSimple = (targetArray: any[], sourceArray: any[]) => {
+            sourceArray.forEach(sourceItem => {
+                const existing = targetArray.find(t => t.id === sourceItem.id)
+                if (existing) {
+                    existing.amount += sourceItem.amount
+                } else {
+                    targetArray.push({ ...sourceItem })
+                }
+            })
+        }
+
+        // Helper for asset-based aggregation (Growth/Yield/Contrib/Deficit) with optional extra fields
+        const aggregateAssetBased = (targetArray: any[], sourceArray: any[], valueKey: string, extraKeys: string[] = []) => {
+            sourceArray.forEach(sourceItem => {
+                const existing = targetArray.find(t => t.assetId === sourceItem.assetId)
+                if (existing) {
+                    existing[valueKey] += sourceItem[valueKey]
+                    extraKeys.forEach(key => {
+                        if (sourceItem[key] !== undefined) {
+                            existing[key] = (existing[key] || 0) + sourceItem[key]
+                        }
+                    })
+                } else {
+                    targetArray.push({ ...sourceItem })
+                }
+            })
+        }
+
+        // Helper for liability payments
+        const aggregateLiabilities = (targetArray: any[], sourceArray: any[]) => {
+            sourceArray.forEach(sourceItem => {
+                const existing = targetArray.find(t => t.liabilityId === sourceItem.liabilityId)
+                if (existing) {
+                    existing.interestCharged += sourceItem.interestCharged
+                    existing.principalPaid += sourceItem.principalPaid
+                    // remainingBalance should be the LAST one, not summed. 
+                    // But here we are accumulating history. 
+                    // Ideally history tracks "Total Paid in Year". 
+                    // remainingBalance is a point-in-time value. 
+                    // We should take the LATEST remainingBalance.
+                    existing.remainingBalance = sourceItem.remainingBalance
+                } else {
+                    targetArray.push({ ...sourceItem })
+                }
+            })
+        }
+
         // Append History Arrays
         if (accumulator.history) {
-            accumulator.history.income.push(...monthly.history.income)
-            accumulator.history.expenses.push(...monthly.history.expenses)
-            accumulator.history.growth.push(...monthly.history.growth)
-            accumulator.history.yield.push(...monthly.history.yield)
-            accumulator.history.contributions.push(...monthly.history.contributions)
-            accumulator.history.deficit.push(...monthly.history.deficit)
-            accumulator.history.liabilityPayments.push(...monthly.history.liabilityPayments)
+            aggregateSimple(accumulator.history.income, monthly.history.income)
+            aggregateSimple(accumulator.history.expenses, monthly.history.expenses)
+
+            aggregateAssetBased(accumulator.history.growth, monthly.history.growth, 'growthAmount', ['nominalGrowthRealValue', 'inflationImpact'])
+            aggregateAssetBased(accumulator.history.yield, monthly.history.yield, 'yieldAmount', ['nominalYieldRealValue', 'inflationImpact'])
+
+            aggregateAssetBased(accumulator.history.contributions, monthly.history.contributions, 'amount')
+            aggregateAssetBased(accumulator.history.deficit, monthly.history.deficit, 'amount')
+
+            aggregateLiabilities(accumulator.history.liabilityPayments, monthly.history.liabilityPayments)
         }
 
     }

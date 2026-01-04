@@ -33,6 +33,7 @@ interface FormState {
     isAdjustedForInflation: boolean
     growthMode?: 'none' | 'inflation' | 'percentage'
     maxValue?: string
+    yieldRateType?: 'nominal' | 'aer'
 }
 
 interface FinancialItemModalProps {
@@ -76,7 +77,8 @@ function FinancialItemModal({
         subCategory: initialData?.subCategory || initialSubCategory,
         isAdjustedForInflation: initialData?.isAdjustedForInflation || false,
         growthMode: initialData?.growthMode || (initialData?.isAdjustedForInflation ? 'inflation' : 'none'),
-        maxValue: initialData?.maxValue?.toString() || ''
+        maxValue: initialData?.maxValue?.toString() || '',
+        yieldRateType: initialData?.yieldRateType || 'nominal'
     })
 
     // Unified Form State
@@ -97,7 +99,8 @@ function FinancialItemModal({
             minimumPayment: initial.minimumPayment,
             isAdjustedForInflation: initial.isAdjustedForInflation,
             growthMode: initial.growthMode,
-            maxValue: initial.maxValue
+            maxValue: initial.maxValue,
+            yieldRateType: initial.yieldRateType
         }
     })
 
@@ -128,7 +131,8 @@ function FinancialItemModal({
                 minimumPayment: values.minimumPayment,
                 isAdjustedForInflation: values.isAdjustedForInflation,
                 growthMode: values.growthMode,
-                maxValue: values.maxValue
+                maxValue: values.maxValue,
+                yieldRateType: values.yieldRateType
             })
             setSubCategory(initialData?.subCategory || initialSubCategory)
             setErrors({})
@@ -240,6 +244,9 @@ function FinancialItemModal({
             if (formData.interestRate) data.interestRate = Math.round(Number(formData.interestRate) * 100) / 10000
             if (formData.minimumPayment) data.minimumPayment = Number(formData.minimumPayment)
 
+            // Include yield rate type
+            if (formData.yieldRateType) data.yieldRateType = formData.yieldRateType
+
             // Only applicable for income/expenses
             if (category === 'income' || category === 'expenses') {
                 data.growthMode = formData.growthMode || 'none'
@@ -276,7 +283,8 @@ function FinancialItemModal({
             minimumPayment: '',
             isAdjustedForInflation: false,
             growthMode: 'none',
-            maxValue: ''
+            maxValue: '',
+            yieldRateType: 'nominal'
         })
         setSubCategory(undefined)
         setErrors({})

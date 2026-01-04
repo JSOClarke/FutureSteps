@@ -69,7 +69,10 @@ export interface FinancialItem {
     // Inflation adjustment & Growth
     isAdjustedForInflation?: boolean // Deprecated in favor of growthMode, kept for migration
     growthMode?: 'none' | 'inflation' | 'percentage'
-    maxValue?: number // Cap on the value (for inflation or percentage growth)
+    maxValue?: number // Cap on the item value growth
+
+    // Rate Types (for interest/yield)
+    yieldRateType?: 'nominal' | 'aer'
 }
 
 export interface Milestone {

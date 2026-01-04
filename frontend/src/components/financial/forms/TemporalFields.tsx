@@ -8,6 +8,8 @@ import type { FormFieldProps } from './types'
 import { useParams } from 'react-router-dom'
 import { ChevronDown, ChevronUp } from '../../../icons'
 
+import { ToggleGroup } from '../../ui/ToggleGroup'
+
 export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
     const currentYear = new Date().getFullYear()
 
@@ -33,8 +35,30 @@ export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
     const hasActiveGrowth = data.growthMode && data.growthMode !== 'none'
     const [isOpen, setIsOpen] = useState(hasActiveGrowth)
 
+    const frequency = data.frequency || 'monthly'
+
     return (
         <>
+            {/* Frequency Toggle */}
+            <div className="mb-4">
+                <Label>Frequency</Label>
+                <div className="mt-1.5">
+                    <ToggleGroup
+                        options={[
+                            { label: 'Monthly', value: 'monthly' },
+                            { label: 'Annual', value: 'annual' }
+                        ]}
+                        value={frequency}
+                        onChange={(val) => onChange('frequency', val)}
+                    />
+                </div>
+                <p className="text-[10px] text-gray-500 mt-1.5">
+                    {frequency === 'monthly'
+                        ? 'Occurs every month between the start and end dates.'
+                        : 'Occurs once each year on the selected start month.'}
+                </p>
+            </div>
+
             {/* Start Date */}
             <div>
                 <Label htmlFor="startYear">Start Date</Label>
@@ -84,38 +108,26 @@ export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
                             data-testid="item-end-year-select"
                         />
                     </div>
-                    <div className="w-1/3">
-                        <select
-                            id="endMonth"
-                            value={data.endMonth?.toString() || '12'}
-                            onChange={(e) => onChange('endMonth', e.target.value)}
-                            className="flex h-10 w-full rounded-none border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            {MONTHS.map(m => (
-                                <option key={m.value} value={m.value}>{m.label}</option>
-                            ))}
-                        </select>
-                    </div>
+                    {/* Only show End Month if Monthly frequency */}
+                    {frequency === 'monthly' && (
+                        <div className="w-1/3">
+                            <select
+                                id="endMonth"
+                                value={data.endMonth?.toString() || '12'}
+                                onChange={(e) => onChange('endMonth', e.target.value)}
+                                className="flex h-10 w-full rounded-none border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {MONTHS.map(m => (
+                                    <option key={m.value} value={m.value}>{m.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Frequency */}
-            <div className="col-span-2">
-                <Label htmlFor="frequency">Frequency</Label>
-                <select
-                    id="frequency"
-                    value={data.frequency || 'monthly'}
-                    onChange={(e) => onChange('frequency', e.target.value)}
-                    className="flex h-10 w-full rounded-none border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    data-testid="item-frequency-select"
-                >
-                    <option value="monthly">Monthly</option>
-                    <option value="annual">Annual</option>
-                </select>
-            </div>
-
             {/* Growth Settings Accordion */}
-            <div className="col-span-2 border border-gray-200 rounded-none overflow-hidden mt-2">
+            <div className="border border-gray-200 rounded-none overflow-hidden mt-2">
                 <button
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
@@ -127,9 +139,9 @@ export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
 
                 {isOpen && (
                     <div className="p-4 bg-white border-t border-gray-200">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4">
                             {/* Growth Mode */}
-                            <div className="col-span-2">
+                            <div>
                                 <Label htmlFor="growthMode">Growth Mode</Label>
                                 <select
                                     id="growthMode"
@@ -176,7 +188,7 @@ export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
 
                             {/* Max Value Cap (For both Inflation and Percentage modes) */}
                             {(data.growthMode === 'inflation' || data.growthMode === 'percentage') && (
-                                <div className={data.growthMode === 'percentage' ? "" : "col-span-2"}>
+                                <div>
                                     <Label htmlFor="maxValue">Cap Value At (Optional)</Label>
                                     <CurrencyInput
                                         id="maxValue"

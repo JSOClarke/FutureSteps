@@ -7,7 +7,7 @@ export const BaseFields = ({ data, onChange, errors }: FormFieldProps) => {
     return (
         <>
             {/* Name */}
-            <div className="col-span-2">
+            <div>
                 <Label htmlFor="name">Name</Label>
                 <Input
                     id="name"
@@ -21,7 +21,7 @@ export const BaseFields = ({ data, onChange, errors }: FormFieldProps) => {
             </div>
 
             {/* Value */}
-            <div className="col-span-2">
+            <div>
                 <Label htmlFor="value">Amount</Label>
                 <CurrencyInput
                     value={data.value?.toString() || ''}

@@ -9,7 +9,7 @@ import { ProjectionDetailSection } from './ProjectionDetailSection'
 import { formatCurrency } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import { useSettings } from '../../context/SettingsContext'
-import { Percentage as Percent, Settings, X } from '../../icons'
+import { Percentage as Percent, Settings, X, TrendingUp } from '../../icons'
 import { useState, useRef } from 'react'
 
 interface ProjectionDetailsProps {
@@ -230,6 +230,52 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                                                 onChange={(e) => updateSettings({ inflationRate: Number(e.target.value) / 100 })}
                                                 className="w-full range-square"
                                             />
+                                        </div>
+                                        {/* Debug ROI Analysis */}
+                                        <div className="space-y-2 pt-2 border-t border-gray-50">
+                                            <div className="flex items-center justify-between gap-1.5 text-gray-600 mb-2">
+                                                <div className="flex items-center gap-1.5">
+                                                    <TrendingUp className="w-3 h-3" />
+                                                    <span className="text-xs font-medium uppercase tracking-wide">Debug: Real ROI</span>
+                                                </div>
+                                                <span className="text-[10px] font-mono text-gray-400">
+                                                    (Year Frac: {yearData.fractionOfYear?.toFixed(3) || 'N/A'})
+                                                </span>
+                                            </div>
+                                            <div className="space-y-1">
+                                                {yearData.assets.map(asset => {
+                                                    // Find yield for this asset
+                                                    const yieldItem = yearData.history.yield.find(y => y.assetId === asset.id);
+                                                    const yieldAmount = yieldItem?.yieldAmount || 0;
+
+                                                    // Reconstruct Opening Balance to avoid skew from withdrawals/contributions
+                                                    // Opening = Closing - Yield - Growth - Contributions + Withdrawals (Deficit) + LiabilityPay?
+                                                    // Simplified: Value is end of year state.
+
+                                                    const growthItem = yearData.history.growth.find(g => g.assetId === asset.id);
+                                                    const growthAmount = growthItem?.growthAmount || 0;
+
+                                                    const contributionList = yearData.history.contributions.filter(c => c.assetId === asset.id);
+                                                    const totalContrib = contributionList.reduce((sum, c) => sum + c.amount, 0);
+
+                                                    const deficitList = yearData.history.deficit.filter(d => d.assetId === asset.id);
+                                                    const totalDeficit = deficitList.reduce((sum, d) => sum + d.amount, 0);
+
+                                                    const approxOpening = asset.value - yieldAmount - growthAmount - totalContrib + totalDeficit;
+
+                                                    const roi = approxOpening > 0 ? (yieldAmount / approxOpening) * 100 : 0;
+
+                                                    return (
+                                                        <div key={asset.id} className="flex justify-between text-[10px]">
+                                                            <span className="text-gray-500 truncate max-w-[120px]">{asset.name}</span>
+                                                            <div className="flex gap-2">
+                                                                <span className="text-gray-400">Op: {formatValue(approxOpening)}</span>
+                                                                <span className="font-mono text-gray-700">{roi.toFixed(3)}%</span>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

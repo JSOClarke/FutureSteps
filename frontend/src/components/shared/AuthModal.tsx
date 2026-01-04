@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useUser } from '../../context/UserContext'
 import {
@@ -13,15 +13,31 @@ interface AuthModalProps {
     isOpen: boolean
     onClose: () => void
     onSuccess?: () => void
+    initialMode?: 'login' | 'signup'
 }
 
-export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'login' }: AuthModalProps) {
     const { signInWithEmail, signUpWithEmail, error, clearError } = useAuth()
     const { createProfile } = useUser()
-    const [isLogin, setIsLogin] = useState(true)
+    const [isLogin, setIsLogin] = useState(initialMode === 'login')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
+
+    // Reset mode when modal opens or initialMode changes
+    useState(() => {
+        if (isOpen) {
+            setIsLogin(initialMode === 'login')
+        }
+    })
+
+    // Effect to handle mode changes when reopening
+    useEffect(() => {
+        if (isOpen) {
+            setIsLogin(initialMode === 'login')
+            clearError()
+        }
+    }, [isOpen, initialMode, clearError])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()

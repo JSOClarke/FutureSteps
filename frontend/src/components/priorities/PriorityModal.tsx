@@ -78,10 +78,13 @@ function PriorityModal({ isOpen, onClose, type, initialPriority, onSave }: Prior
 
                         {/* Show banner if no priority is set */}
                         {initialPriority.length === 0 && (
-                            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded">
-                                <p className="text-xs font-semibold text-amber-800 mb-1">⚠️ Priority Not Set</p>
-                                <p className="text-xs text-amber-700 font-light">
-                                    Assets are shown in default order. Click "Save Priority" below to confirm this order and enable priority-based allocation.
+                            <div className="mb-6 p-4 bg-gray-50 border-l-2 border-black">
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                                    <p className="text-[10px] text-black uppercase tracking-widest font-medium">Priority Not Set</p>
+                                </div>
+                                <p className="text-[11px] text-gray-500 font-light leading-relaxed">
+                                    Assets are currently shown in their default order. Please confirm by clicking "Save Priority" below to enable priority-based allocation.
                                 </p>
                             </div>
                         )}

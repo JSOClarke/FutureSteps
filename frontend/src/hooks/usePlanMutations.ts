@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createPlan, updatePlan, deletePlan } from '../api/plans'
+import { createPlan, updatePlan, deletePlan, duplicatePlan } from '../api/plans'
 import { useAuth } from '../context/AuthContext'
 import type { Plan } from '../types'
 
@@ -76,6 +76,21 @@ export function useDeletePlan() {
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['plans', user?.id] })
+        }
+    })
+}
+
+export function useDuplicatePlan() {
+    const queryClient = useQueryClient()
+    const { user } = useAuth()
+
+    return useMutation({
+        mutationFn: ({ sourcePlanId, name, description }: { sourcePlanId: string, name: string, description?: string }) =>
+            duplicatePlan(user, sourcePlanId, name, description),
+        onSuccess: (newPlan) => {
+            queryClient.setQueryData(['plans', user?.id], (old: Plan[] = []) => {
+                return [...old, newPlan]
+            })
         }
     })
 }

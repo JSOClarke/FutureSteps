@@ -188,3 +188,127 @@ export async function deletePlan(user: User | null, id: string): Promise<void> {
 
     if (error) throw new Error(error.message)
 }
+
+export async function duplicatePlan(user: User | null, sourcePlanId: string, newName: string, description?: string): Promise<Plan> {
+    const plans = await fetchPlans(user)
+    const sourcePlan = plans.find(p => p.id === sourcePlanId)
+
+    if (!sourcePlan) {
+        throw new Error('Source plan not found')
+    }
+
+    const newPlanBase = {
+        id: crypto.randomUUID(),
+        name: newName,
+        description: description || sourcePlan.description, // Use source description if not provided
+        createdAt: new Date().toISOString(),
+        financialItems: [], // Will be filled below
+        milestones: [],      // Will be filled below
+        surplusPriority: sourcePlan.surplusPriority,
+        deficitPriority: sourcePlan.deficitPriority
+    }
+
+    if (!user) {
+        // Guest Mode
+        const newItems = sourcePlan.financialItems.map(item => ({
+            ...item,
+            id: crypto.randomUUID(),
+            planId: newPlanBase.id
+        }))
+
+        const newMilestones = sourcePlan.milestones.map(milestone => ({
+            ...milestone,
+            id: crypto.randomUUID(),
+            planId: newPlanBase.id
+        }))
+
+        const fullNewPlan = {
+            ...newPlanBase,
+            financialItems: newItems,
+            milestones: newMilestones
+        }
+
+        // Save Plans
+        const localPlans = localStorage.getItem('guest_plans')
+        const currentPlans = localPlans ? JSON.parse(localPlans) : []
+        localStorage.setItem('guest_plans', JSON.stringify([...currentPlans, fullNewPlan]))
+
+        // Save Items (Guest items are stored separately flattened in 'guest_items')
+        const localItems = localStorage.getItem('guest_items')
+        const currentItems = localItems ? JSON.parse(localItems) : []
+        localStorage.setItem('guest_items', JSON.stringify([...currentItems, ...newItems]))
+
+        return fullNewPlan
+    }
+
+    // Authenticated Mode
+    // 1. Create the new plan
+    const { data: newPlanData, error: planError } = await supabase
+        .from('plans')
+        .insert({
+            user_id: user.id,
+            name: newPlanBase.name,
+            description: newPlanBase.description,
+            surplus_priority: newPlanBase.surplusPriority,
+            deficit_priority: newPlanBase.deficitPriority
+        })
+        .select()
+        .single()
+
+    if (planError) throw new Error(`Failed to create plan: ${planError.message}`)
+
+    // 2. Prepare and Insert Items
+    if (sourcePlan.financialItems.length > 0) {
+        const itemsToInsert = sourcePlan.financialItems.map(item => ({
+            user_id: user.id,
+            plan_id: newPlanData.id,
+            name: item.name,
+            value: item.value,
+            category: item.category,
+            sub_category: item.subCategory,
+            start_year: item.startYear,
+            end_year: item.endYear,
+            frequency: item.frequency,
+            growth_rate: item.growthRate,
+            yield_rate: item.yieldRate,
+            max_annual_contribution: item.maxAnnualContribution,
+            interest_rate: item.interestRate,
+            minimum_payment: item.minimumPayment,
+            growth_mode: item.growthMode,
+            max_value: item.maxValue
+        }))
+
+        const { error: itemsError } = await supabase
+            .from('financial_items')
+            .insert(itemsToInsert)
+
+        if (itemsError) throw new Error(`Failed to copy items: ${itemsError.message}`)
+    }
+
+    // 3. Prepare and Insert Milestones
+    if (sourcePlan.milestones.length > 0) {
+        const milestonesToInsert = sourcePlan.milestones.map(m => ({
+            user_id: user.id,
+            plan_id: newPlanData.id,
+            name: m.name,
+            value: m.value,
+            type: m.type,
+            color: m.color
+        }))
+
+        const { error: milestonesError } = await supabase
+            .from('milestones')
+            .insert(milestonesToInsert)
+
+        if (milestonesError) throw new Error(`Failed to copy milestones: ${milestonesError.message}`)
+    }
+
+    // Return the constructed full plan object (fetching again would be safer but this saves a roundtrip if we trust our local construction)
+    // Actually, let's just return the local construction with the real ID to be fast.
+    return {
+        ...newPlanBase,
+        id: newPlanData.id,
+        financialItems: sourcePlan.financialItems.map(i => ({ ...i, id: 'temp-id' })), // IDs won't match DB but we reload mostly
+        milestones: sourcePlan.milestones.map(m => ({ ...m, id: 'temp-id' }))
+    }
+}

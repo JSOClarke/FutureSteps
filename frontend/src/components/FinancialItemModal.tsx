@@ -22,6 +22,8 @@ interface FormState {
     value: string
     startYear?: string
     endYear?: string
+    startMonth?: string
+    endMonth?: string
     frequency: Frequency
     growthRate?: string
     yieldRate?: string
@@ -60,9 +62,11 @@ function FinancialItemModal({
         name: initialData?.name || '',
         value: initialData?.value?.toString() || '',
         startYear: initialData?.startYear?.toString() || currentYear.toString(),
+        startMonth: initialData?.startMonth?.toString() || (initialData ? '1' : (new Date().getMonth() + 1).toString()),
         endYear: (!initialData && (category === 'income' || category === 'expenses') && defaultEndYear > 0)
             ? defaultEndYear.toString()
             : (initialData?.endYear?.toString() || ''),
+        endMonth: initialData?.endMonth?.toString() || '12',
         frequency: initialData?.frequency || 'annual' as Frequency,
         growthRate: initialData?.growthRate ? (Math.round(initialData.growthRate * 10000) / 100).toString() : '',
         yieldRate: initialData?.yieldRate ? (Math.round(initialData.yieldRate * 10000) / 100).toString() : '',
@@ -82,7 +86,9 @@ function FinancialItemModal({
             name: initial.name,
             value: initial.value,
             startYear: initial.startYear,
+            startMonth: initial.startMonth,
             endYear: initial.endYear,
+            endMonth: initial.endMonth,
             frequency: initial.frequency === 'annual' || initial.frequency === 'monthly' ? initial.frequency : 'annual',
             growthRate: initial.growthRate,
             yieldRate: initial.yieldRate,
@@ -111,7 +117,9 @@ function FinancialItemModal({
                 name: values.name,
                 value: values.value,
                 startYear: values.startYear,
+                startMonth: values.startMonth,
                 endYear: values.endYear,
+                endMonth: values.endMonth,
                 frequency: values.frequency === 'annual' || values.frequency === 'monthly' ? values.frequency : 'annual',
                 growthRate: values.growthRate,
                 yieldRate: values.yieldRate,
@@ -220,7 +228,9 @@ function FinancialItemModal({
             // Add fields based on what's present in formData
 
             if (formData.startYear) data.startYear = Number(formData.startYear)
+            if (formData.startMonth) data.startMonth = Number(formData.startMonth)
             if (formData.endYear) data.endYear = Number(formData.endYear)
+            if (formData.endMonth) data.endMonth = Number(formData.endMonth)
             if (formData.frequency) data.frequency = formData.frequency
 
             if (formData.growthRate) data.growthRate = Math.round(Number(formData.growthRate) * 100) / 10000
@@ -255,7 +265,9 @@ function FinancialItemModal({
             name: '',
             value: '',
             startYear: currentYear.toString(),
+            startMonth: (new Date().getMonth() + 1).toString(),
             endYear: '',
+            endMonth: '12',
             frequency: 'annual',
             growthRate: '',
             yieldRate: '',

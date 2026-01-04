@@ -48,21 +48,35 @@ export function useProjections(surplusPriority: string[] = [], deficitPriority: 
     }, [userProfile?.dateOfBirth, userProfile?.lifeExpectancy])
 
     const { projection, realProjection } = useMemo(() => {
-        if (items.length === 0) return { projection: null, realProjection: null }
+        if (items.length === 0 || !userProfile) return { projection: null, realProjection: null }
 
         const engine = new ProjectionEngine()
         const nominal = engine.runMultiYearProjection(
             items,
             config.startYear,
             config.numberOfYears,
+            userProfile,
             surplusPriority,
             deficitPriority,
             settings.inflationRate
         )
 
         // Create Initial Year (Start State)
+        // With End-Year labeling:
+        // If First Projected Year is 2025 (Ending June 2025).
+        // We want Initial Year to be 2024.
+        // nominal.years[0].year should be 2025 (or 2026).
+
+        const firstProjectedYear = nominal.years.length > 0 ? nominal.years[0].year : config.startYear
+        const initialYear = firstProjectedYear - 1
+
+        const birthYear = userProfile?.dateOfBirth ? new Date(userProfile.dateOfBirth).getFullYear() : (config.startYear - 30)
+        const initialAge = (initialYear) - birthYear
+
+
         const initialYearResult: YearResult = {
-            year: config.startYear - 1,
+            year: initialYear,
+            age: initialAge,
             totalIncome: 0,
             totalExpenses: 0,
             fractionOfYear: 0,
@@ -82,6 +96,7 @@ export function useProjections(surplusPriority: string[] = [], deficitPriority: 
         }
 
         // Prepend Initial Year
+        // With distinct End-Year labeling (2025) and Initial Year (2024), we can safely prepend.
         nominal.years.unshift(initialYearResult)
         nominal.summary.startingNetWorth = initialYearResult.netWorth
 

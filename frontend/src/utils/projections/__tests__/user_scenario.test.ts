@@ -22,7 +22,18 @@ describe('User Scenario Verification', () => {
 
         // Run projection for 1 year (Year 1)
         // Start 2025. Projection runs for 2026.
-        const nominal = engine.runMultiYearProjection(items, 2025, 2, [], [], 0.03)
+        const mockUserProfile = {
+            id: 'test-user',
+            name: 'Test',
+            email: 'test@test.com',
+            dateOfBirth: '1995-01-01',
+            retirementAge: 65,
+            lifeExpectancy: 85,
+            currency: 'USD'
+        }
+        // Run projection for 1 year (Year 1)
+        // Start 2025. Projection runs for 2026.
+        const nominal = engine.runMultiYearProjection(items, 2025, 2, mockUserProfile, [], [], 0.03)
 
         // Transform
         const real = transformToRealValues(nominal)

@@ -11,6 +11,8 @@ export function YearSelector({ selectedYear, availableYears, onYearChange, class
     const isFirstYear = currentIndex === 0
     const isLastYear = currentIndex === availableYears.length - 1
 
+
+
     const handlePrevious = () => {
         if (!isFirstYear) {
             onYearChange(availableYears[currentIndex - 1])
@@ -19,7 +21,8 @@ export function YearSelector({ selectedYear, availableYears, onYearChange, class
 
     const handleNext = () => {
         if (!isLastYear) {
-            onYearChange(availableYears[currentIndex + 1])
+            const nextYear = availableYears[currentIndex + 1]
+            onYearChange(nextYear)
         }
     }
 

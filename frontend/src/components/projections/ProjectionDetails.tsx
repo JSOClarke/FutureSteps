@@ -77,10 +77,19 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
     // Select the source of truth based on the toggle
     const projectionData = isRealValues ? realProjection : projection
 
+    console.log('ProjectionDetails Rendered', {
+        selectedYear,
+        isRealValues,
+        projectionDataYears: projectionData?.years.map(y => ({ year: y.year, age: y.age })),
+        allYears: projectionData?.years
+    });
+
     // Find the selected year or default to first
     const yearData = selectedYear
         ? projectionData?.years.find(y => y.year === selectedYear)
         : projectionData?.years[0]
+
+    console.log('ProjectionDetails YearData', yearData);
 
     const firstYear = projectionData?.years[0]
     const lastYear = projectionData?.years[projectionData?.years.length - 1]
@@ -137,6 +146,25 @@ function ProjectionDetails({ selectedYear, onYearChange, isRealValues, onToggleR
                                 }}
                             />
                         </div>
+
+                        {/* Age Info / Date Range */}
+                        {userProfile?.dateOfBirth && (
+                            <div className="absolute top-1 right-12 text-[10px] text-gray-400 font-light">
+                                {(() => {
+                                    const birthDate = new Date(userProfile.dateOfBirth)
+                                    const birthMonthName = birthDate.toLocaleString('default', { month: 'short' })
+                                    // Previous month name
+                                    const prevMonthDate = new Date(birthDate)
+                                    prevMonthDate.setMonth(birthDate.getMonth() - 1)
+                                    const endMonthName = prevMonthDate.toLocaleString('default', { month: 'short' })
+
+                                    const startYear = yearData.year - 1
+                                    const endYear = yearData.year
+
+                                    return `${birthMonthName} ${startYear} - ${endMonthName} ${endYear}`
+                                })()}
+                            </div>
+                        )}
 
                         {/* Settings Gear */}
                         <div className="relative" ref={settingsRef}>

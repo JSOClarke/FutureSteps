@@ -181,6 +181,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
     // Prepare data for Recharts
     const chartData = currentProjection.years.map(year => ({
         year: year.year,
+        age: year.age,
         'Net Worth': year.netWorth,
         'Income': year.totalIncome,
         'Expenses': year.totalExpenses,
@@ -208,6 +209,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             const yearData = label
+            const ageData = payload[0]?.payload?.age
             const yearMilestones = milestoneYears.filter(m => m.year === yearData)
             const uniquePayload = payload.reduce((acc: any[], entry: any) => {
                 if (!acc.find(item => item.dataKey === entry.dataKey)) {
@@ -218,7 +220,7 @@ function GraphVisualization({ selectedYear, onYearSelect, milestones, isRealValu
 
             return (
                 <div className="bg-white border border-gray-200 p-3 rounded shadow-lg outline-none">
-                    <p className="font-semibold mb-2">{yearData}</p>
+                    <p className="font-semibold mb-2">{yearData} <span className="text-gray-500 font-normal text-sm">(Age: {ageData})</span></p>
                     {uniquePayload.map((entry: any) => (
                         <p key={entry.name} style={{ color: entry.color }} className="text-sm">
                             {entry.name}: {formatCurrency(entry.value, currency)}

@@ -10,6 +10,21 @@ import { ChevronDown, ChevronUp } from '../../../icons'
 
 export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
     const currentYear = new Date().getFullYear()
+
+    const MONTHS = [
+        { value: '1', label: 'January' },
+        { value: '2', label: 'February' },
+        { value: '3', label: 'March' },
+        { value: '4', label: 'April' },
+        { value: '5', label: 'May' },
+        { value: '6', label: 'June' },
+        { value: '7', label: 'July' },
+        { value: '8', label: 'August' },
+        { value: '9', label: 'September' },
+        { value: '10', label: 'October' },
+        { value: '11', label: 'November' },
+        { value: '12', label: 'December' }
+    ]
     const { planId } = useParams()
     const { plans } = usePlans()
     const activePlan = plans.find(p => p.id === planId)
@@ -20,36 +35,68 @@ export const TemporalFields = ({ data, onChange }: FormFieldProps) => {
 
     return (
         <>
-            {/* Start Year */}
+            {/* Start Date */}
             <div>
-                <Label htmlFor="startYear">Start Year (Optional)</Label>
-                <YearSelect
-                    id="startYear"
-                    label=""
-                    value={data.startYear?.toString() || ''}
-                    onChange={(val) => onChange('startYear', val)}
-                    minYear={currentYear}
-                    maxYear={currentYear + 60}
-                    placeholder="Start Year"
-                    milestones={milestones}
-                    data-testid="item-start-year-select"
-                />
+                <Label htmlFor="startYear">Start Date</Label>
+                <div className="flex gap-2">
+                    <div className="flex-1">
+                        <YearSelect
+                            id="startYear"
+                            label=""
+                            value={data.startYear?.toString() || ''}
+                            onChange={(val) => onChange('startYear', val)}
+                            minYear={currentYear}
+                            maxYear={currentYear + 60}
+                            placeholder="Year"
+                            milestones={milestones}
+                            data-testid="item-start-year-select"
+                        />
+                    </div>
+                    <div className="w-1/3">
+                        <select
+                            id="startMonth"
+                            value={data.startMonth?.toString() || '1'}
+                            onChange={(e) => onChange('startMonth', e.target.value)}
+                            className="flex h-10 w-full rounded-none border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {MONTHS.map(m => (
+                                <option key={m.value} value={m.value}>{m.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            {/* End Year */}
+            {/* End Date */}
             <div>
-                <Label htmlFor="endYear">End Year (Optional)</Label>
-                <YearSelect
-                    id="endYear"
-                    label=""
-                    value={data.endYear?.toString() || ''}
-                    onChange={(val) => onChange('endYear', val)}
-                    minYear={currentYear}
-                    maxYear={currentYear + 60}
-                    placeholder="End Year"
-                    milestones={milestones}
-                    data-testid="item-end-year-select"
-                />
+                <Label htmlFor="endYear">End Date (Optional)</Label>
+                <div className="flex gap-2">
+                    <div className="flex-1">
+                        <YearSelect
+                            id="endYear"
+                            label=""
+                            value={data.endYear?.toString() || ''}
+                            onChange={(val) => onChange('endYear', val)}
+                            minYear={currentYear}
+                            maxYear={currentYear + 60}
+                            placeholder="Year"
+                            milestones={milestones}
+                            data-testid="item-end-year-select"
+                        />
+                    </div>
+                    <div className="w-1/3">
+                        <select
+                            id="endMonth"
+                            value={data.endMonth?.toString() || '12'}
+                            onChange={(e) => onChange('endMonth', e.target.value)}
+                            className="flex h-10 w-full rounded-none border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {MONTHS.map(m => (
+                                <option key={m.value} value={m.value}>{m.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
             </div>
 
             {/* Frequency */}

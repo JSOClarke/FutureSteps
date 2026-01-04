@@ -3,7 +3,35 @@ import type { FinancialItem, Frequency } from '../../types'
 export const MONTHS_PER_YEAR = 12
 
 /**
- * Check if a financial item is active in a given year
+ * Check if a financial item is active in a given month
+ */
+export function isActiveInMonth(
+    item: { startYear?: number; endYear?: number; startMonth?: number; endMonth?: number },
+    year: number,
+    month: number // 1-12
+): boolean {
+    const startYear = item.startYear ?? -Infinity
+    const startMonth = item.startMonth ?? 1
+    const endYear = item.endYear ?? Infinity
+    const endMonth = item.endMonth ?? 12
+
+    // Convert to total months for easy comparison
+    const currentTotal = year * 12 + month
+    const startTotal = startYear * 12 + startMonth
+    const endTotal = endYear * 12 + endMonth
+
+    // End date is exclusive in original logic (year < end), maintaining that convention
+    // But for months, "End: Dec 2026" usually means inclusive of Dec? 
+    // Let's assume Inclusive for Start, Exclusive for End to match "year < end" logic? 
+    // Actually, UI usually implies "Ends AFTER Dec 2026" or "Ends IN Dec 2026"?
+    // "End Year: 2026" in old logic meant "Active in 2025, Not Active in 2026" (year < end).
+    // Let's stick to EXCLUSIVE for continuity: [Start, End)
+
+    return currentTotal >= startTotal && currentTotal < endTotal
+}
+
+/**
+ * Check if a financial item is active in a given year (Legacy/Fallback)
  */
 export function isActiveInYear(
     item: { startYear?: number; endYear?: number },

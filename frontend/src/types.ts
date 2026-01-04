@@ -51,6 +51,8 @@ export interface FinancialItem {
     // Temporal fields - when is this item active?
     startYear?: number
     endYear?: number
+    startMonth?: number // 1-12
+    endMonth?: number // 1-12
 
     // Frequency - for incomes and expenses
     frequency?: Frequency

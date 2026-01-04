@@ -1,5 +1,5 @@
 import type { FinancialItem } from '../../types'
-import { isActiveInYear, annualizeAmount, applyProportional, applyGrowth } from './helpers'
+import { isActiveInMonth, annualizeAmount, applyProportional, applyGrowth } from './helpers'
 
 export interface IncomeResult {
     total: number
@@ -47,17 +47,20 @@ export interface LiabilityResult {
 }
 
 /**
- * Calculate total income for a year
+ * Calculate total income for a specific month
  */
-export function calculateYearlyIncome(
+export function calculateMonthlyIncome(
     incomes: FinancialItem[],
     year: number,
-    fractionOfYear: number = 1,
+    month: number, // 1-12
     inflationRate: number = 0,
     baselineYear?: number
 ): IncomeResult {
-    const activeIncomes = incomes.filter(i => isActiveInYear(i, year))
+    const activeIncomes = incomes.filter(i => isActiveInMonth(i, year, month))
     const details: IncomeResult['details'] = []
+
+    // Monthly scalar (1/12)
+    const fractionOfYear = 1 / 12
 
     const total = activeIncomes.reduce((sum, income) => {
         let annual = annualizeAmount(income.value, income.frequency)
@@ -71,8 +74,20 @@ export function calculateYearlyIncome(
         }
 
         if (growthRateToUse !== 0) {
-            const startYear = baselineYear ?? income.startYear ?? new Date().getFullYear()
-            const yearsDifference = Math.max(0, year - startYear)
+            // Calculate precise time difference in years
+            const itemStartYear = income.startYear ?? new Date().getFullYear()
+            // const itemStartMonth = income.startMonth ?? 1 // Unused
+            const baseStartYear = baselineYear ?? itemStartYear
+
+            // Current time in fractional years
+            const currentTime = year + (month - 1) / 12
+            // Start time in fractional years ( using baseline if provided, else item start)
+            // Note: If baseline is provided (global start), we usually grow from there. 
+            // Broad assumption: Growth starts from baselineYear (or item start if later? No, usually from Plan Start).
+            const startTime = baseStartYear
+
+            const yearsDifference = Math.max(0, currentTime - startTime)
+
             if (yearsDifference > 0) {
                 annual = annual * Math.pow(1 + growthRateToUse, yearsDifference)
             }
@@ -83,32 +98,35 @@ export function calculateYearlyIncome(
             annual = Math.min(annual, income.maxValue)
         }
 
-        const prorated = applyProportional(annual, fractionOfYear)
+        const monthlyAmount = applyProportional(annual, fractionOfYear)
 
         details.push({
             id: income.id,
             name: income.name,
-            amount: prorated
+            amount: monthlyAmount
         })
 
-        return sum + prorated
+        return sum + monthlyAmount
     }, 0)
 
     return { total, details }
 }
 
 /**
- * Calculate total expenses for a year
+ * Calculate total expenses for a specific month
  */
-export function calculateYearlyExpenses(
+export function calculateMonthlyExpenses(
     expenses: FinancialItem[],
     year: number,
-    fractionOfYear: number = 1,
+    month: number, // 1-12
     inflationRate: number = 0,
     baselineYear?: number
 ): ExpenseResult {
-    const activeExpenses = expenses.filter(e => isActiveInYear(e, year))
+    const activeExpenses = expenses.filter(e => isActiveInMonth(e, year, month))
     const details: ExpenseResult['details'] = []
+
+    // Monthly scalar
+    const fractionOfYear = 1 / 12
 
     const total = activeExpenses.reduce((sum, expense) => {
         let annual = annualizeAmount(expense.value, expense.frequency)
@@ -122,8 +140,11 @@ export function calculateYearlyExpenses(
         }
 
         if (growthRateToUse !== 0) {
-            const startYear = baselineYear ?? expense.startYear ?? new Date().getFullYear()
-            const yearsDifference = Math.max(0, year - startYear)
+            // Calculate precise time difference in years
+            const currentTime = year + (month - 1) / 12
+            const startTime = baselineYear ?? (expense.startYear ?? new Date().getFullYear())
+            const yearsDifference = Math.max(0, currentTime - startTime)
+
             if (yearsDifference > 0) {
                 annual = annual * Math.pow(1 + growthRateToUse, yearsDifference)
             }
@@ -134,15 +155,15 @@ export function calculateYearlyExpenses(
             annual = Math.min(annual, expense.maxValue)
         }
 
-        const prorated = applyProportional(annual, fractionOfYear)
+        const monthlyAmount = applyProportional(annual, fractionOfYear)
 
         details.push({
             id: expense.id,
             name: expense.name,
-            amount: prorated
+            amount: monthlyAmount
         })
 
-        return sum + prorated
+        return sum + monthlyAmount
     }, 0)
 
     return { total, details }
@@ -275,7 +296,8 @@ export function applyAssetYield(
 export function applyAssetContributions(
     assets: FinancialItem[],
     availableCashflow: number,
-    fractionOfYear: number = 1
+    // fractionOfYear: number = 1, // No longer used for limits, we use YTD
+    contributionHistoryYTD: Map<string, number>
 ): {
     updatedAssets: FinancialItem[]
     totalContributions: number
@@ -287,9 +309,16 @@ export function applyAssetContributions(
     let remainingCashflow = availableCashflow
 
     for (const asset of assets) {
-        const maxAnnualContribution = asset.maxAnnualContribution ?? 0
-        const annualContribution = maxAnnualContribution * fractionOfYear
-        const actualContribution = Math.min(annualContribution, Math.max(0, remainingCashflow))
+        const maxAnnualContribution = asset.maxAnnualContribution
+        let allowedContribution = Infinity
+
+        if (maxAnnualContribution !== undefined && maxAnnualContribution >= 0) {
+            const usedYTD = contributionHistoryYTD.get(asset.id) ?? 0
+            allowedContribution = Math.max(0, maxAnnualContribution - usedYTD)
+        }
+
+        // We can contribute up to the limit OR the available cashflow
+        const actualContribution = Math.min(allowedContribution, Math.max(0, remainingCashflow))
 
         updatedAssets.push({
             ...asset,
@@ -303,6 +332,9 @@ export function applyAssetContributions(
             })
             totalContributions += actualContribution
             remainingCashflow -= actualContribution
+
+            // Update YTD history (mutate or caller handles? Ideally mutate map passed in if it's transient context)
+            contributionHistoryYTD.set(asset.id, (contributionHistoryYTD.get(asset.id) ?? 0) + actualContribution)
         }
     }
 
@@ -311,14 +343,13 @@ export function applyAssetContributions(
 
 /**
  * Allocate surplus cashflow to assets based on priority order
- * WATERFALL LOGIC: Goes through priority list, respecting maxAnnualContribution limits
+ * WATERFALL LOGIC: Goes through priority list, respecting maxAnnualContribution limits (YTD)
  */
 export function allocateSurplus(
     surplus: number,
     assets: FinancialItem[],
     surplusPriority: string[] = [],
-    contributionHistory: Map<string, number> = new Map(),
-    fractionOfYear: number = 1
+    contributionHistoryYTD: Map<string, number> = new Map()
 ): {
     updatedAssets: FinancialItem[]
     history: Array<{ assetId: string; amount: number }>
@@ -341,10 +372,6 @@ export function allocateSurplus(
                     const { asset, index } = entry
 
                     // Determine allocation based on maxAnnualContribution:
-                    // - undefined = unlimited (takes all remaining surplus)
-                    // - number > 0 = limited (respects the cap)
-                    // - 0 = no contribution allowed
-
                     let allocation = 0
                     const maxVal = asset.maxAnnualContribution
 
@@ -352,10 +379,9 @@ export function allocateSurplus(
                         // Unlimited account - take all remaining surplus
                         allocation = remainingSurplus
                     } else if (maxVal > 0) {
-                        // Limited account - check remaining room
-                        const limit = maxVal * fractionOfYear
-                        const used = contributionHistory.get(assetId) ?? 0
-                        const room = Math.max(0, limit - used)
+                        // Limited account - check remaining room via YTD
+                        const used = contributionHistoryYTD.get(assetId) ?? 0
+                        const room = Math.max(0, maxVal - used)
                         allocation = Math.min(remainingSurplus, room)
                     }
                     // If maxVal === 0, allocation stays 0 (no contribution allowed)
@@ -372,14 +398,15 @@ export function allocateSurplus(
                         })
 
                         remainingSurplus -= allocation
-                        contributionHistory.set(assetId, (contributionHistory.get(assetId) ?? 0) + allocation)
+                        contributionHistoryYTD.set(assetId, (contributionHistoryYTD.get(assetId) ?? 0) + allocation)
                     }
                 }
             }
         }
 
-        // Fallback: If no priority list provided, iterate through assets in order respecting limits
+        // Fallback: If no priority list provided or surplus remains, iterate through assets in order respecting limits
         if (remainingSurplus > 0 && surplusPriority.length === 0) {
+            // Logic for generic fallback ... (Similar to above but iterating array)
             for (let i = 0; i < updatedAssets.length; i++) {
                 if (remainingSurplus <= 0.01) break
 
@@ -387,12 +414,11 @@ export function allocateSurplus(
                 const maxVal = asset.maxAnnualContribution
                 let allocation = 0
 
-                if (maxVal === undefined) {
+                if (maxVal === undefined || maxVal === null) {
                     allocation = remainingSurplus
                 } else if (maxVal > 0) {
-                    const limit = maxVal * fractionOfYear
-                    const used = contributionHistory.get(asset.id) ?? 0
-                    const room = Math.max(0, limit - used)
+                    const used = contributionHistoryYTD.get(asset.id) ?? 0
+                    const room = Math.max(0, maxVal - used)
                     allocation = Math.min(remainingSurplus, room)
                 }
 
@@ -406,7 +432,7 @@ export function allocateSurplus(
                         amount: allocation
                     })
                     remainingSurplus -= allocation
-                    contributionHistory.set(asset.id, (contributionHistory.get(asset.id) ?? 0) + allocation)
+                    contributionHistoryYTD.set(asset.id, (contributionHistoryYTD.get(asset.id) ?? 0) + allocation)
                 }
             }
         }
